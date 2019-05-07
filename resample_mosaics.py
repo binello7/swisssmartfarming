@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 # variables
 input_folder = '/home/seba/Desktop/20190418/xi/'
-output_folder = '/home/seba/Desktop/20190418/xi_res/'
+output_folder = '/home/seba/Desktop/20190418/'
 sensor_type = 5  # 5 for ximea, 4 for photonfocus
 
 # create the output folder
@@ -38,7 +38,11 @@ for img_name in img_names:
 
             img_jpg = Image.fromarray(img_resample[:, :, layer])
             img_jpg = img_jpg.convert("L")
-            img_res_name = os.path.splitext(img_name)[0] + '_' + str(layer+1).rjust(2, '0') + '.jpg'
+            band_str = str(layer+1).rjust(2, '0')
+            img_res_name = os.path.splitext(img_name)[0] + '_' + band_str + '.jpg'
             print "saving image %s" % img_res_name
-            img_jpg.save((output_folder + img_res_name))
+            output_subfolder = output_folder + 'xi_res_' + band_str + '/'
+            if not os.path.isdir(output_subfolder):
+                os.mkdir(output_subfolder)
+            img_jpg.save((output_subfolder + img_res_name))
             layer += 1

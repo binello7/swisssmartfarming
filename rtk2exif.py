@@ -6,7 +6,7 @@ import os
 
 # program inputs
 project_folder = "/home/seba/Desktop/20190418/"
-images_folder = "xi_res/"
+images_parentfolder = "xi_res_??/"
 bag_file = "2019-04-18-14-01-03-xi.bag"
 rtk_file = "140103_rtk_position.csv"
 images_topic = "/ximea_asl/image_raw/header/stamp"
@@ -34,10 +34,14 @@ lat = np.interp(tstamps, rtk_data[:, 2], rtk_data[:, 6])
 lon = np.interp(tstamps, rtk_data[:, 2], rtk_data[:, 7])
 
 # write exif metadata to frames
-img_files = sorted(os.listdir((project_folder + images_folder)))
+img_files = sorted(os.listdir((project_folder + 'xi_res_01/')))
 for i in range(len(tstamps)):
-    img_file = img_files[i*25].split('_')[0] + '*'
-    os.system("exiftool -GPSLatitudeRef=%.1f %s%s%s  -overwrite_original" % (lat[i], project_folder, images_folder, img_file))
-    os.system("exiftool -GPSLatitude=%.10f %s%s%s -overwrite_original" % (lat[i], project_folder, images_folder, img_file))
-    os.system("exiftool -GPSLongitudeRef=%.1f %s%s%s -overwrite_original" % (lon[i], project_folder, images_folder, img_file))
-    os.system("exiftool -GPSLongitude=%.10f %s%s%s -overwrite_original" % (lon[i], project_folder, images_folder, img_file))
+    img_file = img_files[i].split('_')[0] + '*'
+    os.system("exiftool -GPSLatitudeRef=%.1f %s%s%s  -overwrite_original" %
+              (lat[i], project_folder, images_parentfolder, img_file))
+    os.system("exiftool -GPSLatitude=%.10f %s%s%s -overwrite_original" %
+              (lat[i], project_folder, images_parentfolder, img_file))
+    os.system("exiftool -GPSLongitudeRef=%.1f %s%s%s -overwrite_original" %
+              (lon[i], project_folder, images_parentfolder, img_file))
+    os.system("exiftool -GPSLongitude=%.10f %s%s%s -overwrite_original" %
+              (lon[i], project_folder, images_parentfolder, img_file))

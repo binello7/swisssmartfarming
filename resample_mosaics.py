@@ -6,13 +6,9 @@ import os
 import matplotlib.pyplot as plt
 
 # variables
-input_folder = '/home/seba/Desktop/20190418/xi/'
+input_folder = '/home/seba/Desktop/20190418/xi_2/'
 output_folder = '/home/seba/Desktop/20190418/'
 sensor_type = 5  # 5 for ximea, 4 for photonfocus
-
-# create the output folder
-if not os.path.isdir(output_folder):
-    os.mkdir(output_folder)
 
 # loop through every image in the folder
 img_names = sorted(os.listdir(input_folder, ))
@@ -41,7 +37,7 @@ for img_name in img_names:
             band_str = str(layer+1).rjust(2, '0')
             img_res_name = os.path.splitext(img_name)[0] + '_' + band_str + '.jpg'
             print "saving image %s" % img_res_name
-            output_subfolder = output_folder + 'xi_res_' + band_str + '/'
+            output_subfolder = output_folder + 'xi_res2_' + band_str + '/'
             if not os.path.isdir(output_subfolder):
                 os.mkdir(output_subfolder)
             img_jpg.save((output_subfolder + img_res_name))

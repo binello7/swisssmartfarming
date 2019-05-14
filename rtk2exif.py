@@ -42,7 +42,7 @@ for i in range(len(tstamps)):
               (lon[i], project_folder, images_parentfolder, img_file))
     os.system("exiftool -GPSLongitude=%.10f %s%s%s -overwrite_original" %
               (lon[i], project_folder, images_parentfolder, img_file))
-    os.system('exiftool -GPSAltitudeRef="Above Sea Level" %s%s%s -overwrite_original' %
-              (project_folder, images_parentfolder, img_file))
-    os.system("exiftool -GPSAltitude=%.10f %s%s%s -overwrite_original" %
-              (alt[i], project_folder, images_parentfolder, img_file))
+#    os.system('exiftool -GPSAltitudeRef="Above Sea Level" %s%s%s -overwrite_original' %
+#              (project_folder, images_parentfolder, img_file))
+#    os.system("exiftool -GPSAltitude=%.10f %s%s%s -overwrite_original" %
+#              (alt[i], project_folder, images_parentfolder, img_file))

@@ -24,5 +24,5 @@ for ((i=0; i<${#cameras[@]}; i++)); do
   echo "Extract images to folder $path_out"
   mkdir -p $path_out
   export ROS_HOME=$path_out
-  roslaunch mav_startup export_jpeg.launch path:=$path_in topic:=${topics[$i]} &
+  roslaunch mav_startup export_jpeg.launch path:=$path_in topic:=${topics[$i]}
 done

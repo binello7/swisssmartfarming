@@ -3,6 +3,7 @@
 date='190426'
 file='2019-04-26-10-34-00.bag'
 location='witzwil1'
+sec_per_frame='0.1'
 
 camera='Photonfocus_vis'
 cameras=(
@@ -24,5 +25,5 @@ for ((i=0; i<${#cameras[@]}; i++)); do
   echo "Extract images to folder $path_out"
   mkdir -p $path_out
   export ROS_HOME=$path_out
-  roslaunch mav_startup export_jpeg.launch path:=$path_in topic:=${topics[$i]}
+  roslaunch mav_startup export_jpeg.launch path:=$path_in topic:=${topics[$i]} sec_per_frame:=$sec_per_frame
 done

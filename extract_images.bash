@@ -3,15 +3,13 @@
 date='190426'
 file='2019-04-26-10-34-00.bag'
 location='witzwil1'
-sec_per_frame='0.1'
 
-camera='Photonfocus_vis'
 cameras=(
   BFS
   Photonfocus_vis
   Ximea
 )
-topic='/ssf/photonfocus_camera_vis_node/image_raw'
+
 topics=(
   /ssf/BFS_usb_0/image_raw
   /ssf/photonfocus_camera_vis_node/image_raw
@@ -19,11 +17,13 @@ topics=(
 )
 
 path_in="/media/$USER/Samsung_2TB/Datasets/$date/$location/$file"
+#path_in="$HOME/Desktop/test_bags/2019-06-05-14-37-42.bag"
 
 for ((i=0; i<${#cameras[@]}; i++)); do
-  path_out="/media/$USER/Samsung_2TB/Processed/$date/$location/${cameras[$i]}"
-  echo "Extract images to folder $path_out"
+  path_out="/media/$USER/Samsung_2TB/Processed/$date/$location/launchtest/${cameras[$i]}"
+  #path_out="$HOME/Desktop/test_processed/${cameras[$i]}"
+  echo "Save images to folder $path_out"
   mkdir -p $path_out
   export ROS_HOME=$path_out
-  roslaunch mav_startup export_jpeg.launch path:=$path_in topic:=${topics[$i]} sec_per_frame:=$sec_per_frame
+  roslaunch mav_startup export_jpeg.launch path:=$path_in topic:=${topics[$i]}
 done

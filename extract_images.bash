@@ -17,11 +17,9 @@ topics=(
 )
 
 path_in="/media/$USER/Samsung_2TB/Datasets/$date/$location/$file"
-#path_in="$HOME/Desktop/test_bags/2019-06-05-14-37-42.bag"
 
 for ((i=0; i<${#cameras[@]}; i++)); do
-  path_out="/media/$USER/Samsung_2TB/Processed/$date/$location/launchtest/${cameras[$i]}"
-  #path_out="$HOME/Desktop/test_processed/${cameras[$i]}"
+  path_out="/media/$USER/Samsung_2TB/Processed/$date/$location/${cameras[$i]}"
   echo "Save images to folder $path_out"
   mkdir -p $path_out
   export ROS_HOME=$path_out

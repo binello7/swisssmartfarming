@@ -94,7 +94,7 @@ env.bak/
 venv.bak/
 
 # PyCharm settings
-.idea/workspace.xml
+
 
 # Rope project settings
 .ropeproject

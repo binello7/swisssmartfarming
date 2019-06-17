@@ -1,19 +1,19 @@
 #!/bin/bash
 
-date='190426'
-file='2019-04-26-10-34-00.bag'
-location='witzwil1'
+date='190607'
+file='2019-06-07-15-57-31.bag'
+location='frick'
 
 cameras=(
   BFS
   Photonfocus_vis
-  Ximea
+  Photonfocus_nir
 )
 
 topics=(
   /ssf/BFS_usb_0/image_raw
   /ssf/photonfocus_camera_vis_node/image_raw
-  /ximea_asl/image_raw
+  /ssf/photonfocus_camera_nir_node/image_raw
 )
 
 path_in="/media/$USER/Samsung_2TB/Datasets/$date/$location/$file"

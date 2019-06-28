@@ -1,12 +1,12 @@
-#!/usr/bin/python2
-
 import numpy as np
 import os
 import argparse
 
 class Rtk_writer(object):
     def __init__(self):
-        self.parser = argparse.ArgumentParser(description='writes rtk-data to extracted images')
+        self.parser = argparse.ArgumentParser(
+            description='Writes the rtk-GPS positions recorded during the flight to the exif metadata of every image according to its timestamp'
+        )
         self.args = None
         self.args_parse()
         self.rtk_file = None
@@ -14,8 +14,7 @@ class Rtk_writer(object):
         self.img_folder = None
 
     def args_parse(self):
-        self.parser.add_argument('--input_folder', required=True,
-                        metavar="/my/path/to/input/images",
+        self.parser.add_argument('-i', '--input_folder', required=True,
                         help='Path to the folder where images are stored')
         self.parser.add_argument('--rtk_file', required=True,
                         help='Path to the rtk-data file')
@@ -52,6 +51,7 @@ class Rtk_writer(object):
                           (lon[i], os.path.join(self.img_folder, img_names[i])))
                 os.system("exiftool -GPSLongitude=%.10f %s -overwrite_original" %
                           (lon[i], os.path.join(self.img_folder, img_names[i])))
+                print("%d/%d files processed" % (i+1, len(img_names)))
 
 if __name__ == "__main__":
     rtk2exif = Rtk_writer()

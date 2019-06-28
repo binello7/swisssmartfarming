@@ -3,61 +3,85 @@ from PIL import Image
 import numpy as np
 import os
 import math
+import argparse
+import random as rnd
 
 
-def resample(img_raw, bands):
-    width_px = img_raw.shape[1]
-    height_px = img_raw.shape[0]
-    blksize = int(math.sqrt(bands))
-    offset_c = int(width_px % blksize)
-    offset_r = int(height_px % blksize)
-    width_px = width_px - offset_c
-    height_px = height_px - offset_r
-    width_px_res = int(width_px / blksize)
-    height_px_res = int(height_px / blksize)
+class Resampler(object):
+    def __init__(self):
+        self.parser=argparse.ArgumentParser(description='resample mosaic images to multilayer GeoTiffs')
+        self.args=None
+        self.input_folder=None
+        self.nb_bands=None
+        self.args_parse()
 
-    img_gray = img_raw[:, :, 0]
-    img_res = np.zeros((height_px_res, width_px_res, bands))
-    band = 0
-    for i in range(blksize):
-        for j in range(blksize):
-            img_tmp = img_gray[np.arange(i, height_px, blksize), :]
-            img_res[:, :, band] = img_tmp[:, np.arange(j, width_px, blksize)]
-            band += 1
-    return img_res
+    def args_parse(self):
+        self.parser.add_argument('--input_folder', required=True,
+                        metavar='/my/path/to/folder/to/resample',
+                        help='Path to the folder containing the mosaic images to resample')
+        self.parser.add_argument('--nb_bands', required=True,
+                        help='Number of bands of the camera')
+        self.args = self.parser.parse_args()
 
+    def resample(self, img_raw):
+        width_px = img_raw.shape[1]
+        height_px = img_raw.shape[0]
+        blksize = int(math.sqrt(self.nb_bands))
+        offset_c = int(width_px % blksize)
+        offset_r = int(height_px % blksize)
+        width_px = width_px - offset_c
+        height_px = height_px - offset_r
+        width_px_res = int(width_px / blksize)
+        height_px_res = int(height_px / blksize)
 
-# variables
-input_folder = '/media/seba/Samsung_2TB/Processed/190426/witzwil1/Photonfocus_vis/'
-output_folder = '/media/seba/Samsung_2TB/Processed/190426/witzwil1/Photonfocus_vis/Resampled/'
-bands = 16
+        img_res = np.zeros((height_px_res, width_px_res, self.nb_bands))
+        band = 0
+        for i in range(blksize):
+            for j in range(blksize):
+                img_tmp = img_raw[np.arange(i, height_px, blksize), :]
+                img_res[:, :, band] = img_tmp[:, np.arange(j, width_px, blksize)]
+                band += 1
+        return img_res
 
-# dependent variables and operations
-img_names = [f for f in sorted(os.listdir(input_folder)) if os.path.isfile(os.path.join(input_folder, f))]
-if not os.path.isdir(output_folder):
-    os.mkdir(output_folder)
+    def run(self):
+        self.input_folder=self.args.input_folder
+        output_folder=self.input_folder + '/Resampled'
+        if not os.path.isdir(output_folder):
+            os.mkdir(output_folder)
 
-# loop through every image in the folder
-for img_name in img_names:
+        self.nb_bands=int(self.args.nb_bands)
 
-    # open an image
-    img = np.array(Image.open((input_folder + img_name)))
+        img_names = [f for f in sorted(os.listdir(self.input_folder)) if os.path.isfile(os.path.join(self.input_folder, f))]
 
-    # resample the opened image
-    img_res = resample(img, bands)
+        # loop through every image in the folder
+        for img_name in img_names:
+            print("resampling image " + img_name)
+            # open an image
+            img = np.array(Image.open((self.input_folder + '/' + img_name)))
 
-    # save 1 image singularly to check contrast
-    contrast_folder = output_folder + 'Contrast/'
-    if not os.path.isdir(contrast_folder):
-        os.mkdir(contrast_folder)
-    for i in range(bands):
-        Image.fromarray(img_res[:, :, i]).convert("L").save((contrast_folder + 'band_' + str(i+1) + '.jpg'))
+            # resample the opened image
+            img_res = self.resample(img)
 
-    # write GeoTiff
-    dst_ds = gdal.GetDriverByName('GTiff').Create((output_folder + img_name.split('.')[0] + '.tif'),
-                                                  img_res.shape[1], img_res.shape[0], bands, gdal.GDT_Byte)
-    for i in range(bands):
-        dst_ds.GetRasterBand(i+1).WriteArray(img_res[:, :, i])
+            # save 1 image singularly to check contrast
+            contrast_frame = img_names[int(len(img_names)/2)]
 
-    dst_ds.FlushCache() # write to disk
-    dst_ds = None
+            if img_name == contrast_frame:
+                contrast_folder = output_folder + '/Contrast'
+                if not os.path.isdir(contrast_folder):
+                    os.mkdir(contrast_folder)
+                for i in range(self.nb_bands):
+                    Image.fromarray(img_res[:, :, i]).convert("L").save((contrast_folder +
+                            '/' + contrast_frame.split('.')[0] + '_band' + str(i+1) + '.jpg'))
+
+            # write GeoTiff
+            dst_ds = gdal.GetDriverByName('GTiff').Create((output_folder + '/' + img_name.split('.')[0] + '.tif'),
+                                                      img_res.shape[1], img_res.shape[0], self.nb_bands, gdal.GDT_Byte)
+            for i in range(self.nb_bands):
+                dst_ds.GetRasterBand(i+1).WriteArray(img_res[:, :, i])
+
+            dst_ds.FlushCache() # write to disk
+            dst_ds = None
+
+if __name__ == "__main__":
+    resampler=Resampler()
+    resampler.run()

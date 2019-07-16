@@ -43,6 +43,11 @@ class Rtk_writer(object):
 
         # write exif metadata to frames
         img_names = sorted(os.listdir(self.img_folder))
+        n_files = 0
+        for img_name in img_names:
+            if img_name.startswith('frame_'):
+                n_files+=1
+
         for i in range(len(img_names)):
             if img_names[i].startswith('frame_'):
                 os.system("exiftool -GPSLatitudeRef=%.1f %s  -overwrite_original" %
@@ -53,7 +58,7 @@ class Rtk_writer(object):
                           (lon[i], os.path.join(self.img_folder, img_names[i])))
                 os.system("exiftool -GPSLongitude=%.10f %s -overwrite_original" %
                           (lon[i], os.path.join(self.img_folder, img_names[i])))
-                print("%d/%d files processed" % (i+1, len(img_names)))
+                print("%d/%d files processed" % (i+1, n_files))
 
 if __name__ == "__main__":
     rtk2exif = Rtk_writer()

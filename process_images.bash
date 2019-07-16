@@ -1,8 +1,8 @@
 #!/bin/bash
 
-date='190619'
+project='gorner_glacier'
 bag='2019-06-19-12-38-48.bag'
-location='rheinau'
+date='rheinau'
 
 cameras=(
   BFS
@@ -25,15 +25,15 @@ topics=(
   #/ximea_asl/image_raw
 )
 
-path_bag="/media/$USER/Samsung_2TB/Datasets/$date/$location/$bag"
-path_location="/media/$USER/Samsung_2TB/Processed/$date/$location"
+path_bag="/media/hdd/$USER/bags/$project/$date/$bag"
+path_imgs="/media/hdd/$USER/img_temp/$project/$date"
 
 # Write rtk-GPS data to csv-file
 echo "Saving rtk-GPS data..."
-rostopic echo -b $path_bag -p /ssf/dji_sdk/rtk_position > "$path_location/rtk_data.csv"
+rostopic echo -b $path_bag -p /ssf/dji_sdk/rtk_position > "$path_imgs/rtk_data.csv"
 
 for ((i=0; i<${#cameras[@]}; i++)); do
-  path_camera="$path_location/${cameras[$i]}"
+  path_camera="$path_imgs/${cameras[$i]}"
   echo "Save images to folder $path_camera"
   mkdir -p $path_camera
   python bag2img.py --img_topic=${topics[$i]} --bag=$path_bag \
@@ -50,7 +50,7 @@ for ((i=0; i<${#cameras[@]}; i++)); do
   # Write rtk-GPS data to exif metadata
   if [[ ${cameras[$i]} == "BFS" ]]
   then
-    ./rtk2exif.py -i $path_camera --rtk_file $path_location/rtk_data.csv \
+    ./rtk2exif.py -i $path_camera --rtk_file $path_imgs/rtk_data.csv \
       --tstamps_file $path_camera/img_tstamps.csv
   fi
 done

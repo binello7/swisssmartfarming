@@ -55,32 +55,33 @@ class Resampler(object):
 
         # loop through every image in the folder
         for img_name in img_names:
-            print("resampling image " + img_name)
-            # open an image
-            img = np.array(Image.open((self.input_folder + '/' + img_name)))
+            if img_name.startswith('frame_'):
+                print("resampling image " + img_name)
+                # open an image
+                img = np.array(Image.open((self.input_folder + '/' + img_name)))
 
-            # resample the opened image
-            img_res = self.resample(img)
+                # resample the opened image
+                img_res = self.resample(img)
 
-            # save 1 image singularly to check contrast
-            contrast_frame = img_names[int(len(img_names)/2)]
+                # save 1 image singularly to check contrast
+                contrast_frame = img_names[int(len(img_names)/2)]
 
-            if img_name == contrast_frame:
-                contrast_folder = output_folder + '/Contrast'
-                if not os.path.isdir(contrast_folder):
-                    os.mkdir(contrast_folder)
+                if img_name == contrast_frame:
+                    contrast_folder = output_folder + '/Contrast'
+                    if not os.path.isdir(contrast_folder):
+                        os.mkdir(contrast_folder)
+                    for i in range(self.nb_bands):
+                        Image.fromarray(img_res[:, :, i]).convert("L").save((contrast_folder +
+                                '/' + contrast_frame.split('.')[0] + '_band' + str(i+1) + '.jpg'))
+
+                # write GeoTiff
+                dst_ds = gdal.GetDriverByName('GTiff').Create((output_folder + '/' + img_name.split('.')[0] + '.tif'),
+                                                          img_res.shape[1], img_res.shape[0], self.nb_bands, gdal.GDT_Byte)
                 for i in range(self.nb_bands):
-                    Image.fromarray(img_res[:, :, i]).convert("L").save((contrast_folder +
-                            '/' + contrast_frame.split('.')[0] + '_band' + str(i+1) + '.jpg'))
+                    dst_ds.GetRasterBand(i+1).WriteArray(img_res[:, :, i])
 
-            # write GeoTiff
-            dst_ds = gdal.GetDriverByName('GTiff').Create((output_folder + '/' + img_name.split('.')[0] + '.tif'),
-                                                      img_res.shape[1], img_res.shape[0], self.nb_bands, gdal.GDT_Byte)
-            for i in range(self.nb_bands):
-                dst_ds.GetRasterBand(i+1).WriteArray(img_res[:, :, i])
-
-            dst_ds.FlushCache() # write to disk
-            dst_ds = None
+                dst_ds.FlushCache() # write to disk
+                dst_ds = None
 
 if __name__ == "__main__":
     resampler=Resampler()

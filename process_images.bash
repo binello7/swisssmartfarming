@@ -1,8 +1,8 @@
 #!/bin/bash
 
 project='gorner_glacier'
-bag='2019-06-19-12-38-48.bag'
-date='rheinau'
+bag='2019-07-10-05-57-41.bag'
+date='190710'
 
 cameras=(
   BFS

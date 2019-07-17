@@ -1,6 +1,5 @@
 #!/bin/bash
 
-project='gorner_glacier'
 bag='2019-07-10-05-57-41.bag'
 date='190710'
 
@@ -25,8 +24,8 @@ topics=(
   #/ximea_asl/image_raw
 )
 
-path_bag="/media/hdd/$USER/bags/$project/$date/$bag"
-path_imgs="/media/hdd/$USER/img_temp/$project/$date"
+path_bag="/media/$USER/Samsung_2TB/Datasets/gorner_glacier/$date/$bag"
+path_imgs="/media/$USER/Samsung_2TB/Processed/gorner_glacier/$date"
 
 # Write rtk-GPS data to csv-file
 echo "Saving rtk-GPS data..."

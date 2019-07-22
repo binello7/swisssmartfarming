@@ -1,8 +1,8 @@
 #!/bin/bash
 
-date='190619'
-bag='2019-06-19-12-38-48.bag'
-location='rheinau'
+date='190705'
+bag='2019-07-05-10-24-27.bag'
+location='zollikofen'
 
 cameras=(
   BFS
@@ -27,6 +27,8 @@ topics=(
 
 path_bag="/media/$USER/Samsung_2TB/Datasets/$date/$location/$bag"
 path_location="/media/$USER/Samsung_2TB/Processed/$date/$location"
+
+mkdir -p $path_location
 
 # Write rtk-GPS data to csv-file
 echo "Saving rtk-GPS data..."

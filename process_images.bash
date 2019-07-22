@@ -1,29 +1,6 @@
 #!/bin/bash
 
-date='190705'
-bag='2019-07-05-10-24-27.bag'
-location='zollikofen'
-
-cameras=(
-  BFS
-  Photonfocus_vis
-  Photonfocus_nir
-  #Ximea
-)
-
-bands=(
-  3
-  16
-  25
-  #25
-)
-
-topics=(
-  /ssf/BFS_usb_0/image_raw
-  /ssf/photonfocus_camera_vis_node/image_raw
-  /ssf/photonfocus_camera_nir_node/image_raw
-  #/ximea_asl/image_raw
-)
+source dataset_infos.txt
 
 path_bag="/media/$USER/Samsung_2TB/Datasets/$date/$location/$bag"
 path_location="/media/$USER/Samsung_2TB/Processed/$date/$location"

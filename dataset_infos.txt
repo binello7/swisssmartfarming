@@ -2,7 +2,7 @@
 
 date='190719'
 bag='2019-07-19-09-43-28.bag'
-location='niederhasli'
+location='frick'
 
 cameras=(
   BFS

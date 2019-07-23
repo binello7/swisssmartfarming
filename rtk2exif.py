@@ -58,6 +58,10 @@ class Rtk_writer(object):
                           (lon[i], os.path.join(self.img_folder, img_names[i])))
                 os.system("exiftool -GPSLongitude=%.10f %s -overwrite_original" %
                           (lon[i], os.path.join(self.img_folder, img_names[i])))
+                os.system("exiftool -GPSAltitudeRef=%s %s -overwrite_original" %
+                          ("above", os.path.join(self.img_folder, img_names[i])))
+                os.system("exiftool -GPSAltitude=%.8f %s -overwrite_original" %
+                          (alt[i], os.path.join(self.img_folder, img_names[i])))
                 print("%d/%d files processed" % (i+1, n_files))
 
 if __name__ == "__main__":

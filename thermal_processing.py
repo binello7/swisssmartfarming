@@ -16,16 +16,27 @@ print(info_dict)
 # print(bag)
 
 genBag = bag.read_messages(read_topic)
+tmax = 0
+tmin = 0
 
 for k,b in enumerate(genBag):
     print("OK, %d / %d" % (k, info_dict['messages']))
-    type(b)
-    dir(b)
+
     cb = CvBridge()
     cv_image = cb.imgmsg_to_cv2(b.message, b.message.encoding)
 
     data = cv_image[:,:]
-    fig, ax = plt.subplots()
-    img = ax.imshow(data, cmap='magma')
-    fig.colorbar(img)
-    plt.savefig(outputPath + '/' + str(k) + '.jpg')
+    if data.min() < tmin:
+        tmin = data.min()
+
+    if data.max() > tmax:
+        tmax = data.max()
+
+    print(tmax)
+    print(tmin)
+
+    # fig, ax = plt.subplots()
+    # img = ax.imshow(data, cmap='magma')
+    # fig.colorbar(img)
+    # plt.savefig(outputPath + '/' + str(k) + '.jpg')
+    # plt.close(fig)

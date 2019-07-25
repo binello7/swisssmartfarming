@@ -35,8 +35,8 @@ for k,b in enumerate(genBag):
     print(tmax)
     print(tmin)
 
-    # fig, ax = plt.subplots()
-    # img = ax.imshow(data, cmap='magma')
-    # fig.colorbar(img)
-    # plt.savefig(outputPath + '/' + str(k) + '.jpg')
-    # plt.close(fig)
+    fig, ax = plt.subplots()
+    img = ax.imshow(data, cmap='magma', vmin=-10, vmax=5)
+    fig.colorbar(img)
+    plt.savefig(outputPath + '/' + str(k) + '.jpg')
+    plt.close(fig)

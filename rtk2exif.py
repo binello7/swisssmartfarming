@@ -28,6 +28,14 @@ class Rtk_writer(object):
         self.rtk_file = self.args.rtk_file
         self.tstamps_file = self.args.tstamps_file
         self.img_folder = self.args.input_folder
+        focal_length = 12.5
+        fstop = "f/2.8"
+        maker = "FLIR"
+        model = "Blackfly-S"
+        metering_mode = "Average"
+        exp_time = 0.002
+        aperture_value = "2.8"
+        fnumber = "2.8"
 
         rtk_data = np.genfromtxt(self.rtk_file, delimiter=',', skip_header=1)
         tstamps_data = np.genfromtxt(self.tstamps_file, delimiter=',', skip_header=1)
@@ -50,18 +58,30 @@ class Rtk_writer(object):
 
         for i in range(len(img_names)):
             if img_names[i].startswith('frame_'):
-                os.system("exiftool -GPSLatitudeRef=%.1f %s  -overwrite_original" %
-                          (lat[i], os.path.join(self.img_folder, img_names[i])))
-                os.system("exiftool -GPSLatitude=%.10f %s -overwrite_original" %
-                          (lat[i], os.path.join(self.img_folder, img_names[i])))
-                os.system("exiftool -GPSLongitudeRef=%.1f %s -overwrite_original" %
-                          (lon[i], os.path.join(self.img_folder, img_names[i])))
-                os.system("exiftool -GPSLongitude=%.10f %s -overwrite_original" %
-                          (lon[i], os.path.join(self.img_folder, img_names[i])))
-                os.system("exiftool -GPSAltitudeRef=%s %s -overwrite_original" %
-                          ("above", os.path.join(self.img_folder, img_names[i])))
-                os.system("exiftool -GPSAltitude=%.8f %s -overwrite_original" %
-                          (alt[i], os.path.join(self.img_folder, img_names[i])))
+                # os.system("exiftool -GPSLatitudeRef=%.1f %s  -overwrite_original" %
+                #           (lat[i], os.path.join(self.img_folder, img_names[i])))
+                # os.system("exiftool -GPSLatitude=%.10f %s -overwrite_original" %
+                #           (lat[i], os.path.join(self.img_folder, img_names[i])))
+                # os.system("exiftool -GPSLongitudeRef=%.1f %s -overwrite_original" %
+                #           (lon[i], os.path.join(self.img_folder, img_names[i])))
+                # os.system("exiftool -GPSLongitude=%.10f %s -overwrite_original" %
+                #           (lon[i], os.path.join(self.img_folder, img_names[i])))
+                # os.system("exiftool -GPSAltitudeRef=%s %s -overwrite_original" %
+                #           ("above", os.path.join(self.img_folder, img_names[i])))
+                # os.system("exiftool -GPSAltitude=%.8f %s -overwrite_original" %
+                #           (alt[i], os.path.join(self.img_folder, img_names[i])))
+                # os.system("exiftool -GPSAltitude=%.8f %s -overwrite_original" %
+                #           (alt[i], os.path.join(self.img_folder, img_names[i])))
+                os.system("exiftool -FocalLength=%s %s -overwrite_original" %
+                          (focal_length, os.path.join(self.img_folder, img_names[i])))
+                os.system("exiftool -ApertureValue=%s %s -overwrite_original" %
+                          (aperture_value, os.path.join(self.img_folder, img_names[i])))
+                os.system("exiftool -FNumber=%s %s -overwrite_original" %
+                          (fnumber, os.path.join(self.img_folder, img_names[i])))
+                os.system("exiftool -make=%s %s -overwrite_original" %
+                          (maker, os.path.join(self.img_folder, img_names[i])))
+                os.system("exiftool -model=%s %s -overwrite_original" %
+                          (model, os.path.join(self.img_folder, img_names[i])))
                 print("%d/%d files processed" % (i+1, n_files))
 
 if __name__ == "__main__":

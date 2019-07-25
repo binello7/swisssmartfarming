@@ -36,6 +36,7 @@ class Rtk_writer(object):
         exp_time = 0.002
         aperture_value = "2.8"
         fnumber = "2.8"
+        equivalent35 = "51.8"
 
         rtk_data = np.genfromtxt(self.rtk_file, delimiter=',', skip_header=1)
         tstamps_data = np.genfromtxt(self.tstamps_file, delimiter=',', skip_header=1)
@@ -82,6 +83,8 @@ class Rtk_writer(object):
                           (maker, os.path.join(self.img_folder, img_names[i])))
                 os.system("exiftool -model=%s %s -overwrite_original" %
                           (model, os.path.join(self.img_folder, img_names[i])))
+                os.system("exiftool -FocalLengthIn35mmFormat=%s %s -overwrite_original" %
+                          (equivalent35, os.path.join(self.img_folder, img_names[i])))
                 print("%d/%d files processed" % (i+1, n_files))
 
 if __name__ == "__main__":

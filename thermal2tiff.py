@@ -26,17 +26,17 @@ for k,b in enumerate(genBag):
     cv_image = cb.imgmsg_to_cv2(b.message, b.message.encoding)
 
     data = cv_image[:,:]
-    if data.min() < tmin:
-        tmin = data.min()
-
-    if data.max() > tmax:
-        tmax = data.max()
-
-    print(tmax)
-    print(tmin)
-
-    fig, ax = plt.subplots()
-    img = ax.imshow(data, cmap='magma', vmin=-10, vmax=5)
-    fig.colorbar(img)
-    plt.savefig(outputPath + '/' + str(k) + '.jpg')
-    plt.close(fig)
+    # if data.min() < tmin:
+    #     tmin = data.min()
+    #
+    # if data.max() > tmax:
+    #     tmax = data.max()
+    #
+    # print(tmax)
+    # print(tmin)
+    #
+    # fig, ax = plt.subplots()
+    # img = ax.imshow(data, cmap='magma')
+    # fig.colorbar(img)
+    # plt.savefig(outputPath + '/' + str(k) + '.jpg')
+    # plt.close(fig)

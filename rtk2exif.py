@@ -3,6 +3,7 @@
 import numpy as np
 import os
 import argparse
+import timeit
 
 class Rtk_writer(object):
     def __init__(self):
@@ -25,7 +26,7 @@ class Rtk_writer(object):
         self.args = self.parser.parse_args()
 
     def run(self):
-        start = timer()
+        start = timeit.default_timer()
         self.rtk_file = self.args.rtk_file
         self.tstamps_file = self.args.tstamps_file
         self.img_folder = self.args.input_folder
@@ -67,10 +68,10 @@ class Rtk_writer(object):
                       ("above", os.path.join(self.img_folder, img)))
             os.system("exiftool -GPSAltitude=%.8f %s -overwrite_original" %
                       (alt[i], os.path.join(self.img_folder, img)))
-            print("{}/{} files processed\n".format(i+1, n_images)))
+            print("{}/{} files processed\n".format(i+1, n_images))
             i+=1
 
-        end = timer()
+        end = timeit.default_timer()
         print('Processing of {} images took {:.02f}s'.format(n_images, end-start))
 
 if __name__ == "__main__":

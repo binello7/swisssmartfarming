@@ -57,12 +57,12 @@ class Rtk_writer(object):
         n_images = len(img_list)
         for img in img_list:
             exiftool_cmd = ("exiftool -overwrite_original"
-            " -GPSLatitudeRef={:.01f}"
-            " -GPSLatitude={:.010f}"
-            " -GPSLongitudeRef={:.01f}"
-            " -GPSLongitude={:.010f}"
+            " -GPSLatitudeRef={:.1f}"
+            " -GPSLatitude={:.10f}"
+            " -GPSLongitudeRef={:.1f}"
+            " -GPSLongitude={:.10f}"
             " -GPSAltitudeRef={}"
-            " -GPSAltitude={:.08f} {}").format(
+            " -GPSAltitude={:.8f} {}").format(
             lat[i],
             lat[i],
             lon[i],

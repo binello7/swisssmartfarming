@@ -25,13 +25,16 @@ class Rtk_writer(object):
         self.args = self.parser.parse_args()
 
     def run(self):
+        start = timer()
         self.rtk_file = self.args.rtk_file
         self.tstamps_file = self.args.tstamps_file
         self.img_folder = self.args.input_folder
 
+        # read rtk-data and tstamps-data
         rtk_data = np.genfromtxt(self.rtk_file, delimiter=',', skip_header=1)
         tstamps_data = np.genfromtxt(self.tstamps_file, delimiter=',', skip_header=1)
 
+        #initialize empty vectors to store lat, lon and alt infos
         lat = np.zeros(tstamps_data.shape[0])
         lon = np.zeros(tstamps_data.shape[0])
         alt = np.zeros(tstamps_data.shape[0])
@@ -42,27 +45,33 @@ class Rtk_writer(object):
         alt = np.interp(tstamps_data[:,2], rtk_data[:, 2], rtk_data[:, 8])
 
         # write exif metadata to frames
-        img_names = sorted(os.listdir(self.img_folder))
-        n_files = 0
-        for img_name in img_names:
-            if img_name.startswith('frame_'):
-                n_files+=1
+        img_list = sorted(os.listdir(self.img_folder))
 
-        for i in range(len(img_names)):
-            if img_names[i].startswith('frame_'):
-                os.system("exiftool -GPSLatitudeRef=%.1f %s  -overwrite_original" %
-                          (lat[i], os.path.join(self.img_folder, img_names[i])))
-                os.system("exiftool -GPSLatitude=%.10f %s -overwrite_original" %
-                          (lat[i], os.path.join(self.img_folder, img_names[i])))
-                os.system("exiftool -GPSLongitudeRef=%.1f %s -overwrite_original" %
-                          (lon[i], os.path.join(self.img_folder, img_names[i])))
-                os.system("exiftool -GPSLongitude=%.10f %s -overwrite_original" %
-                          (lon[i], os.path.join(self.img_folder, img_names[i])))
-                os.system("exiftool -GPSAltitudeRef=%s %s -overwrite_original" %
-                          ("above", os.path.join(self.img_folder, img_names[i])))
-                os.system("exiftool -GPSAltitude=%.8f %s -overwrite_original" %
-                          (alt[i], os.path.join(self.img_folder, img_names[i])))
-                print("%d/%d files processed" % (i+1, n_files))
+        ## remove files that are not images
+        for img in img_list[:]: #img_list[:] makes a copy of img_list
+            if not (img.startswith('frame_')):
+                img_list.remove(img)
+
+        i = 0
+        n_images = len(img_list)
+        for img in img_list:
+            os.system("exiftool -GPSLatitudeRef=%.1f %s  -overwrite_original" %
+                      (lat[i], os.path.join(self.img_folder, img)))
+            os.system("exiftool -GPSLatitude=%.10f %s -overwrite_original" %
+                      (lat[i], os.path.join(self.img_folder, img)))
+            os.system("exiftool -GPSLongitudeRef=%.1f %s -overwrite_original" %
+                      (lon[i], os.path.join(self.img_folder, img)))
+            os.system("exiftool -GPSLongitude=%.10f %s -overwrite_original" %
+                      (lon[i], os.path.join(self.img_folder, img)))
+            os.system("exiftool -GPSAltitudeRef=%s %s -overwrite_original" %
+                      ("above", os.path.join(self.img_folder, img)))
+            os.system("exiftool -GPSAltitude=%.8f %s -overwrite_original" %
+                      (alt[i], os.path.join(self.img_folder, img)))
+            print("{}/{} files processed\n".format(i+1, n_images)))
+            i+=1
+
+        end = timer()
+        print('Processing of {} images took {:.02f}s'.format(n_images, end-start))
 
 if __name__ == "__main__":
     rtk2exif = Rtk_writer()

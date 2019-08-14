@@ -29,7 +29,10 @@ for ((i=0; i<${#cameras[@]}; i++)); do
   # Write rtk-GPS data to exif metadata
   if [[ ${cameras[$i]} == "BFS" ]]
   then
-    ./rtk2exif.py -i $path_camera --rtk_file $path_location/rtk_data.csv \
-      --tstamps_file $path_camera/img_tstamps.csv
+    ./rtk2exif.py -i $path_camera --rtk_file "$path_location/rtk_data.csv" \
+      --tstamps_file "$path_camera/img_tstamps.csv"
+  else
+    ./rtk2exif.py -i "$path_camera/Resampled" --rtk_file "$path_location/rtk_data.csv" \
+      --tstamps_file "$path_camera/img_tstamps.csv"
   fi
 done

@@ -56,18 +56,22 @@ class Rtk_writer(object):
         i = 0
         n_images = len(img_list)
         for img in img_list:
-            os.system("exiftool -GPSLatitudeRef=%.1f %s  -overwrite_original" %
-                      (lat[i], os.path.join(self.img_folder, img)))
-            os.system("exiftool -GPSLatitude=%.10f %s -overwrite_original" %
-                      (lat[i], os.path.join(self.img_folder, img)))
-            os.system("exiftool -GPSLongitudeRef=%.1f %s -overwrite_original" %
-                      (lon[i], os.path.join(self.img_folder, img)))
-            os.system("exiftool -GPSLongitude=%.10f %s -overwrite_original" %
-                      (lon[i], os.path.join(self.img_folder, img)))
-            os.system("exiftool -GPSAltitudeRef=%s %s -overwrite_original" %
-                      ("above", os.path.join(self.img_folder, img)))
-            os.system("exiftool -GPSAltitude=%.8f %s -overwrite_original" %
-                      (alt[i], os.path.join(self.img_folder, img)))
+            exiftool_cmd = ("exiftool -overwrite_original"
+            " -GPSLatitudeRef={:.01f}"
+            " -GPSLatitude={:.010f}"
+            " -GPSLongitudeRef={:.01f}"
+            " -GPSLongitude={:.010f}"
+            " -GPSAltitudeRef={}"
+            " -GPSAltitude={:.08f} {}").format(
+            lat[i],
+            lat[i],
+            lon[i],
+            lon[i],
+            'above',
+            alt[i],
+            os.path.join(self.img_folder, img))
+
+            os.system(exiftool_cmd)
             print("{}/{} files processed\n".format(i+1, n_images))
             i+=1
 

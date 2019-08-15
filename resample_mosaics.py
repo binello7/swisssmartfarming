@@ -56,7 +56,7 @@ class Resampler(object):
         # loop through every image in the folder
         for img_name in img_names:
             if img_name.startswith('frame_'):
-                print("resampling image " + img_name)
+                print("resampling " + img_name)
                 # open an image
                 img = np.array(Image.open((self.input_folder + '/' + img_name)))
 

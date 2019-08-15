@@ -11,12 +11,20 @@ mkdir -p $path_location
 echo "Saving rtk-GPS data..."
 rostopic echo -b $path_bag -p /ssf/dji_sdk/rtk_position > "$path_location/rtk_data.csv"
 
-for ((i=0; i<${#cameras[@]}; i++)); do
+for ((i=0; i<${#cameras[@]}; i++))
+do
   path_camera="$path_location/${cameras[$i]}"
   echo "Save images to folder $path_camera"
   mkdir -p $path_camera
-  python bag2img.py --img_topic=${topics[$i]} --bag=$path_bag \
-    --output_folder=$path_camera --output_format=jpg
+
+  if [[ ${cameras[$i]} == "Tau2" ]]
+  then
+    ./thermal2tiff.py --bag_file $path_bag --output_folder $path_camera
+  else
+    python bag2img.py --img_topic=${topics[$i]} --bag=$path_bag \
+      --output_folder=$path_camera --output_format=jpg
+  fi
+
   if [[ ${cameras[$i]} == "Ximea" ]] || [[ ${cameras[$i]} == "Photonfocus_vis" ]] || [[ ${cameras[$i]} == "Photonfocus_nir" ]]
   then
     python resample_mosaics.py --input_folder=$path_camera --nb_bands=${bands[$i]}
@@ -27,7 +35,7 @@ for ((i=0; i<${#cameras[@]}; i++)); do
   rostopic echo -b $path_bag -p "${topics[$i]}/header" > "$path_camera/img_tstamps.csv"
 
   # Write rtk-GPS data to exif metadata
-  if [[ ${cameras[$i]} == "BFS" ]]
+  if [[ ${cameras[$i]} == "BFS" ]] || [[ ${cameras[$i]} == "Tau2" ]]
   then
     ./rtk2exif.py -i $path_camera --rtk_file "$path_location/rtk_data.csv" \
       --tstamps_file "$path_camera/img_tstamps.csv"
@@ -36,3 +44,5 @@ for ((i=0; i<${#cameras[@]}; i++)); do
       --tstamps_file "$path_camera/img_tstamps.csv"
   fi
 done
+
+echo -e '\nProcessing of dataset completed successfully'

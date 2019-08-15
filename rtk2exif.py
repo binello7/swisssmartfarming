@@ -72,11 +72,11 @@ class Rtk_writer(object):
             os.path.join(self.img_folder, img))
 
             os.system(exiftool_cmd)
-            print("{}/{} files processed\n".format(i+1, n_images))
+            print("{}/{} frames embedded with metadata\n".format(i+1, n_images))
             i+=1
 
         end = timeit.default_timer()
-        print('Processing of {} images took {:.02f}s'.format(n_images, end-start))
+        print('Writing exif-metadata to {} images took {:.02f}s'.format(n_images, end-start))
 
 if __name__ == "__main__":
     rtk2exif = Rtk_writer()

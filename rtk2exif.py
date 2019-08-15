@@ -72,7 +72,7 @@ class Rtk_writer(object):
             os.path.join(self.img_folder, img))
 
             os.system(exiftool_cmd)
-            print("{}/{} frames embedded with metadata\n".format(i+1, n_images))
+            print("{}/{} frames embedded with exif-metadata\n".format(i+1, n_images))
             i+=1
 
         end = timeit.default_timer()

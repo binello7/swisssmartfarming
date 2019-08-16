@@ -8,8 +8,7 @@ path_location="/media/$USER/Samsung_2TB/Processed/$date/$location"
 mkdir -p $path_location
 
 # Write rtk-GPS data to csv-file
-echo "Saving rtk-GPS data..."
-rostopic echo -b $path_bag -p /ssf/dji_sdk/rtk_position > "$path_location/rtk_data.csv"
+./rtk2csv.py --bag_file $path_bag --output_folder $path_location
 
 for ((i=0; i<${#cameras[@]}; i++))
 do
@@ -27,7 +26,7 @@ do
 
   if [[ ${cameras[$i]} == "Ximea" ]] || [[ ${cameras[$i]} == "Photonfocus_vis" ]] || [[ ${cameras[$i]} == "Photonfocus_nir" ]]
   then
-    python resample_mosaics.py --input_folder=$path_camera --nb_bands=${bands[$i]}
+    python resample_mosaics.py --input_folder=$path_camera --nb_bands=${bands[$i]} --overwrite_original
   fi
 
   # Write images timestamps to file

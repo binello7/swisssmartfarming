@@ -36,4 +36,4 @@ np.savetxt('/media/seba/Samsung_2TB/Datasets/190426/witzwil1/rtk_data.csv', data
 
 end = timer()
 
-print("Saving rtk-data took {:.1}s\n".format(end-start))
+print("Saving rtk-data took {:.1f}s\n".format(end-start))

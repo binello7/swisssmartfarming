@@ -15,10 +15,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Extract thermal images messages and saves them in .tiff format')
     parser.add_argument('--bag_file',
                             required=True,
-                            help='Path to the folder containing the mosaic images to resample')
+                            help='Path to the bag-file containing the thermal images')
     parser.add_argument('--output_folder',
                             required=True,
-                            help='Number of bands of the camera')
+                            help='Path to the folder where the images will be stored')
     args = parser.parse_args()
 
     # define the topic we want to extract

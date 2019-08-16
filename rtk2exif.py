@@ -76,7 +76,7 @@ class Rtk_writer(object):
             i+=1
 
         end = timeit.default_timer()
-        print('Writing exif-metadata to {} images took {:.02f}s'.format(n_images, end-start))
+        print('Writing exif-metadata to {} images took {:.2f}s'.format(n_images, end-start))
 
 if __name__ == "__main__":
     rtk2exif = Rtk_writer()

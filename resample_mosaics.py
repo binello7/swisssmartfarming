@@ -1,3 +1,5 @@
+#!/usr/bin/python2
+
 import gdal
 from PIL import Image
 import numpy as np
@@ -62,41 +64,54 @@ class Resampler(object):
 
         self.nb_bands = int(self.args.nb_bands)
 
-        img_list = sorted(os.listdir(self.img_folder))
+        img_list = sorted(os.listdir(self.input_folder))
 
         # remove files that are not images
         for img in img_list[:]: #img_list[:] makes a copy of img_list
             if not (img.startswith('frame_')):
                 img_list.remove(img)
 
-        # loop through every image in the folder
+        # loop through every image in the folder and resample it
         for img in img_list:
             print("resampling " + img)
-            # open an image
-            img = np.array(Image.open((self.input_folder + '/' + img)))
 
-            # resample the opened image
-            img_res = self.resample(img)
+            if img.split('.')[-1] == 'tif':
+                print('{} already resampled. Skipping frame'.format(img))
+                continue
 
-            # save 1 image singularly to check contrast
-            contrast_frame = img_names[int(len(img_names)/2)]
+            else:
+                # open an image
+                img_raw = np.array(Image.open(os.path.join(self.input_folder, img)))
 
-            if  img == contrast_frame:
-                contrast_folder = output_folder + '/Contrast'
+                # resample the opened image
+                img_res = self.resample(img_raw)
+
+                # save 1 image singularly to check contrast
+                contrast_frame = img_list[int(len(img_list)/2)]
+
+                if  img == contrast_frame:
+                    contrast_folder = output_folder + '/Contrast'
+
                     if not os.path.isdir(contrast_folder):
                         os.mkdir(contrast_folder)
+
                     for i in range(self.nb_bands):
                         Image.fromarray(img_res[:, :, i]).convert("L").save((contrast_folder +
-                                '/' + contrast_frame.split('.')[0] + '_band' + str(i+1) + '.jpg'))
+                                    '/' + contrast_frame.split('.')[0] + '_band' + str(i+1) + '.jpg'))
 
                 # write GeoTiff
-                dst_ds = gdal.GetDriverByName('GTiff').Create((output_folder + '/' + .split('.')[0] + '.tif'),
-                                                          img_res.shape[1], img_res.shape[0], self.nb_bands, gdal.GDT_Byte)
+                dst_ds = gdal.GetDriverByName('GTiff').Create((output_folder + '/' + img.split('.')[0] + '.tif'),
+                                                              img_res.shape[1], img_res.shape[0], self.nb_bands, gdal.GDT_Byte)
                 for i in range(self.nb_bands):
                     dst_ds.GetRasterBand(i+1).WriteArray(img_res[:, :, i])
 
                 dst_ds.FlushCache() # write to disk
                 dst_ds = None
+
+                # remove the opened image if overwrite_original is on
+                if self.args.overwrite_original:
+                    os.remove(os.path.join(self.input_folder, img))
+
 
 if __name__ == "__main__":
     resampler=Resampler()

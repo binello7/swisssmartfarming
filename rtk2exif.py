@@ -32,8 +32,8 @@ class Rtk_writer(object):
         self.img_folder = self.args.input_folder
 
         # read rtk-data and tstamps-data
-        rtk_data = np.genfromtxt(self.rtk_file, delimiter=',', skip_header=1)
-        tstamps_data = np.genfromtxt(self.tstamps_file, delimiter=',', skip_header=1)
+        rtk_data = np.genfromtxt(self.rtk_file, delimiter=',')
+        tstamps_data = np.genfromtxt(self.tstamps_file, delimiter=',')
 
         #initialize empty vectors to store lat, lon and alt infos
         lat = np.zeros(tstamps_data.shape[0])
@@ -41,9 +41,9 @@ class Rtk_writer(object):
         alt = np.zeros(tstamps_data.shape[0])
 
         # interpolate lat/lon/alt for every frame
-        lat = np.interp(tstamps_data[:,2], rtk_data[:, 2], rtk_data[:, 6])
-        lon = np.interp(tstamps_data[:,2], rtk_data[:, 2], rtk_data[:, 7])
-        alt = np.interp(tstamps_data[:,2], rtk_data[:, 2], rtk_data[:, 8])
+        lat = np.interp(tstamps_data, rtk_data[:, 0], rtk_data[:, 1])
+        lon = np.interp(tstamps_data, rtk_data[:, 0], rtk_data[:, 2])
+        alt = np.interp(tstamps_data, rtk_data[:, 0], rtk_data[:, 3])
 
         # write exif metadata to frames
         img_list = sorted(os.listdir(self.img_folder))

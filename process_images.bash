@@ -26,22 +26,15 @@ do
 
   if [[ ${cameras[$i]} == "Ximea" ]] || [[ ${cameras[$i]} == "Photonfocus_vis" ]] || [[ ${cameras[$i]} == "Photonfocus_nir" ]]
   then
-    python resample_mosaics.py --input_folder=$path_camera --nb_bands=${bands[$i]} --overwrite_original
+    ./resample_mosaics.py --input_folder=$path_camera --nb_bands=${bands[$i]} --overwrite_original
   fi
 
-  # Write images timestamps to file
-  echo "Saving images timestamps..."
-  rostopic echo -b $path_bag -p "${topics[$i]}/header" > "$path_camera/img_tstamps.csv"
+  # Write images timestamps to csv-file
+  ./tstamps2csv.py --topic ${topics[$i]} --bag_file $path_bag --output_folder $path_camera
 
   # Write rtk-GPS data to exif metadata
-  if [[ ${cameras[$i]} == "BFS" ]] || [[ ${cameras[$i]} == "Tau2" ]]
-  then
-    ./rtk2exif.py -i $path_camera --rtk_file "$path_location/rtk_data.csv" \
-      --tstamps_file "$path_camera/img_tstamps.csv"
-  else
-    ./rtk2exif.py -i "$path_camera/Resampled" --rtk_file "$path_location/rtk_data.csv" \
-      --tstamps_file "$path_camera/img_tstamps.csv"
-  fi
+  ./rtk2exif.py -i $path_camera --rtk_file "$path_location/rtk_data.csv" \
+    --tstamps_file "$path_camera/img_tstamps.csv"
 done
 
 echo -e '\nProcessing of dataset completed successfully'

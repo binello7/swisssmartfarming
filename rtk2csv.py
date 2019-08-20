@@ -34,7 +34,8 @@ for i,b in enumerate(genBag):
     data[i,2] = b.message.longitude
     data[i,3] = b.message.altitude
 
-np.savetxt(os.path.join(args.output_folder, 'rtk_data.csv'), data, delimiter=",")
+np.savetxt(os.path.join(args.output_folder, 'rtk_data.csv'), data,
+            delimiter=",", header="timestamp[ns],latitude[deg],longitude[deg],altitude[m]")
 
 end = timer()
 

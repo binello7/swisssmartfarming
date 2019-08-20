@@ -32,7 +32,8 @@ data = np.zeros([n_msgs, 1])
 for i,b in enumerate(genBag):
     data[i,0] = b.message.header.stamp.to_nsec()
 
-np.savetxt(os.path.join(args.output_folder, 'img_tstamps.csv'), data, delimiter=",")
+np.savetxt(os.path.join(args.output_folder, 'img_tstamps.csv'), data,
+            delimiter=",", header="timestamp[ns]")
 
 end = timer()
 

@@ -2,17 +2,17 @@
 
 source dataset_infos.bash
 
-path_bag="/media/$USER/Samsung_2TB/Datasets/$date/$location/$bag"
-path_location="/media/$USER/Samsung_2TB/Processed/$date/$location"
+path_bag="/media/$USER/Samsung_2TB/Datasets/$date/$field/$bag"
+path_date="/media/$USER/Samsung_2TB/Processed/$field/20$date"
 
-mkdir -p $path_location
+mkdir -p $path_date
 
 # Write rtk-GPS data to csv-file
-./rtk2csv.py --bag_file $path_bag --output_folder $path_location
+./rtk2csv.py --bag_file $path_bag --output_folder $path_date
 
 for ((i=0; i<${#cameras[@]}; i++))
 do
-  path_camera="$path_location/${cameras[$i]}"
+  path_camera="$path_date/${cameras[$i]}"
   echo "Save images to folder $path_camera"
   mkdir -p $path_camera
 
@@ -24,7 +24,7 @@ do
       --output_folder=$path_camera --output_format=jpg
   fi
 
-  if [[ ${cameras[$i]} == "Ximea" ]] || [[ ${cameras[$i]} == "Photonfocus_vis" ]] || [[ ${cameras[$i]} == "Photonfocus_nir" ]]
+  if [[ ${cameras[$i]} == "nir" ]] || [[ ${cameras[$i]} == "vis" ]]
   then
     ./resample_mosaics.py --input_folder=$path_camera --nb_bands=${bands[$i]} --overwrite_original
   fi
@@ -33,7 +33,7 @@ do
   ./tstamps2csv.py --topic ${topics[$i]} --bag_file $path_bag --output_folder $path_camera
 
   # Write rtk-GPS data to exif metadata
-  ./rtk2exif.py -i $path_camera --rtk_file "$path_location/rtk_data.csv" \
+  ./rtk2exif.py -i $path_camera --rtk_file "$path_date/rtk_data.csv" \
     --tstamps_file "$path_camera/img_tstamps.csv"
 done
 

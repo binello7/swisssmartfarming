@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source dataset_infos.txt
+source dataset_infos.bash
 
 path_bag="/media/$USER/Samsung_2TB/Datasets/$date/$location/$bag"
 path_location="/media/$USER/Samsung_2TB/Processed/$date/$location"

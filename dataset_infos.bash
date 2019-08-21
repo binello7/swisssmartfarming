@@ -1,15 +1,15 @@
 #!/bin/bash
 
-date='190426'
-bag='2019-04-26-11-13-32.bag'
-location='witzwil2'
+bag='2019-06-07-11-35-26.bag'
+field='witzwil2'
+date='190607'
 
 cameras=(
-  BFS
-  Photonfocus_vis
-  #Photonfocus_nir
-  Ximea
-  #Tau2
+  rgb
+  vis
+  #nir
+  nir
+  #thermal
 )
 
 bands=(

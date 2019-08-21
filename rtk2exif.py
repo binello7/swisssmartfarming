@@ -32,8 +32,10 @@ class Rtk_writer(object):
         self.img_folder = self.args.input_folder
 
         # read rtk-data and tstamps-data
-        rtk_data = np.genfromtxt(self.rtk_file, delimiter=',')
-        tstamps_data = np.genfromtxt(self.tstamps_file, delimiter=',')
+        rtk_data = np.genfromtxt(self.rtk_file, delimiter=',',
+                                    skip_header=1)
+        tstamps_data = np.genfromtxt(self.tstamps_file, delimiter=',',
+                                    skip_header=1)
 
         #initialize empty vectors to store lat, lon and alt infos
         lat = np.zeros(tstamps_data.shape[0])

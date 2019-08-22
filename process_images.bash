@@ -16,7 +16,7 @@ do
   echo "Save images to folder $path_camera"
   mkdir -p $path_camera
 
-  if [[ ${cameras[$i]} == "Tau2" ]]
+  if [[ ${cameras[$i]} == "thermal" ]]
   then
     ./thermal2tiff.py --bag_file $path_bag --output_folder $path_camera
   else

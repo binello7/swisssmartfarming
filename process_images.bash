@@ -2,17 +2,23 @@
 
 source dataset_infos.bash
 
-path_bag="/media/$USER/Samsung_2TB/Datasets/$date/$field/$bag"
-path_date="/media/$USER/Samsung_2TB/Processed/$field/20$date"
+if [[ $flight == ""  ]]
+then
+  path_bag="/media/$USER/Samsung_2TB/Datasets/gorner.glacier/$date/$bag"
+  path_out="/media/$USER/Samsung_2TB/Processed/gorner.glacier/20$date"
+else
+  path_bag="/media/$USER/Samsung_2TB/Datasets/gorner.glacier/$date/$flight/$bag"
+  path_out="/media/$USER/Samsung_2TB/Processed/gorner.glacier/20$date/$flight"
+fi
 
-mkdir -p $path_date
+mkdir -p $path_out
 
 # Write rtk-GPS data to csv-file
-./rtk2csv.py --bag_file $path_bag --output_folder $path_date
+./rtk2csv.py --bag_file $path_bag --output_folder $path_out
 
 for ((i=0; i<${#cameras[@]}; i++))
 do
-  path_camera="$path_date/${cameras[$i]}"
+  path_camera="$path_out/${cameras[$i]}"
   echo "Save images to folder $path_camera"
   mkdir -p $path_camera
 
@@ -33,7 +39,7 @@ do
   ./tstamps2csv.py --topic ${topics[$i]} --bag_file $path_bag --output_folder $path_camera
 
   # Write rtk-GPS data to exif metadata
-  ./rtk2exif.py -i $path_camera --rtk_file "$path_date/rtk_data.csv" \
+  ./rtk2exif.py -i $path_camera --rtk_file "$path_out/rtk_data.csv" \
     --tstamps_file "$path_camera/img_tstamps.csv"
 done
 

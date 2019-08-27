@@ -1,55 +1,40 @@
 #!/bin/bash
 
-bag='2019-07-10-05-57-41.bag'
-date='190710'
+source dataset_infos.bash
 
-cameras=(
-  BFS
-  Photonfocus_vis
-  Photonfocus_nir
-  #Ximea
-)
+path_bag="/media/$USER/Samsung_2TB/Datasets/$date/$field/$bag"
+path_date="/media/$USER/Samsung_2TB/Processed/$field/20$date"
 
-bands=(
-  3
-  16
-  25
-  #25
-)
-
-topics=(
-  /ssf/BFS_usb_0/image_raw
-  /ssf/photonfocus_camera_vis_node/image_raw
-  /ssf/photonfocus_camera_nir_node/image_raw
-  #/ximea_asl/image_raw
-)
-
-path_bag="/media/$USER/Samsung_2TB/Datasets/gorner_glacier/$date/$bag"
-path_imgs="/media/$USER/Samsung_2TB/Processed/gorner_glacier/$date"
+mkdir -p $path_date
 
 # Write rtk-GPS data to csv-file
-echo "Saving rtk-GPS data..."
-rostopic echo -b $path_bag -p /ssf/dji_sdk/rtk_position > "$path_imgs/rtk_data.csv"
+./rtk2csv.py --bag_file $path_bag --output_folder $path_date
 
-for ((i=0; i<${#cameras[@]}; i++)); do
-  path_camera="$path_imgs/${cameras[$i]}"
+for ((i=0; i<${#cameras[@]}; i++))
+do
+  path_camera="$path_date/${cameras[$i]}"
   echo "Save images to folder $path_camera"
   mkdir -p $path_camera
-  python bag2img.py --img_topic=${topics[$i]} --bag=$path_bag \
-    --output_folder=$path_camera --output_format=jpg
-  if [[ ${cameras[$i]} == "Ximea" ]] || [[ ${cameras[$i]} == "Photonfocus_vis" ]] || [[ ${cameras[$i]} == "Photonfocus_nir" ]]
+
+  if [[ ${cameras[$i]} == "thermal" ]]
   then
-    python resample_mosaics.py --input_folder=$path_camera --nb_bands=${bands[$i]}
+    ./thermal2tiff.py --bag_file $path_bag --output_folder $path_camera
+  else
+    python bag2img.py --img_topic=${topics[$i]} --bag=$path_bag \
+      --output_folder=$path_camera --output_format=jpg
   fi
 
-  # Write images timestamps to file
-  echo "Saving images timestamps..."
-  rostopic echo -b $path_bag -p "${topics[$i]}/header" > "$path_camera/img_tstamps.csv"
+  if [[ ${cameras[$i]} == "nir" ]] || [[ ${cameras[$i]} == "vis" ]]
+  then
+    ./resample_mosaics.py --input_folder=$path_camera --nb_bands=${bands[$i]} --overwrite_original
+  fi
+
+  # Write images timestamps to csv-file
+  ./tstamps2csv.py --topic ${topics[$i]} --bag_file $path_bag --output_folder $path_camera
 
   # Write rtk-GPS data to exif metadata
-  if [[ ${cameras[$i]} == "BFS" ]]
-  then
-    ./rtk2exif.py -i $path_camera --rtk_file $path_imgs/rtk_data.csv \
-      --tstamps_file $path_camera/img_tstamps.csv
-  fi
+  ./rtk2exif.py -i $path_camera --rtk_file "$path_date/rtk_data.csv" \
+    --tstamps_file "$path_camera/img_tstamps.csv"
 done
+
+echo -e '\nProcessing of dataset completed successfully'

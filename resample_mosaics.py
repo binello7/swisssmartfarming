@@ -1,3 +1,5 @@
+#!/usr/bin/python2
+
 import gdal
 from PIL import Image
 import numpy as np
@@ -21,6 +23,11 @@ class Resampler(object):
                         help='Path to the folder containing the mosaic images to resample')
         self.parser.add_argument('--nb_bands', required=True,
                         help='Number of bands of the camera')
+        self.parser.add_argument('--overwrite_original',
+                        default=False,
+                        help='overwrites the original non-resampled image',
+                        action='store_true')
+
         self.args = self.parser.parse_args()
 
     def resample(self, img_raw):
@@ -44,44 +51,67 @@ class Resampler(object):
         return img_res
 
     def run(self):
-        self.input_folder=self.args.input_folder
-        output_folder=self.input_folder + '/Resampled'
+        self.input_folder = self.args.input_folder
+
+        # set output_folder name depending if overwrite_original is active
+        if self.args.overwrite_original:
+            output_folder = self.input_folder
+        else:
+            output_folder = self.input_folder + '/Resampled'
+
         if not os.path.isdir(output_folder):
             os.mkdir(output_folder)
 
-        self.nb_bands=int(self.args.nb_bands)
+        self.nb_bands = int(self.args.nb_bands)
 
-        img_names = [f for f in sorted(os.listdir(self.input_folder)) if os.path.isfile(os.path.join(self.input_folder, f))]
+        img_list = sorted(os.listdir(self.input_folder))
 
-        # loop through every image in the folder
-        for img_name in img_names:
-            if img_name.startswith('frame_'):
-                print("resampling image " + img_name)
+        # remove files that are not images
+        for img in img_list[:]: #img_list[:] makes a copy of img_list
+            if not (img.startswith('frame_')):
+                img_list.remove(img)
+
+        # loop through every image in the folder and resample it
+        for img in img_list:
+            print("resampling " + img)
+
+            if img.split('.')[-1] == 'tif':
+                print('{} already resampled. Skipping frame'.format(img))
+                continue
+
+            else:
                 # open an image
-                img = np.array(Image.open((self.input_folder + '/' + img_name)))
+                img_raw = np.array(Image.open(os.path.join(self.input_folder, img)))
 
                 # resample the opened image
-                img_res = self.resample(img)
+                img_res = self.resample(img_raw)
 
                 # save 1 image singularly to check contrast
-                contrast_frame = img_names[int(len(img_names)/2)]
+                contrast_frame = img_list[int(len(img_list)/2)]
 
-                if img_name == contrast_frame:
+                if  img == contrast_frame:
                     contrast_folder = output_folder + '/Contrast'
+
                     if not os.path.isdir(contrast_folder):
                         os.mkdir(contrast_folder)
+
                     for i in range(self.nb_bands):
                         Image.fromarray(img_res[:, :, i]).convert("L").save((contrast_folder +
-                                '/' + contrast_frame.split('.')[0] + '_band' + str(i+1) + '.jpg'))
+                                    '/' + contrast_frame.split('.')[0] + '_band' + str(i+1) + '.jpg'))
 
                 # write GeoTiff
-                dst_ds = gdal.GetDriverByName('GTiff').Create((output_folder + '/' + img_name.split('.')[0] + '.tif'),
-                                                          img_res.shape[1], img_res.shape[0], self.nb_bands, gdal.GDT_Byte)
+                dst_ds = gdal.GetDriverByName('GTiff').Create((output_folder + '/' + img.split('.')[0] + '.tif'),
+                                                              img_res.shape[1], img_res.shape[0], self.nb_bands, gdal.GDT_Byte)
                 for i in range(self.nb_bands):
                     dst_ds.GetRasterBand(i+1).WriteArray(img_res[:, :, i])
 
                 dst_ds.FlushCache() # write to disk
                 dst_ds = None
+
+                # remove the opened image if overwrite_original is on
+                if self.args.overwrite_original:
+                    os.remove(os.path.join(self.input_folder, img))
+
 
 if __name__ == "__main__":
     resampler=Resampler()

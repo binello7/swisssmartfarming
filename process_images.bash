@@ -7,7 +7,7 @@ then
   path_bag="/media/$USER/Samsung_2TB/Datasets/gorner.glacier/$date/$bag"
   path_out="/media/$USER/Samsung_2TB/Processed/gorner.glacier/20$date"
 else
-  path_bag="/media/$USER/Samsung_2TB/Datasets/gorner.glacier/$date/$flight/$bag"
+  path_bag="/media/$USER/Samsung_2TB/Datasets/gorner.glacier/$date/$bag"
   path_out="/media/$USER/Samsung_2TB/Processed/gorner.glacier/20$date/$flight"
 fi
 

@@ -4,6 +4,7 @@ import numpy as np
 import os
 import argparse
 import timeit
+import json
 
 class Rtk_writer(object):
     def __init__(self):
@@ -15,6 +16,7 @@ class Rtk_writer(object):
         self.rtk_file = None
         self.tstamps_file = None
         self.img_folder = None
+        self.camera_infos = None
 
     def args_parse(self):
         self.parser.add_argument('-i', '--input_folder', required=True,
@@ -23,6 +25,8 @@ class Rtk_writer(object):
                         help='Path to the rtk-data file')
         self.parser.add_argument('--tstamps_file', required=True,
                         help='Path to the timestamps-data file')
+        self.parser.add_argument('--camera_infos', required=True,
+                        help='Path to the camera-infos file')
         self.args = self.parser.parse_args()
 
     def run(self):
@@ -30,12 +34,14 @@ class Rtk_writer(object):
         self.rtk_file = self.args.rtk_file
         self.tstamps_file = self.args.tstamps_file
         self.img_folder = self.args.input_folder
+        self.camera_infos = self.args.camera_infos
 
-        # read rtk-data and tstamps-data
+        # read rtk-data, tstamps-data, camera-infos
         rtk_data = np.genfromtxt(self.rtk_file, delimiter=',',
                                     skip_header=1)
         tstamps_data = np.genfromtxt(self.tstamps_file, delimiter=',',
                                     skip_header=1)
+        camera_infos = json.load(open(self.camera_infos))
 
         #initialize empty vectors to store lat, lon and alt infos
         lat = np.zeros(tstamps_data.shape[0])
@@ -64,13 +70,20 @@ class Rtk_writer(object):
             " -GPSLongitudeRef={:.1f}"
             " -GPSLongitude={:.10f}"
             " -GPSAltitudeRef={}"
-            " -GPSAltitude={:.8f} {}").format(
+            " -GPSAltitude={:.8f}"
+            " -Make={}"
+            ' -Model="{}"'
+            " -FocalLength={}"
+            " {}").format(
             lat[i],
             lat[i],
             lon[i],
             lon[i],
             'above',
             alt[i],
+            camera_infos["Make"],
+            camera_infos["Model"],
+            camera_infos["FocalLength"],
             os.path.join(self.img_folder, img))
 
             os.system(exiftool_cmd)

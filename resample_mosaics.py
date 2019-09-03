@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 
-import gdal
+from osgeo import gdal
 from PIL import Image
 import numpy as np
 import os
@@ -19,7 +19,6 @@ class Resampler(object):
 
     def args_parse(self):
         self.parser.add_argument('--input_folder', required=True,
-                        metavar='/my/path/to/folder/to/resample',
                         help='Path to the folder containing the mosaic images to resample')
         self.parser.add_argument('--nb_bands', required=True,
                         help='Number of bands of the camera')

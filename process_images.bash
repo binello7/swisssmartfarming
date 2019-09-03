@@ -20,7 +20,7 @@ do
   then
     ./thermal2tiff.py --bag_file $path_bag --output_folder $path_camera
   else
-    python bag2img.py --img_topic=${topics[$i]} --bag=$path_bag \
+    ./bag2img.py --topic=${topics[$i]} --bag_file=$path_bag \
       --output_folder=$path_camera --output_format=jpg
   fi
 
@@ -33,7 +33,7 @@ do
   ./tstamps2csv.py --topic ${topics[$i]} --bag_file $path_bag --output_folder $path_camera
 
   # Write rtk-GPS data to exif metadata
-  ./rtk2exif.py -i $path_camera --rtk_file "$path_date/rtk_data.csv" \
+  ./write_exif.py -i $path_camera --rtk_file "$path_date/rtk_data.csv" \
     --tstamps_file "$path_camera/img_tstamps.csv"
 done
 

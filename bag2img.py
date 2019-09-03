@@ -1,7 +1,4 @@
-#===============================================
-#   Written by enddl22@gmail.com on 7/Jun/2019
-#   Extracting images from a bag file
-#===============================================
+#!./venv/bin/python2
 
 from __future__ import print_function
 import os,sys
@@ -19,15 +16,14 @@ class Img_Extractor(object):
         self.parser = argparse.ArgumentParser(description='extract images from a bag file')
         self.args=None
         self.args_parse()
-        self.bag=None
+        self.bag_file=None
         self.bridge=CvBridge()
         self.total_n_image=None
-        
+
     def args_parse(self):
-        self.parser.add_argument('--img_topic', required=True,
-                        metavar="/image_raw",
+        self.parser.add_argument('--topic', required=True,
                         help='Name of image topic you want to extract')
-        self.parser.add_argument('--bag', required=True,
+        self.parser.add_argument('--bag_file', required=True,
                         help='Path to the bag file and name, e.g. ./dataset/Big.bag')
         self.parser.add_argument('--file_name', required=False,
                         help='Prefixed file name for stored images',default="frame")
@@ -42,8 +38,8 @@ class Img_Extractor(object):
         start = timer()
         if not os.path.exists(self.args.output_folder):
             os.mkdir(self.args.output_folder)
-        self.bag=rosbag.Bag(self.args.bag,"r")
-        for i,msg in enumerate(self.bag.read_messages(topics=[self.args.img_topic])):
+        self.bag_file=rosbag.Bag(self.args.bag_file,"r")
+        for i,msg in enumerate(self.bag_file.read_messages(topics=[self.args.topic])):
             try:
                 cv2_img = self.bridge.imgmsg_to_cv2(msg.message, desired_encoding=self.args.encoding)
                 outputFileName=os.path.join(self.args.output_folder,"{}_{:06d}.{}".format(self.args.file_name,i,self.args.output_format))
@@ -52,16 +48,13 @@ class Img_Extractor(object):
                 cv2.imwrite(outputFileName,cv2_img)
             except CvBridgeError, e:
                 print(e)
-        self.bag.close()
+        self.bag_file.close()
         end = timer()
         print("=====================================================")
         print("Extraction took {:.03f}s for extracting {} images".format(end - start,self.total_n_image+1))
         print("=====================================================")
 
 if __name__ == "__main__":
-    print(len( sys.argv ))
     if len( sys.argv ) >= 3:
         extractor=Img_Extractor()
         extractor.run()
-    else:
-        print( "Usage: python bag2img --img_topic=/img_topic_name --bag=bag_filename --output=output_folder_name --output_format=jpg")

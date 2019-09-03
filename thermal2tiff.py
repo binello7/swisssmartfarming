@@ -1,10 +1,9 @@
-#!/usr/bin/python2
+#!./venv/bin/python2
 
 import subprocess, yaml
 import rosbag
 from cv_bridge import CvBridge
 import cv2
-import matplotlib.pyplot as plt
 from PIL import Image
 import os
 import argparse

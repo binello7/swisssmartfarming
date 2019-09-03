@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!./venv/bin/python2
 
 from timeit import default_timer as timer
 import rosbag

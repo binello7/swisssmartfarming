@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!./venv/bin/python2
 
 from osgeo import gdal
 from PIL import Image

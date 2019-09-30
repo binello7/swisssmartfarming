@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export PYTHONPATH=/usr/lib/python2.7/dist-packages:${PYTHONPATH}
 source dataset_infos.bash
 
 path_bag="/media/$USER/Samsung_2TB/Datasets/$date/$field/$bag"

@@ -7,6 +7,7 @@ import Tkinter as tk
 from roipoly import RoiPoly
 from matplotlib import pyplot as plt
 import ssf_functions as ssf
+import math
 
 def read_geotiff(filepath):
     img_array = gdal_array.LoadFile(filepath)
@@ -56,3 +57,10 @@ def get_DNpanel(camera_type, initialdir="/media/seba/Samsung_2TB/Processed"):
         max[b] = np.max(img[:,:,b][mask])
 
     return mean
+
+
+def argmax_2D(array_2D):
+    flat_idx = np.argmax(array_2D)
+    idx_1 = math.trunc(flat_idx / array_2D.shape[1])
+    idx_2 = np.argmax(array_2D[idx_1,:])
+    return [idx_1, idx_2]

@@ -1,8 +1,14 @@
+#!../venv/bin/python2
+
+"""
+
+"""
+
 from __future__ import division
 import PIL.Image as Image
 import numpy as np
 import matplotlib.pyplot as plt
-import ssf_functions as ssf
+import functions.ssf_functions as ssf
 from osgeo import gdal
 from scipy import ndimage as ndi
 from skimage.feature import peak_local_max
@@ -10,13 +16,9 @@ import os
 
 
 
-dsms_folder = "/media/seba/Samsung_2TB/Analysis/QGIS/Niederhasli/dsm/dsms_C"
+dsms_folder = "/media/seba/Samsung_2TB/Analysis/QGIS/Niederhasli/dsms/dsms_C"
 dsms_files = os.listdir(dsms_folder)
 dsms_files = sorted(dsms_files)
-
-# declare variables for final results
-volumes = np.zeros((len(plots), len(dates)-1))
-h_max = np.zeros(volumes.shape)
 
 dates = []
 plots = []
@@ -29,6 +31,10 @@ for dsm in dsms_files:
 
 dates = sorted(list(set(dates)))
 plots = sorted(list(set(plots)))
+
+# declare variables for final results
+volumes = np.zeros((len(plots), len(dates)-1))
+h_max = np.zeros(volumes.shape)
 
 for n_plot, plot in enumerate(plots):
     for j, date in enumerate(dates):

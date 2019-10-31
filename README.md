@@ -1,4 +1,4 @@
 # swisssmartfarming
 
-This is a readme
-for my project
+Repo containing all the code related to the 'Swiss Smart Farming Project'.
+The code is here

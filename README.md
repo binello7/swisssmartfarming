@@ -6,6 +6,7 @@ The code is here
 ## Datasets Structure
 blablabla.
 
+```
 .
 ├── date-1
 │   ├── bagfile.bag
@@ -69,3 +70,4 @@ blablabla.
         │   └── img_tstamps.csv
         ├── field-1_date-n_thermal
         └── field-1_date-n_thermal.p4d
+```

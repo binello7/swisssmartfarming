@@ -4,7 +4,7 @@ Repo containing all the code related to the 'Swiss Smart Farming Project'.
 The code is here
 
 ## Datasets Structure
-.
+.\
 ├── date-1\
 │   ├── bagfile.bag\
 │   ├── rtk_data.csv\

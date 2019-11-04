@@ -49,10 +49,12 @@ for n, var in enumerate(shps_folders):
             shps_list.remove(file)
 
     for dsm in dsm_dates:
-        for shp in shps_list:
+        for n_shp, shp in enumerate(shps_list):
             shp_full = os.path.join(shps_folder, shp)
             dsm_base = dsm.split("/")[-1]
             dsm_base = dsm_base.split("_")[0:-1]
-            dsm_base = "_".join(dsm_base) + "_" + shp.split(".")[0] + ".tif"
+            dsm_base = (("_".join(dsm_base) + "_"
+                        + shp.split(".")[0].split("_")[0] + '{:02d}' + ".tif")
+                        .format(n_shp+1))
             dsm_out = os.path.join(dsms_out_folder, dsm_base)
             ssf.gdal_crop(dsm, shp_full, px_res, px_res, dsm_out)

@@ -1,6 +1,6 @@
 # swisssmartfarming
 
-Repo containing all the code related to the 'Swiss Smart Farming Project' (SSF).
+Repo containing all the code related to the *Swiss Smart Farming* Project (SSF).
 The code is here
 
 ## Datasets Structure
@@ -21,7 +21,7 @@ All camera-folders have the same substructure:
     [Pix4D folder structure](https://support.pix4d.com/hc/en-us/articles/202558649-Project-Folder-Structure "Pix4D - Project Folder Structure").
     All Pix4D outputs (mosaics, point clouds, DSM, ...) are saved under this
     directory
-    - ``field-1_date-1_thermal.p4d``: standard Pix4D project file that can be
+    - ``field-name_thermal.p4d``: standard Pix4D project file that can be
     imported into Pix4D in order to regenerate / modify some outputs
 
 ```

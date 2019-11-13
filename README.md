@@ -3,6 +3,9 @@
 Repo containing all the code related to the *Swiss Smart Farming* Project (SSF).
 The code is here
 
+## Install
+
+
 ## Datasets Structure
 All the SSF datasets have the structure shown in the following diagram. The root
 folder name is the name of the field. The dataset is split into dates at which

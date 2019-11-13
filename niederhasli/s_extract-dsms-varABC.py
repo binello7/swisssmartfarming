@@ -1,6 +1,6 @@
 #!../venv/bin/python2
 
-"""Split Niederhasli-DSMs into subplots A_1, A_2, ... C_13, C_14
+"""Split Niederhasli-DSMs into subplots A_1, A_2, ... C_13, C_14.
 
 This script uses GDAL (gdalwarp) to split up the DSMs of the project
 Niederhasli. The DSMs to split up should already have been reprojected
@@ -9,9 +9,9 @@ Niederhasli. The DSMs to split up should already have been reprojected
 The field 'Niederhasli' is divided in three plots (A, B, C) that are
 again divided into 14 subplots. By executing the script the DSMs of
 the subplots A_1, ..., A_14, B_1, ..., B_14 and C_1, ..., C_14 are
-generated and placed into 'Niederhasli/dsms/dsms_{A/B/C}'
+generated and placed into 'Niederhasli/dsms/dsms_{A/B/C}'.
 
-This script requires modules 'os' and 'ssf_functions'
+This script requires modules 'os' and 'ssf_functions'.
 """
 
 import os

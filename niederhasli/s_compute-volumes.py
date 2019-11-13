@@ -1,17 +1,19 @@
 #!../venv/bin/python2
 
-"""Compute total subplot volume for every one of the 14 subplots of A, B, C
+"""Compute total subplot volume for every one of the 14 subplots of A, B, C.
 
+This script reads the DSMs of the 14 subplots of variants A, B, C , reduces the
+absolute DSM to a relative DSM, and subtracts the DSM at the earliest date in
+order to obtain plants total volumes without the influence of the terrain. Those
+volumes, along with the max plant height per subplot, are then written to an
+xlsx-file.
 
+This script requires modules 'numpy', 'ssf_functions', 'gdal', 'os' and 'pandas'
 """
 
-from __future__ import division
 import numpy as np
-import matplotlib.pyplot as plt
 import functions.ssf_functions as ssf
 from osgeo import gdal
-from scipy import ndimage as ndi
-from skimage.feature import peak_local_max
 import os
 import pandas as pd
 

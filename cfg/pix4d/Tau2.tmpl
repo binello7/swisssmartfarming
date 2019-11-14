@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pix4dtmpl>
+	<information>
+		<info></info>
+		<version>3.0.17</version>
+		<p4dVersion>9</p4dVersion>
+		<templateType>standard</templateType>
+	</information>
+	<initial>
+		<runStep>true</runStep>
+		<!--    General    -->
+		<!--Keypoints Image Scale-->
+		<keypointsImageScale>Full</keypointsImageScale>
+		<imageScale>2</imageScale>
+		<!--Quality report-->
+		<generateOrthoInReport>true</generateOrthoInReport>
+		<!--    Matching    -->
+		<!--Matching Image Pairs-->
+		<matchStrategy>AutoAerial</matchStrategy>
+		<!--Matching Strategy-->
+		<geometricallyVerifiedMatching>true</geometricallyVerifiedMatching>
+		<!--    Calibration    -->
+		<!--Targeted number of keypoints-->
+		<keypointSelectionMethod>CustomNumberOfKeypoints</keypointSelectionMethod>
+		<numberOfKeypoints>10000</numberOfKeypoints>
+		<!--Method-->
+		<calibrationMethod>Alternative</calibrationMethod>
+		<!--Optimizer-->
+		<optimizerType>Classic</optimizerType>
+		<!--Camera optimization-->
+		<internalParamOptimization>All</internalParamOptimization>
+		<externalParamOptimization>All</externalParamOptimization>
+		<!--Rematch-->
+		<rematchStrategy>Custom</rematchStrategy>
+		<rematch>true</rematch>
+		<rematchOverlap>0.3000000119</rematchOverlap>
+		<!--SkySegmentation-->
+		<automaticSkyMasking>true</automaticSkyMasking>
+		<!--Export-->
+		<exportCameraParamsAATBBA>true</exportCameraParamsAATBBA>
+		<exportUndistortedImages>false</exportUndistortedImages>
+	</initial>
+	<dense>
+		<runStep>true</runStep>
+		<!--    Point Cloud    -->
+		<!--Densification-->
+		<pclImageDownscaleFactor>0</pclImageDownscaleFactor>
+		<pclImageMultiscale>true</pclImageMultiscale>
+		<pclDensity>Optimal</pclDensity>
+		<pclMinNoMatches>3</pclMinNoMatches>
+		<!--Export-->
+		<pclExportLAS>false</pclExportLAS>
+		<pclExportLAZ>false</pclExportLAZ>
+		<pclExportPLY>false</pclExportPLY>
+		<pclExportXYZ>false</pclExportXYZ>
+		<pclExportXYZDelim>Space</pclExportXYZDelim>
+		<pclExportMergeTiles>false</pclExportMergeTiles>
+		<!--    3D Textured Mesh    -->
+		<!--Generation-->
+		<meshGenerate3dTexturedMesh>false</meshGenerate3dTexturedMesh>
+		<!--Settings-->
+		<meshResolution>Medium</meshResolution>
+		<meshMaxOctreeDepth>12</meshMaxOctreeDepth>
+		<meshTextureSize>8192</meshTextureSize>
+		<meshDecimationCriteria>Quantitative</meshDecimationCriteria>
+		<meshMaxTriangles>1000000</meshMaxTriangles>
+		<meshDecimationStrategy>Sensitive</meshDecimationStrategy>
+		<meshTextureColorBalancing>false</meshTextureColorBalancing>
+		<!--Export-->
+		<meshExportPLY>false</meshExportPLY>
+		<meshExportFBX>true</meshExportFBX>
+		<meshExportDXF>false</meshExportDXF>
+		<meshExportOSGB>false</meshExportOSGB>
+		<meshExportOBJ>false</meshExportOBJ>
+		<meshExportTiledOBJ>false</meshExportTiledOBJ>
+		<meshExportPDF3D>false</meshExportPDF3D>
+		<meshExportPDF3DLogoPath></meshExportPDF3DLogoPath>
+		<!--    Advanced    -->
+		<!--Densification-->
+		<pclWindowSize>7</pclWindowSize>
+		<!--Image groups-->
+		<pclImageGroups>
+			<group name=""/>
+		</pclImageGroups>
+		<meshGeometryImageGroups>
+			<group name=""/>
+		</meshGeometryImageGroups>
+		<meshTextureImageGroups>
+			<group name=""/>
+		</meshTextureImageGroups>
+		<!--Point cloud Filters-->
+		<pclUseProcessingArea>true</pclUseProcessingArea>
+		<pclUseAnnotations>true</pclUseAnnotations>
+		<pclLimitDepthAutomatically>false</pclLimitDepthAutomatically>
+		<!--Point cloud classification-->
+		<pclTerrainClassf>false</pclTerrainClassf>
+		<pclTerrainClassfMinLength>0.1</pclTerrainClassfMinLength>
+		<pclTerrainClassfMaxLength>400</pclTerrainClassfMaxLength>
+		<pclTerrainClassfMinHeight>0.1</pclTerrainClassfMinHeight>
+		<!--Mesh generation-->
+		<meshSampleDensityDivider>1</meshSampleDensityDivider>
+		<!--    ADD-ON options   -->
+		<addOnUseSGM>false</addOnUseSGM>
+		<addOnSGMOptimizeForDSM>true</addOnSGMOptimizeForDSM>
+		<addOnSGMOverlapForward>-1</addOnSGMOverlapForward>
+		<addOnSGMOverlapSideward>-1</addOnSGMOverlapSideward>
+	</dense>
+	<ortho>
+		<runStep>true</runStep>
+		<!--    DSM and Orthomosaic   -->
+		<!--Resolution-->
+		<orthoResolution>-1</orthoResolution>
+		<!--DSM Filters-->
+		<dsmFilterUseNoiseFilter>true</dsmFilterUseNoiseFilter>
+		<dsmFilterUseSmoothing>true</dsmFilterUseSmoothing>
+		<dsmFilterSmoothingType>Sharp</dsmFilterSmoothingType>
+		<!--Raster DSM-->
+		<dsmTIFF>false</dsmTIFF>
+		<dsmMethod>InverseDistanceWeighting</dsmMethod>
+		<dsmTIFFMergeTiles>false</dsmTIFFMergeTiles>
+		<!--Orthomosaic-->
+		<mosaicTIFF>false</mosaicTIFF>
+		<mosaicTIFFMergeTiles>false</mosaicTIFFMergeTiles>
+		<mosaicTIFFNoTransparency>false</mosaicTIFFNoTransparency>
+		<mosaicKML>false</mosaicKML>
+		<!--    Additional outputs    -->
+		<!--Grid DSM-->
+		<gridDsmXYZ>false</gridDsmXYZ>
+		<gridDsmXYZDelim>Space</gridDsmXYZDelim>
+		<gridDsmLAS>false</gridDsmLAS>
+		<gridDsmLAZ>false</gridDsmLAZ>
+		<gridDsmGridSpacing>100</gridDsmGridSpacing>
+		<!--Contour lines-->
+		<contourSHP>false</contourSHP>
+		<contourPDF>false</contourPDF>
+		<contourDXF>false</contourDXF>
+		<contourBase>0</contourBase>
+		<contourElevationInterval>10</contourElevationInterval>
+		<contourResolution>100</contourResolution>
+		<contourMinLineSize>20</contourMinLineSize>
+	</ortho>
+	<index>
+		<!--Resolution-->
+		<indexResolution>-1</indexResolution>
+		<indexDownsamplingMethod>Gauss</indexDownsamplingMethod>
+		<!--Reflectance Map-->
+		<indexReflectance>true</indexReflectance>
+		<indexReflectanceMergeTiles>true</indexReflectanceMergeTiles>
+		<indices>
+			<index name="thermal_ir" formula="thermal_ir" enabled="true"/>
+		</indices>
+		<!--Export-->
+		<indexExportPointSHP>false</indexExportPointSHP>
+		<indexExportPointSHPGridSize>200</indexExportPointSHPGridSize>
+		<indexExportPolygonSHP>false</indexExportPolygonSHP>
+		<indexExportPolygonSHPGridSize>400</indexExportPolygonSHPGridSize>
+	</index>
+</pix4dtmpl>

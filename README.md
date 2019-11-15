@@ -13,6 +13,8 @@ the flights were carried out. These are saved directly under the root folder.
 Under every date-folder the following can be found:
 * ``bagfile.bag``: symbolic link to the dataset source
 [bagfile](http://wiki.ros.org/Bags "ROS - Bags")
+* ``bagfile.info``: result of the command ``rosbag info <bagfile.bag>`` saved
+to a text-file
 * ``rtk_data.csv``: file containing the recorded RTK-GPS positions / altitudes
 * camera-folders: can be ``nir``, ``rgb``, ``thermal`` or ``vis``. ``thermal``
 is shown in brackets since not all flights were performed with a thermal camera.
@@ -31,6 +33,7 @@ All camera-folders have the same substructure:
 field-name
 ├── date-1
 │   ├── bagfile.bag
+│   ├── bagfile.info
 │   ├── rtk_data.csv
 │   ├── nir
 │   │   ├── frames

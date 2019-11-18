@@ -65,6 +65,7 @@ field-name
 │       └── field-name_date-1_vis.p4d
 └── date-n
     ├── bagfile.bag
+    ├── bagfile.info
     ├── rtk_data.csv
     ├── nir
     │   ├── frames

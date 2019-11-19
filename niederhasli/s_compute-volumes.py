@@ -70,6 +70,10 @@ for n_folder, dsms_folder in enumerate(dsms_folders):
                     dsms[:,:,i+1] = dsms[:,:,i+1] - dsm_ref
                     # by subtracting dsm_ref some values get < 0. Set them to 0
                     dsms[:,:,i+1][dsms[:,:,i+1]<0] = 0
+                    # undersown crop shouldn't be included in volume. This is
+                    # less hight than hemp. Set everything < threshold to 0
+                    h_threshold = 0.3 #m
+                    dsms[:,:,i+1][dsms[:,:,i+1]<h_threshold] = 0
                     max_dsm = np.max(dsms[:,:,i+1][mask_plot])
                     h_max[n_plot, i, n_folder] = max_dsm
                     volumes[n_plot, i, n_folder] = np.sum(dsms[:,:,i+1]) * X_res * Y_res

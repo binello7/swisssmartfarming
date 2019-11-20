@@ -1,6 +1,6 @@
 #!./venv/bin/python2
 
-import ssf_functions as ssf
+import functions.ssf_functions as ssf
 import numpy as np
 import os
 import argparse

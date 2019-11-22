@@ -1,10 +1,9 @@
 #!./venv/bin/python2
 
 from __future__ import print_function
-import os,sys
+import os
 import argparse
 from ros import rosbag
-#import roslib
 import rospy
 from sensor_msgs.msg import Image
 import cv2
@@ -34,6 +33,7 @@ class Img_Extractor(object):
         self.parser.add_argument('--encoding', required=False,
                         help='encoding options, e.g., mono8, mono16, bgr8, rgb8, bgra8, rgba8',default="passthrough")
         self.args = self.parser.parse_args()
+
     def run(self):
         start = timer()
         if not os.path.exists(self.args.output_folder):
@@ -55,6 +55,5 @@ class Img_Extractor(object):
         print("=====================================================")
 
 if __name__ == "__main__":
-    if len( sys.argv ) >= 3:
-        extractor=Img_Extractor()
-        extractor.run()
+    extractor=Img_Extractor()
+    extractor.run()

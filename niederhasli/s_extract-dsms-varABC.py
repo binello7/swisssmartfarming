@@ -15,7 +15,7 @@ This script requires modules 'os' and 'ssf_functions'.
 """
 
 import os
-import functions.ssf_functions as ssf
+import utils.ssf_functions as ssf
 
 # input DSMs: all field, reprojected, aligned, 3 dates
 dsm_date1 = ("/media/seba/Samsung_2TB/Analysis/QGIS/Niederhasli/dsms/dsms_crop/"

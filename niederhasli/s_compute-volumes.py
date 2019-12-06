@@ -12,7 +12,7 @@ This script requires modules 'numpy', 'ssf_functions', 'gdal', 'os' and 'pandas'
 """
 
 import numpy as np
-import functions.ssf_functions as ssf
+import utils.ssf_functions as ssf
 from osgeo import gdal
 import os
 import pandas as pd

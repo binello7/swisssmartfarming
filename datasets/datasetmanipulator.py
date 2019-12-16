@@ -17,7 +17,7 @@ class DatasetManipulator:
         """creates a grid over an area determined by a shapefile.
 
         Given a geographic area confined by a shapefile, creates the geometry of a
-        grid over it. If the grid does not fit exactly in the shapefile, the grid
+        grid covering it. If the grid does not fit exactly in the shapefile, the grid
         will have an extra cell in order to cover all of the area. The x- and y
         cell spacings of the grid are determined by the parameters <x_spacing> and
         <y_spacing> which have to be given in pixels.
@@ -55,23 +55,15 @@ class DatasetManipulator:
         # get the x and y coordinates of the grid
         x_coord = list(np.arange(xmin, xmax, x_spacing))
         y_coord = list(np.arange(ymin, ymax, y_spacing))
-        y_coord.reverse()
 
-        # generate the polygone object determined by the 4 corners of each cell
+        # generate the polygon object determined by the 4 corners of each cell
         polygons = []
-        for y in y_coord:
-            for x in x_coord:
+        for y in y_coord[:-1]:
+            for x in x_coord[:-1]:
                 polygons.append(Polygon([(x, y),
                                          (x+x_spacing, y),
-                                         (x+x_spacing, y-y_spacing),
-                                         (x, y-y_spacing)]))
+                                         (x+x_spacing, y+y_spacing),
+                                         (x, y+y_spacing)]))
 
         self.grid = gpd.GeoDataFrame({'geometry': polygons,
                                       'grid_idx': range(0, len(polygons))})
-
-
-
-
-        # import the polygone of a field which will be sliced into a grid. If
-        # the grid doesn't fall exactly on the outer corner of the polygone we
-        # add a cell to the grid

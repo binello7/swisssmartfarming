@@ -1,5 +1,7 @@
 import rasterio as rio
+import rasterio.mask as riom
 from rasterio.transform import Affine
+import fiona as fio
 import numpy as np
 import geopandas as gpd
 from shapely.geometry import Polygon
@@ -21,11 +23,13 @@ class DatasetManipulator:
         self.gridspacing_y = None
         self.grid = None
         self.grid_bounds = None
+        self.mask = None
+        self.mask_path = None
 
 
-    # def load_geotiff():
+    # def load_geotiff():rasterio
 
-    def set_grid(self, outer_shapefile, gridspacing_x=256, gridspacing_y=256):
+    def create_grid(self, outer_shapefile, gridspacing_x=256, gridspacing_y=256):
         """Creates a grid and sets it to the grid dataset attribute.
 
         Given the shapefile confining the dataset geographic area , creates the
@@ -98,7 +102,7 @@ class DatasetManipulator:
         smaller rasters all with the same shape. This functions pads the source
         raster with 'zeros' in order to obtain N images all with the same shape.
         """
-        
+
         if self.grid is None:
             raise NotImplementedError('Grid not created yet')
 
@@ -143,27 +147,42 @@ class DatasetManipulator:
         self.dataset = rio.open(self.dataset_path_padded)
 
 
-    def get_img_from_boundary(self, boundary):
-        """Crops a GeoTIFF using a rectangular boundary.
+    def get_pair_from_idx(self, grid_idx):
+        """Returns the pair (image, mask) at the specified grid location.
 
-        Given Polygon object representing a rectangular boundary, crops a bigger
-        GeoTIFF along the boundary and returns the sliced image array.
+        Crops the GeoTIFF using the generated grid and returns the image and its
+        corresponding mask defined by the specified grid index.
 
         Parameters
         ----------
-        boundary: shapely.geometry.polygon.Polygon
-            shapely-Polygon representing cropping boundary
+        grid_idx: int
+            integer corresponding to the index of the desired raster region
 
         Returns
         -------
-        numpy.ndarray
-            numpy-array of the image with shape (H, W, C)
+        img: numpy.ndarray
+            numpy-array representing the requested image with shape (H, W, C)
+        maks: numpy.ndarray
+            numpy-array representing the plant mask at the specified location
+            with shape (H, W)
         """
 
+        if self.grid is None:
+            raise NotImplementedError("The grid hasn't been created yet")
+
+        if self.dataset_path_padded is None:
+            raise NotImplementedError("The raster hasn't been padded. Perform"
+                " padding in order to insure coherent images dimensions.")
+
+        if self.mask is None:
+            raise NotImplementedError("The raster hasn't been masked. Impossible"
+                " to retunr the pair (img, mask)")
+
         # get the coordinates of top-left and bottom-right corners into a tuple
+        boundary = self.grid["geometry"][grid_idx]
         boundary = boundary.exterior.xy
-        top_left = (boundary[0][0], boundary[1][2])
-        bottom_right = (boundary[0][1], boundary[1][0])
+        top_left = (boundary[0][0], boundary[1][0])
+        bottom_right = (boundary[0][1], boundary[1][2])
 
         # get the indexes of the pixels at top-left / bottom-right coordinates
         row_start, col_start = rio.transform.rowcol(self.transform, top_left[0],
@@ -177,6 +196,46 @@ class DatasetManipulator:
 
         # get the values of the pixel within the boundary
         img = self.dataset.read()[:, row_start:row_end, col_start:col_end]
+        img = np.moveaxis(img, 0, 2)
+
+        mask = self.mask.read()[:,row_start:row_end, col_start:col_end]
+        mask = np.moveaxis(mask, 0, 2)
+        mask = np.squeeze(mask, axis=2)
 
         # convert the image to channels last and return it
-        return np.moveaxis(img, 0, 2)
+        return img, mask
+
+
+    def create_mask_from_shapes(self, shapefile):
+        # TODO: write documentation for the method
+        if self.dataset_path_padded is None:
+            raise NotImplementedError('Dataset has to be padded with the grid '
+                'before performing the masking operation')
+
+        with fio.open(shapefile, "r") as shp:
+            shapes = [feature["geometry"] for feature in shp]
+
+        mask, _ = riom.mask(self.dataset, shapes)
+        mask = mask[0,:,:]
+        mask[mask!=0] = 1
+
+        self.mask_path = (os.path.join('/'
+            .join(self.dataset_path.split('/')[:-1]),
+            self.dataset_path.split('/')[-1].split('.')[0])
+            + '_mask.tif')
+
+        self.mask = rio.open(
+            self.mask_path,
+            'w',
+            driver='Gtiff',
+            height=mask.shape[0],
+            width=mask.shape[1],
+            count=1,
+            dtype=mask.dtype,
+            crs=self.crs,
+            transform=self.transform
+        )
+
+        self.mask.write(mask, 1)
+        self.mask.close()
+        self.mask = rio.open(self.mask_path)

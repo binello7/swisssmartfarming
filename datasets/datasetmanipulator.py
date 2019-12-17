@@ -28,11 +28,12 @@ class DatasetManipulator:
     def set_grid(self, outer_shapefile, gridspacing_x=256, gridspacing_y=256):
         """Creates a grid and sets it to the grid dataset attribute.
 
-        Given the shapefile confining the dataset geographic area , creates the geometry of a
-        grid covering it. If the grid does not fit exactly in the shapefile, the grid
-        will have an extra cell in order to cover all of the area. The x- and y
-        cell spacings of the grid are determined by the parameters <gridspacing_x> and
-        <gridspacing_y> which have to be given in pixels.
+        Given the shapefile confining the dataset geographic area , creates the
+        geometry of a grid covering it. If the grid does not fit exactly in the
+        shapefile, the grid will have an extra cell in order to cover all of the
+        area. The x- and y cell spacings of the grid are determined by the
+        parameters <gridspacing_x> and <gridspacing_y> which have to be given
+        in pixels.
 
         Parameters
         ----------
@@ -91,6 +92,13 @@ class DatasetManipulator:
 
 
     def pad_geotiff_from_grid(self):
+        """Uses the previously created grid to pad the source raster dataset.
+
+        The previously created grid is used to slice the raster dataset into N
+        smaller rasters all with the same shape. This functions pads the source
+        raster with 'zeros' in order to obtain N images all with the same shape.
+        """
+        
         if self.grid is None:
             raise NotImplementedError('Grid not created yet')
 
@@ -130,7 +138,7 @@ class DatasetManipulator:
             transform=self.transform
         )
 
-        self.dataset.write(array, (1,2,3))
+        self.dataset.write(array, tuple(np.arange(1, array.shape[0] + 1)))
         self.dataset.close()
         self.dataset = rio.open(self.dataset_path_padded)
 

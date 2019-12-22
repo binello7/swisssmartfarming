@@ -1,6 +1,8 @@
 import rasterio as rio
 import rasterio.mask as riom
+import rasterio.plot as riop
 from rasterio.transform import Affine
+import matplotlib.pyplot as plt
 import fiona as fio
 import numpy as np
 import geopandas as gpd
@@ -27,12 +29,11 @@ class DatasetManipulator:
         self.mask_path = None
 
 
-    # def load_geotiff():rasterio
-
     def create_grid(self, outer_shapefile, gridspacing_x=256, gridspacing_y=256):
         """Creates a grid and sets it to the grid dataset attribute.
 
-        Given the shapefile confining the dataset geographic area , creates the
+        Given the shapefile confining the dataset geographic area , creates theembed()
+
         geometry of a grid covering it. If the grid does not fit exactly in the
         shapefile, the grid will have an extra cell in order to cover all of the
         area. The x- and y cell spacings of the grid are determined by the
@@ -208,12 +209,15 @@ class DatasetManipulator:
 
     def create_mask_from_shapes(self, shapefile):
         # TODO: write documentation for the method
-        if self.dataset_path_padded is None:
-            raise NotImplementedError('Dataset has to be padded with the grid '
-                'before performing the masking operation')
+        # if self.dataset_path_padded is None:
+        #     raise NotImplementedError('Dataset has to be padded with the grid '
+        #         'before performing the masking operation')
 
         with fio.open(shapefile, "r") as shp:
-            shapes = [feature["geometry"] for feature in shp]
+            shapes = []
+            for feature in shp:
+                if feature["geometry"] != None:
+                    shapes.append(feature["geometry"])
 
         mask, _ = riom.mask(self.dataset, shapes)
         mask = mask[0,:,:]
@@ -239,3 +243,30 @@ class DatasetManipulator:
         self.mask.write(mask, 1)
         self.mask.close()
         self.mask = rio.open(self.mask_path)
+#-------------------------------------------------------------------------------
+
+    def visualize_dataset(self, with_grid=True):
+        if with_grid:
+            if self.grid is None:
+                raise ValueError("Grid value is '{}'. Grid not created yet."
+                    .format(self.grid))
+
+        cells = self.grid["geometry"]
+
+        fig, axs = plt.subplots()
+
+        if self.dataset is not None:
+            riop.show(self.dataset, ax=axs)
+
+        if self.mask is not None:
+            riop.show(self.mask, ax=axs, alpha=0.5)
+
+        for i, cell in enumerate(cells):
+            x, y = cell.exterior.xy
+            plt.plot(x, y)
+            xm = (x[1] - x[0]) / 2
+            ym = (y[2] - y[1]) / 2
+            text = str(self.grid['grid_idx'][i])
+            plt.text(x[0] + xm, y[0] + ym, text, color='r')
+
+        plt.show()

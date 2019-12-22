@@ -2,7 +2,7 @@
 
 from __future__ import division
 import numpy as np
-import utils.ssf_functions as ssf
+from swisssmartfarming.utils import ssf_functions as ssf
 import matplotlib.pyplot as plt
 from osgeo import gdal
 import os

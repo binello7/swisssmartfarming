@@ -46,6 +46,8 @@ ndvi_20190507 = ruetmatt.ndvi("20190507")
 ndvi_20190418[~ruetmatt.data_mask] = np.nan
 ndvi_20190507[~ruetmatt.data_mask] = np.nan
 
+embed()
+
 # generate plot
 fig, axs = plt.subplots(nrows=1, ncols=2)
 axs[0].imshow(ndvi_20190418)

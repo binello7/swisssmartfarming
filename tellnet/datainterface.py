@@ -25,6 +25,7 @@ class DataInterface:
         self.crs = {}
         self.data_mask = None
         self.no_data_val = -10000
+        self.sep = os.path.sep
 #-------------------------------------------------------------------------------
 
     def add_dataset(self, dataset):
@@ -39,12 +40,12 @@ class DataInterface:
             full-path to the datasets
         """
 
-        date = dataset.split("/")[-1].split("_")[1]
+        date = dataset.split(self.sep)[-1].split("_")[1]
         if date not in self.dates:
             self.dates.append(date)
             self.dates.sort()
 
-        band = dataset.split("/")[-1].split("_")[-2]
+        band = dataset.split(self.sep)[-1].split("_")[2]
         dataset_name = date + "_" + band
 
         if dataset_name not in self.datasets_names:
@@ -57,7 +58,8 @@ class DataInterface:
         self.resolutions[dataset_name] = (source.transform[0],
             -source.transform[4])
         self.crs[dataset_name] = source.crs
-        self.datasets_shape[dataset_name] = (source.height, source.width)
+        self.datasets_shape[dataset_name] = (source.count, source.height,
+            source.width)
 #-------------------------------------------------------------------------------
 
     def add_shapefile(self, shapefile):
@@ -73,7 +75,7 @@ class DataInterface:
         """
 
         self.shapefile = gpd.read_file(shapefile)
-        self.shapefile_name = shapefile.split("/")[-1].split(".")[0]
+        self.shapefile_name = shapefile.split(self.sep)[-1].split(".")[0]
 #-------------------------------------------------------------------------------
 
     def crop_dataset(self, dataset_name):
@@ -93,6 +95,7 @@ class DataInterface:
             try:
                 shapes = [feature["geometry"]
                     for _, feature in self.shapefile.iterrows()]
+                embed()
             except AttributeError:
                 raise Exception("Shapefile has not been added yet.")
             else:
@@ -124,12 +127,12 @@ class DataInterface:
             name of the dataset that should be used as reference
         """
 
-        out_shape = self.datasets_shape[ref_dataset]
+        out_shape = (self.datasets_shape[ref_dataset][1:3])
         self.data_mask = np.squeeze(self.datasets[ref_dataset].read()
             != self.no_data_val)
 
         for dataset_name in self.datasets_names:
-            if not dataset_name.startswith(ref_dataset.split("_")[0]):
+            if dataset_name != ref_dataset:
                 dataset = self.datasets[dataset_name]
                 data = dataset.read(out_shape=out_shape,
                     resampling=Resampling.bilinear)

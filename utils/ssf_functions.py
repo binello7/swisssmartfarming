@@ -1,19 +1,19 @@
 import numpy as np
 from osgeo import gdal_array
 from osgeo import gdal
+import rasterio as rio
 import cv2
 import tkFileDialog
 import Tkinter as tk
 from roipoly import RoiPoly
 from matplotlib import pyplot as plt
-import ssf_functions as ssf
 import math
 import os
 
 def read_geotiff(filepath):
-    img_array = gdal_array.LoadFile(filepath)
-    img_array = np.transpose(img_array)
-    img_array = np.swapaxes(img_array, 0, 1)
+    with rio.open(filepath) as src:
+        img_array = src.read()
+
     return img_array
 
 

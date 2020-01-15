@@ -1,5 +1,5 @@
 
-class Config():
+class Config:
     train_images_path = ("/media/seba/Samsung_2TB/Analysis/hemp.detection/"
         "data/train_images")
     train_annotations_path = ("/media/seba/Samsung_2TB/Analysis/hemp.detection/"

@@ -101,4 +101,4 @@ do
     --tstamps_file "$path_camera/img_tstamps.csv"
 done
 
-echo -e '\nProcessing of dataset completed successfully'
+echo -e '\nProcessing of dataset completed'

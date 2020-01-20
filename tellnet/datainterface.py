@@ -44,8 +44,7 @@ class DataInterface:
             self.dates.append(date)
             self.dates.sort()
 
-        band = dataset.split("/")[-1].split("_")[-2]
-        dataset_name = date + "_" + band
+        dataset_name = date
 
         if dataset_name not in self.datasets_names:
             self.datasets_names.append(dataset_name)
@@ -57,7 +56,8 @@ class DataInterface:
         self.resolutions[dataset_name] = (source.transform[0],
             -source.transform[4])
         self.crs[dataset_name] = source.crs
-        self.datasets_shape[dataset_name] = (source.height, source.width)
+        self.datasets_shape[dataset_name] = (source.count, source.height,
+            source.width)
 #-------------------------------------------------------------------------------
 
     def add_shapefile(self, shapefile):
@@ -125,8 +125,7 @@ class DataInterface:
         """
 
         out_shape = self.datasets_shape[ref_dataset]
-        self.data_mask = np.squeeze(self.datasets[ref_dataset].read()
-            != self.no_data_val)
+        self.data_mask = self.datasets[ref_dataset].read(1) != self.no_data_val
 
         for dataset_name in self.datasets_names:
             if not dataset_name.startswith(ref_dataset.split("_")[0]):
@@ -165,7 +164,7 @@ class DataInterface:
 #-------------------------------------------------------------------------------
 
 
-    def ndvi(self, date):
+    def ndvi(self, dataset_name):
         """Computes the NDVI-map for the specified date.
 
         Parameters
@@ -179,15 +178,12 @@ class DataInterface:
         numpy.ndarray
             raster containing the NDVI-map for the specified date
         """
-        r_name = date + "_red"
-        nir_name = date + "_nir"
+        r_band_nb = 3   # NOTE: wavelenght ordering instead of MicaSense ordering
+        nir_band_nb = 5 # NOTE: wavelenght ordering instead of MicaSense ordering
         try:
-            red = np.squeeze(self.datasets[r_name].read())
+            red = self.datasets[dataset_name].read(r_band_nb)
+            nir = self.datasets[dataset_name].read(nir_band_nb)
         except KeyError as e:
-            raise type(e)("'red' band for the specified date has not been added yet.")
-        try:
-            nir = np.squeeze(self.datasets[nir_name].read())
-        except KeyError as e:
-            raise type(e)("'nir' band for the specified date has not been added yet.")
+            raise type(e)("Specified dataset has not been added yet.")
         else:
             return ssf.ndvi(nir, red)

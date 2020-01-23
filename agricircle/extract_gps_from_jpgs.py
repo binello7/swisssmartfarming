@@ -11,9 +11,17 @@ import argparse
 
 # parse the arguments
 parser = argparse.ArgumentParser()
+parser.add_argument("--imgs_folder", "-i", required=True,
+    help="Path to the folder where the geotagged images are stored.")
+parser.add_argument("--output_folder", "-o", required=True,
+    help="Path to the folder where the shapefile will be stored.")
+parser.add_argument("--filename", "-n", default="locations.shp", required=False,
+    help="Name to assign to the file.")
+args = parser.parse_args()
 
-
-imgs_path = '/home/seba/polybox/Matterhorn.Project/Fields/FiBL/Rheinau/GPS Photos/20190604Rheinau Files/'
+imgs_path = args.imgs_folder
+if imgs_path[-1] != '/':
+    imgs_path += '/'
 
 imgs_list = glob.glob(imgs_path + '*.jpg')
 
@@ -33,10 +41,13 @@ for img_name in imgs_list:
 gsr = gpd.GeoSeries(points)
 gsr.crs = {'init': 'epsg:4326'}
 gsr = gsr.to_crs({'init': 'epsg:3857'})
-save_path = '/media/seba/Samsung_2TB/AgriCircle/Rheinau/Shapes'
-file_name = 'samples.shp'
+output_folder = args.output_folder
+filename = args.filename
 
-if not os.path.exists(save_path):
-    os.mkdir(save_path)
+if not filename.split('.')[-1] == 'shp':
+    filename += '.shp'
 
-gsr.to_file(os.path.join(save_path, file_name))
+if not os.path.exists(output_folder):
+    os.mkdir(output_folder)
+
+gsr.to_file(os.path.join(output_folder, filename))

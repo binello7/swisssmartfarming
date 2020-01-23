@@ -7,21 +7,26 @@ from geopy.point import Point
 import shapely.geometry as shg
 import geopandas as gpd
 import os
+import argparse
+
+# parse the arguments
+parser = argparse.ArgumentParser()
+
 
 imgs_path = '/home/seba/polybox/Matterhorn.Project/Fields/FiBL/Rheinau/GPS Photos/20190604Rheinau Files/'
 
 imgs_list = glob.glob(imgs_path + '*.jpg')
 
 points = []
-for img in imgs_list:
-    with open(img, 'rb') as img:
+for img_name in imgs_list:
+    with open(img_name, 'rb') as img:
         img = Image(img)
-        lon = img.gps_latitude
-        lat = img.gps_longitude
-        location = "{} {}m {}s N; {} {}m {}s E".format(lat[0], lat[1], lat[2],
+        lon = img.gps_longitude
+        lat = img.gps_latitude
+        location = "{} {}m {}s N {} {}m {}s E".format(lat[0], lat[1], lat[2],
             lon[0], lon[1], lon[2])
         point = Point(location)
-        point = shg.Point(point[0], point[1])
+        point = shg.Point(point.longitude, point.latitude)
         points.append(point)
 
 # write the points to a shapefile

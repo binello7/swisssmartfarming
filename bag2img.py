@@ -27,7 +27,7 @@ class Img_Extractor(object):
         self.parser.add_argument('--file_name', required=False,
                         help='Prefixed file name for stored images',default="frame")
         self.parser.add_argument('--output_format', required=False,
-                        help='output image format, e.g., jpg or png',default="jpg")
+                        help='output image format, e.g., jpg or png',default="png")
         self.parser.add_argument('--output_folder', required=False,
                         help='Path to a output folder where extracted images will be stored.',default="./output")
         self.parser.add_argument('--encoding', required=False,
@@ -39,6 +39,7 @@ class Img_Extractor(object):
         if not os.path.exists(self.args.output_folder):
             os.mkdir(self.args.output_folder)
         self.bag_file=rosbag.Bag(self.args.bag_file,"r")
+
         for i,msg in enumerate(self.bag_file.read_messages(topics=[self.args.topic])):
             try:
                 cv2_img = self.bridge.imgmsg_to_cv2(msg.message, desired_encoding=self.args.encoding)

@@ -85,7 +85,7 @@ do
     ./thermal2tiff.py --bag_file $path_bag --output_folder $path_camera
   else
     ./bag2img.py --topic=${topics[$i]} --bag_file=$path_bag \
-      --output_folder=$path_camera --output_format=jpg
+      --output_folder=$path_camera --output_format=png
   fi
 
   if [[ ${cameras[$i]} == "nir" ]] || [[ ${cameras[$i]} == "vis" ]]

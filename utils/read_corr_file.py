@@ -35,21 +35,65 @@ def read_responses(file_name):
 	wavelengths = np.arange(start, end+res, res)
 	return responses, coefs, wavelengths
 
+def read_peaks(file_name):
+	xml = mdom.parse(file_name)
+	peaks = xml.getElementsByTagName("peak")
+	peaks_wavelengths = []
+	peaks_contributions = []
+
+	for peak in peaks:
+		wavelenght = float(str(peak.childNodes.item(1).firstChild).split("'")[1])
+		peaks_wavelengths.append(wavelenght)
+		contribution = float(str(peak.childNodes.item(7).firstChild).split("'")[1])
+		peaks_contributions.append(contribution)
+
+	peaks_wavelengths = np.array(peaks_wavelengths)
+	peaks_contributions = np.array(peaks_contributions)
+
+	return peaks_wavelengths, peaks_contributions
+
+def read_corr_matrix(file_name):
+	xml = mdom.parse(file_name)
+	virtual_bands = xml.getElementsByTagName("virtual_band")
+	wavelengths = []
+	coefficients = []
+
+	for virtual_band in virtual_bands:
+		wavelength = float(str(virtual_band.childNodes.item(1).firstChild)
+			.split("'")[1])
+		wavelengths.append(wavelength)
+		coeffs = str(virtual_band.childNodes.item(5).firstChild.data).split(', ')
+		coefficients.append(coeffs)
+
+	coefficients = np.array(coefficients)
+	wavelengths = np.array(wavelengths)
+
+	return wavelengths, coefficients
+
+
 
 if __name__ == "__main__":
 	xml_vis = "/home/seba/polybox/Matterhorn.Project/Sensors/Photonfocus/CMV2K-SSM4x4-470_620-9.4.10.10_HS03-VIS.xml"
+	xml_nir = "/home/seba/polybox/Matterhorn.Project/Sensors/Photonfocus/CMV2K-SSM5x5-665_975-13.8.15.1_HS02-NIR.xml"
 	responses, coefs, wavelengths = read_responses(xml_vis)
 	responses = responses * coefs[0] * coefs[1]
 	responses = np.transpose(responses)
+
+	peaks, contributions = read_peaks(xml_vis)
+
 	bands_idx = np.arange(0, responses.shape[1]+1)
 	legend = []
 	for idx in bands_idx:
 		band_name = "band_" + str(idx)
 		legend.append(band_name)
 
-	# plot bands
-	fig, ax = plt.subplots(figsize=(20,10))
-	ax.set_aspect('auto')
-	ax.plot(wavelengths, responses)
-	ax.legend(legend)
-	plt.savefig('vis.png', dpi=500)
+	virt_wl, corr_matrix = read_corr_matrix(xml_vis)
+	embed()
+
+	# # plot bands
+	# fig, ax = plt.subplots(figsize=(20,10))
+	# ax.set_aspect('auto')
+	# ax.plot(wavelengths, responses)
+	# ax.legend(legend)
+	# plt.show()
+	# # plt.savefig('nir.png', dpi=500)

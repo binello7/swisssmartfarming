@@ -21,17 +21,22 @@ class Img_Extractor(object):
 
     def args_parse(self):
         self.parser.add_argument('--topic', required=True,
-                        help='Name of image topic you want to extract')
+            help='Name of image topic you want to extract')
         self.parser.add_argument('--bag_file', required=True,
-                        help='Path to the bag file and name, e.g. ./dataset/Big.bag')
+            help='Path to the bag file and name, e.g. ./dataset/Big.bag')
         self.parser.add_argument('--file_name', required=False,
-                        help='Prefixed file name for stored images',default="frame")
+            help='Prefixed file name for stored images',
+            default="frame")
         self.parser.add_argument('--output_format', required=False,
-                        help='output image format, e.g., jpg or png',default="png")
+            choices=['png', 'jpg']
+            help='output image format, either jpg or png',
+            default="png")
         self.parser.add_argument('--output_folder', required=False,
-                        help='Path to a output folder where extracted images will be stored.',default="./output")
+            help='Path to a output folder where extracted images will be stored.',
+            default="./output")
         self.parser.add_argument('--encoding', required=False,
-                        help='encoding options, e.g., mono8, mono16, bgr8, rgb8, bgra8, rgba8',default="passthrough")
+            help='encoding options, e.g., mono8, mono16, bgr8, rgb8, bgra8, rgba8',
+            default="passthrough")
         self.args = self.parser.parse_args()
 
     def run(self):

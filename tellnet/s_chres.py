@@ -6,6 +6,7 @@ from IPython import embed
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import os
 
 files_paths = [
     ("/media/seba/Samsung_2TB/TELLnet/Fields/meier-burkard/chres/"
@@ -15,6 +16,8 @@ files_paths = [
     ("/media/seba/Samsung_2TB/TELLnet/Fields/meier-burkard/chres/"
         "20190507/chres_20190507_p4dfields_georef.tif")
 ]
+
+sep = os.path.sep
 
 shapefile = "/media/seba/Samsung_2TB/TELLnet/Shapes/chres/chres.shp"
 
@@ -80,20 +83,24 @@ titles = [
     "07.05.2019 - 18.04.2019"
 ]
 
+outputs = "outputs"
+if ~os.path.isdir(outputs):
+    os.mkdir(outputs)
+
 for i, (diff, title, diff_nan) in enumerate(zip(diffs, titles, diffs_nan)):
     plt.figure()
     plt.imshow(diff, cmap='RdYlGn', vmin=0, vmax=0.06)
     plt.title('NDVI difference: {}'.format(title))
     plt.colorbar()
-    plt.savefig('NDVI_diff_abs{}.png'.format(str(i+1)), dpi=500)
+    plt.savefig(outputs + sep + 'NDVI_diff_abs{}.png'.format(str(i+1)), dpi=500)
 
     plt.figure()
     plt.imshow(diff, cmap='RdYlGn', vmin=q25[i], vmax=q75[i])
     plt.title('NDVI difference: {}'.format(title))
     plt.colorbar()
-    plt.savefig('NDVI_diff_rel{}.png'.format(str(i+1)), dpi=500)
+    plt.savefig(outputs + sep + 'NDVI_diff_rel{}.png'.format(str(i+1)), dpi=500)
 
     plt.figure()
     sns.distplot(diff_nan)
     plt.title('Distribution: {}'.format(title))
-    plt.savefig('distr_{}.png'.format(str(i+1)), dpi=500)
+    plt.savefig(outputs + sep + 'distr_{}.png'.format(str(i+1)), dpi=500)

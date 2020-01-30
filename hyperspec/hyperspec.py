@@ -16,8 +16,8 @@ def read_raw(file_path):
     return img
 #-------------------------------------------------------------------------------
 
-def read_corr_matrix(file_path):
-    xml = mdom.parse(file_path)
+def read_corr_matrix(file_name):
+    xml = mdom.parse(file_name)
     virtual_bands = xml.getElementsByTagName("virtual_band")
     wavelengths = []
     coefficients = []
@@ -26,8 +26,15 @@ def read_corr_matrix(file_path):
         wavelength = float(str(virtual_band.childNodes.item(1).firstChild)
             .split("'")[1])
         wavelengths.append(wavelength)
-        coeffs = str(virtual_band.childNodes.item(5).firstChild.data).split(', ')
-        coefficients.append(coeffs)
+        coeffs = str(virtual_band.childNodes.item(5)
+            .firstChild.data).split(', ')
+
+        data = []
+        for coeff in coeffs:
+            coeff = float(coeff)
+            data.append(coeff)
+
+        coefficients.append(data)
 
     coefficients = np.array(coefficients)
     wavelengths = np.array(wavelengths)

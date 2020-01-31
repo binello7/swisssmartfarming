@@ -1,12 +1,18 @@
-from spectral import *
+import spectral as sp
 import numpy as np
 import xml.dom.minidom as mdom
+from IPython import embed
+import os
+
+sep = os.path.sep
 
 def say_hi():
     print("hi, I am hyperspec module")
 
 def read_bsq(file_path):
-    return open_image(file_path)
+    path = sep.join(file_path.split(sep)[0:-1])
+    hdr = file_path.split(sep)[-1].split('.')[0] + '.hdr'
+    return sp.open_image(path + sep + hdr).load()
 #-------------------------------------------------------------------------------
 
 def read_raw(file_path):

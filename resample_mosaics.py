@@ -8,46 +8,30 @@ import math
 import argparse
 import random as rnd
 
+def resample(mosaic, nb_bands):
+    width_px = mosaic.shape[1]
+    height_px = mosaic.shape[0]
+    blksize = int(math.sqrt(nb_bands))
+    offset_c = int(width_px % blksize)
+    offset_r = int(height_px % blksize)
+    width_px = width_px - offset_c
+    height_px = height_px - offset_r
+    width_px_res = int(width_px / blksize)
+    height_px_res = int(height_px / blksize)
 
-class Resampler(object):
-    def __init__(self):
-        self.parser=argparse.ArgumentParser(description='resample mosaic images to multilayer GeoTiffs')
-        self.args=None
-        self.input_folder=None
+    img_res = np.zeros((height_px_res, width_px_res, nb_bands))
+    band = 0
+    for i in range(blksize):
+        for j in range(blksize):
+            img_tmp = mosaic[np.arange(i, height_px, blksize), :]
+            img_res[:, :, band] = img_tmp[:, np.arange(j, width_px, blksize)]
+            band += 1
+    return img_res
+
+class Resampler:
+    def __init__(self, args):
+        self.args=args
         self.nb_bands=None
-        self.args_parse()
-
-    def args_parse(self):
-        self.parser.add_argument('--input_folder', required=True,
-                        help='Path to the folder containing the mosaic images to resample')
-        self.parser.add_argument('--nb_bands', required=True,
-                        help='Number of bands of the camera')
-        self.parser.add_argument('--overwrite_original',
-                        default=False,
-                        help='overwrites the original non-resampled image',
-                        action='store_true')
-
-        self.args = self.parser.parse_args()
-
-    def resample(self, img_raw):
-        width_px = img_raw.shape[1]
-        height_px = img_raw.shape[0]
-        blksize = int(math.sqrt(self.nb_bands))
-        offset_c = int(width_px % blksize)
-        offset_r = int(height_px % blksize)
-        width_px = width_px - offset_c
-        height_px = height_px - offset_r
-        width_px_res = int(width_px / blksize)
-        height_px_res = int(height_px / blksize)
-
-        img_res = np.zeros((height_px_res, width_px_res, self.nb_bands))
-        band = 0
-        for i in range(blksize):
-            for j in range(blksize):
-                img_tmp = img_raw[np.arange(i, height_px, blksize), :]
-                img_res[:, :, band] = img_tmp[:, np.arange(j, width_px, blksize)]
-                band += 1
-        return img_res
 
     def run(self):
         self.input_folder = self.args.input_folder
@@ -113,5 +97,16 @@ class Resampler(object):
 
 
 if __name__ == "__main__":
-    resampler=Resampler()
+    parser = argparse.ArgumentParser(description='resample mosaic images to multilayer GeoTiffs')
+    parser.add_argument('--input_folder', required=True,
+        help='Path to the folder containing the mosaic images to resample')
+    parser.add_argument('--nb_bands', required=True,
+        help='Number of bands of the camera')
+    parser.add_argument('--overwrite_original',
+        default=False,
+        help='overwrites the original non-resampled image',
+        action='store_true')
+
+    args = parser.parse_args()
+    resampler=Resampler(args)
     resampler.run()

@@ -5,6 +5,9 @@ The code is here
 
 ## Install
 
+## Dependencies
+* piexif
+
 
 ## Datasets Structure
 All the SSF datasets have the structure shown in the following diagram. The root

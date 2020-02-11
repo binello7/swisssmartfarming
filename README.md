@@ -7,6 +7,7 @@ The code is here
 
 ## Dependencies
 * piexif
+* yaml
 
 
 ## Datasets Structure

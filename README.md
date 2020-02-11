@@ -6,6 +6,7 @@ The code is here
 ## Install
 
 ## Dependencies
+* Pillow
 * piexif
 * yaml
 

@@ -10,6 +10,7 @@ The code is here
 * cv-bridge==1.13.0
 * Pillow
 * piexif
+* rosbag==1.14.3
 * yaml
 
 

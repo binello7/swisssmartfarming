@@ -7,6 +7,7 @@ The code is here
 
 ## Dependencies
 * argparse
+* cv-bridge==1.13.0
 * Pillow
 * piexif
 * yaml

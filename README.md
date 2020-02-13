@@ -8,7 +8,7 @@ The code is here
 ## Dependencies
 * argparse
 * cv-bridge==1.13.0
-* Pillow
+* Pillow==7.0.0
 * piexif
 * rosbag==1.14.3
 * yaml

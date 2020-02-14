@@ -1,4 +1,5 @@
 import numpy as np
+import sw
 from osgeo import gdal_array
 from osgeo import gdal
 import rasterio as rio

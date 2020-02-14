@@ -2,25 +2,17 @@
 
 import os
 import argparse
-# from ros import rosbag
-# import rospy
+import rosbag
 # from sensor_msgs.msg import Image
 import cv2
-from cv_bridge import CvBridge, CvBridgeError
+, CvBridgeError
 from timeit import default_timer as timer
 from IPython import embed
 
-# def bag2imgs()
+
 
 def run(self):
-    start = timer()
-    if not os.path.exists(args.output_folder):
-        os.mkdir(args.output_folder)
-    bag_file=rosbag.Bag(args.bag_file,"r")
-
     for i,msg in enumerate(bag_file.read_messages(topics=[args.topic])):
-        # try:
-        cv2_img = bridge.imgmsg_to_cv2(msg.message, desired_encoding=args.encoding)
         outputFileName=os.path.join(args.output_folder,"{}_{:06d}.{}".format(args.file_name,i,args.output_format))
         print("{} saved".format(outputFileName))
         total_n_image=i
@@ -35,15 +27,15 @@ def run(self):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Extract images from a bag file')
-    parser.add_argument('--topic', '-t',
-        required=True,
-        help='Name of image topic to extract')
-    parser.add_argument('--bag_file', '-b',
-        required=True,
-        help='Path to the bag file and name, e.g. ./dataset/Big.bag')
+    # parser.add_argument('--topic', '-t',
+    #     required=True,
+    #     help='Name of image topic to extract')
+    # parser.add_argument('--bag_file', '-b',
+    #     required=True,
+    #     help='Path to the bag file and name, e.g. ./dataset/Big.bag')
     parser.add_argument('--file_name',
         required=False,
-        help='Prefixed file name for stored images',
+        help='Prefixed file name for stored images',read_bagimg
         default='frame')
     parser.add_argument('--output_format',
         required=False,
@@ -59,7 +51,9 @@ if __name__ == "__main__":
         help='encoding options, e.g., mono8, mono16, bgr8, rgb8, bgra8, rgba8',
         default="passthrough")
     args = parser.parse_args()
-    embed()
+
+
+
 
     # extractor=Img_Extractor()
     # extractor.run()

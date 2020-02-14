@@ -8,26 +8,6 @@ import math
 import argparse
 import random as rnd
 
-def resample(mosaic, nb_bands):
-    width_px = mosaic.shape[1]
-    height_px = mosaic.shape[0]
-    blksize = int(math.sqrt(nb_bands))
-    offset_c = int(width_px % blksize)
-    offset_r = int(height_px % blksize)
-    width_px = width_px - offset_c
-    height_px = height_px - offset_r
-    width_px_res = int(width_px / blksize)
-    height_px_res = int(height_px / blksize)
-
-    img_res = np.zeros((height_px_res, width_px_res, nb_bands))
-    band = 0
-    for i in range(blksize):
-        for j in range(blksize):
-            img_tmp = mosaic[np.arange(i, height_px, blksize), :]
-            img_res[:, :, band] = img_tmp[:, np.arange(j, width_px, blksize)]
-            band += 1
-    return img_res
-
 class Resampler:
     def __init__(self, args):
         self.args=args

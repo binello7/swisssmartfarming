@@ -1,15 +1,34 @@
 import numpy as np
-import sw
-from osgeo import gdal_array
-from osgeo import gdal
-import rasterio as rio
+# from osgeo import gdal_array
+# from osgeo import gdal
+# import rasterio as rio
 import cv2
-import tkFileDialog
-import Tkinter as tk
-from roipoly import RoiPoly
-from matplotlib import pyplot as plt
+# import tkFileDialog
+# import Tkinter as tk
+# from roipoly import RoiPoly
+# from matplotlib import pyplot as plt
 import math
 import os
+
+sep = os.path.sep
+
+def add_sep(path):
+    if not path.endswith(sep):
+        path = path + sep
+    return path
+#-------------------------------------------------------------------------------
+
+def rm_sep(path):
+    if path.endswith(sep):
+        path = path[:-1]
+    return path
+#-------------------------------------------------------------------------------
+
+def get_file_basename(filepath):
+    basename = filepath.split(sep)[-1]
+    extension = basename.split('.')[-1]
+    basename = '.'.join(basename.split('.')[:-1])
+    return (basename, extension)
 
 def read_geotiff(filepath):
     with rio.open(filepath) as src:

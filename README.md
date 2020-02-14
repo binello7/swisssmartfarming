@@ -11,6 +11,7 @@ The code is here
 * Pillow==7.0.0
 * piexif
 * rosbag==1.14.3
+* rootpath==0.1.1
 * yaml
 
 

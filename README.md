@@ -13,6 +13,7 @@ The code is here
 * rasterio==1.1.2
 * rosbag==1.14.3
 * rootpath==0.1.1
+* seaborn==0.10.0
 * yaml
 
 

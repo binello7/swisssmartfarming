@@ -10,6 +10,7 @@ The code is here
 * cv-bridge==1.13.0
 * Pillow==7.0.0
 * piexif
+* rasterio==1.1.2
 * rosbag==1.14.3
 * rootpath==0.1.1
 * yaml

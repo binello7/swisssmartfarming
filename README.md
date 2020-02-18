@@ -9,6 +9,7 @@ The code is here
 * argparse
 * cv-bridge==1.13.0
 * matplotlib==3.1.3
+* numpy==1.15.2
 * Pillow==7.0.0
 * piexif
 * rasterio==1.1.2

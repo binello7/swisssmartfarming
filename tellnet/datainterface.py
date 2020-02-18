@@ -8,7 +8,7 @@ from contextlib import contextmanager
 import geopandas as gpd
 import fiona as fio
 import numpy as np
-import swisssmartfarming.utils.ssf_functions as ssf
+import utils.functions as ufunc
 from IPython import embed
 
 class DataInterface:
@@ -186,4 +186,4 @@ class DataInterface:
         except KeyError as e:
             raise type(e)("Specified dataset has not been added yet.")
         else:
-            return ssf.ndvi(nir, red)
+            return ufunc.ndvi(nir, red)

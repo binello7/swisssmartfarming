@@ -8,6 +8,7 @@ The code is here
 ## Dependencies
 * argparse
 * cv-bridge==1.13.0
+* matplotlib==3.1.3
 * Pillow==7.0.0
 * piexif
 * rasterio==1.1.2

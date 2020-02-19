@@ -20,7 +20,6 @@ class DataInterface:
         self.shapefile = None
         self.transforms = {}
         self.datasets_shape = {}
-        self.datasets_in_memory = {}
         self.resolutions = {}
         self.crs = {}
         self.data_mask = None
@@ -125,7 +124,8 @@ class DataInterface:
         """
 
         out_shape = self.datasets_shape[ref_dataset]
-        self.data_mask = self.datasets[ref_dataset].read(1) != self.no_data_val
+        ref_array = self.datasets[ref_dataset].read(1)
+        self.data_mask = (ref_array!=self.no_data_val) & (ref_array!=0)
 
         for dataset_name in self.datasets_names:
             if not dataset_name.startswith(ref_dataset.split("_")[0]):
@@ -146,23 +146,6 @@ class DataInterface:
 
                     self.datasets[dataset_name] = memfile.open()
 #-------------------------------------------------------------------------------
-
-    def load_dataset_to_memory(self, dataset_name):
-        """Loads the specified dataset to memory.
-
-        Parameters
-        ----------
-        dataset_name: str
-            name of the dataset that should be loaded
-        """
-        try:
-            data = self.datasets[dataset_name].read()
-        except KeyError as e:
-            raise type(e)(str(e) + ' not in datasets')
-        else:
-            self.datasets_in_memory[dataset_name] = data
-#-------------------------------------------------------------------------------
-
 
     def ndvi(self, dataset_name):
         """Computes the NDVI-map for the specified date.

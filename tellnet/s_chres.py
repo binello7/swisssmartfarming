@@ -1,4 +1,4 @@
-#!../venv/bin/python2
+#!../venv/bin/python3
 
 import rasterio as rio
 from datainterface import DataInterface
@@ -9,17 +9,16 @@ import seaborn as sns
 import os
 
 files_paths = [
-    ("/media/seba/Samsung_2TB/TELLnet/Fields/meier-burkard/chres/"
-        "20190322/chres_20190322_p4dfields_georef.tif"),
-    ("/media/seba/Samsung_2TB/TELLnet/Fields/meier-burkard/chres/"
-        "20190418/chres_20190418_p4dfields_georef.tif"),
-    ("/media/seba/Samsung_2TB/TELLnet/Fields/meier-burkard/chres/"
-        "20190507/chres_20190507_p4dfields_georef.tif")
+    ("/media/seba/Samsung_2TB/Matterhorn.Project/TELLnet/Fields/meier-burkard/"
+        "chres/20190322/chres_20190322_p4dfields_georef.tif"),
+    ("/media/seba/Samsung_2TB/Matterhorn.Project/TELLnet/Fields/meier-burkard/"
+        "chres/20190418/chres_20190418_p4dfields_georef.tif"),
+    ("/media/seba/Samsung_2TB/Matterhorn.Project/TELLnet/Fields/meier-burkard/"
+        "chres/20190507/chres_20190507_p4dfields_georef.tif")
 ]
 
-sep = os.path.sep
-
-shapefile = "/media/seba/Samsung_2TB/TELLnet/Shapes/chres/chres.shp"
+shapefile = ("/media/seba/Samsung_2TB/Matterhorn.Project/TELLnet/Shapes/"
+    "chres/chres.shp")
 
 chres = DataInterface()
 
@@ -38,69 +37,81 @@ for dataset in chres.datasets_names:
 chres.align_datasets('20190507')
 
 # compute ndvi
-ndvi_20190322 = chres.ndvi('20190322')
-ndvi_20190418 = chres.ndvi('20190418')
-ndvi_20190507 = chres.ndvi('20190507')
+ndvis = []
+for date in chres.dates:
+    ndvi = chres.ndvi(date)
+    ndvis.append(ndvi)
 
-# mask the field
-ndvi_20190322[~chres.data_mask] = np.nan
-ndvi_20190418[~chres.data_mask] = np.nan
-ndvi_20190507[~chres.data_mask] = np.nan
-
-ndvis = [
-    ndvi_20190322,
-    ndvi_20190418,
-    ndvi_20190507
-]
-
-# mask the field
-for ndvi in ndvis:
+# exclude regions outside the plot / where data are missing
+for i, ndvi in enumerate(ndvis):
     ndvi[~chres.data_mask] = np.nan
+    ndvis[i] = ndvi
 
 # compute diffs
-diff_1 = ndvi_20190418 - ndvi_20190322
-diff_2 = ndvi_20190507 - ndvi_20190418
-diffs = [diff_1, diff_2]
+diffs = []
+for i in range(len(ndvis)-1):
+    diff = ndvis[i+1] - ndvis[i]
+    diffs.append(diff)
+
+for i, diff in enumerate(diffs):
+    diff[~chres.data_mask] = np.nan
+    diffs[i] = diff
 
 # compute quantiles
 q25 = []
+q50 = []
 q75 = []
 for diff in diffs:
     q25.append(np.nanquantile(diff, 0.25))
+    q50.append(np.nanquantile(diff, 0.50))
     q75.append(np.nanquantile(diff, 0.75))
 q25 = np.array(q25)
 q75 = np.array(q75)
-
-# remove NaNs for distribution plot
-diffs_nan = []
-for diff in diffs:
-    diff = diff[~np.isnan(diff)]
-    diffs_nan.append(diff)
+print(q50)
 
 # generate the plots
-titles = [
-    "18.04.2019 - 22.03.2019",
-    "07.05.2019 - 18.04.2019"
-]
+outputs_folder = "outputs"
+if not os.path.isdir(outputs_folder):
+    os.mkdir(outputs_folder)
 
-outputs = "outputs"
-if ~os.path.isdir(outputs):
-    os.mkdir(outputs)
-
-for i, (diff, title, diff_nan) in enumerate(zip(diffs, titles, diffs_nan)):
-    plt.figure()
-    plt.imshow(diff, cmap='RdYlGn', vmin=0, vmax=0.06)
-    plt.title('NDVI difference: {}'.format(title))
+dpi = 200
+for i, diff in enumerate(diffs):
+    fig, ax = plt.subplots()
+    plt.imshow(diff, cmap='YlGn', vmin=0, vmax=0.06)
     plt.colorbar()
-    plt.savefig(outputs + sep + 'NDVI_diff_abs{}.png'.format(str(i+1)), dpi=500)
+    ax.axis('off')
+    fname = 'diff_abs_{}.png'.format(str(i+1))
+    full_fname = os.path.join(outputs_folder, fname)
+    plt.savefig(full_fname, dpi=dpi, bbox_inches='tight')
 
-    plt.figure()
+    fig, ax = plt.subplots()
     plt.imshow(diff, cmap='RdYlGn', vmin=q25[i], vmax=q75[i])
-    plt.title('NDVI difference: {}'.format(title))
     plt.colorbar()
-    plt.savefig(outputs + sep + 'NDVI_diff_rel{}.png'.format(str(i+1)), dpi=500)
+    ax.axis('off')
+    fname = 'diff_rel_{}.png'.format(str(i+1))
+    full_fname = os.path.join(outputs_folder, fname)
+    plt.savefig(full_fname, dpi=dpi, bbox_inches='tight')
 
-    plt.figure()
-    sns.distplot(diff_nan)
-    plt.title('Distribution: {}'.format(title))
-    plt.savefig(outputs + sep + 'distr_{}.png'.format(str(i+1)), dpi=500)
+    fig, ax = plt.subplots()
+    diff = diff[~np.isnan(diff)]
+    sns.distplot(diff)
+    fname = 'distr_diff_{}.png'.format(str(i+1))
+    full_fname = os.path.join(outputs_folder, fname)
+    plt.savefig(full_fname, dpi=dpi, bbox_inches='tight')
+
+for i, ndvi in enumerate(ndvis):
+    fig, ax = plt.subplots()
+    plt.imshow(ndvi, cmap='YlGn', vmin=0.75, vmax=1)
+    plt.colorbar()
+    ax.axis('off')
+    fname = 'ndvi_{}.png'.format(chres.dates[i])
+    full_fname = os.path.join(outputs_folder, fname)
+    plt.savefig(full_fname, dpi=dpi, bbox_inches='tight')
+
+    fig, ax = plt.subplots()
+    ndvi = ndvi.flatten()
+    ndvi = ndvi[ndvi!=np.nan]
+    sns.distplot(ndvi)
+    fname = 'distr_ndvi_{}.png'.format(chres.dates[i])
+    full_fname = os.path.join(outputs_folder, fname)
+    plt.savefig(full_fname, dpi=dpi, bbox_inches='tight')

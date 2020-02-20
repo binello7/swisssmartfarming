@@ -13,6 +13,7 @@ The code is here
 * numpy==1.15.2
 * Pillow==7.0.0
 * piexif
+* pygdal==2.2.3.6
 * rasterio==1.1.2
 * rosbag==1.14.3
 * rootpath==0.1.1

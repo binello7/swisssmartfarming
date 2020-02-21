@@ -1,6 +1,5 @@
 import numpy as np
-# from osgeo import gdal_array
-# from osgeo import gdal
+from osgeo import gdal
 # import rasterio as rio
 import cv2
 # import tkFileDialog
@@ -29,24 +28,28 @@ def get_file_basename(filepath):
     extension = basename.split('.')[-1]
     basename = '.'.join(basename.split('.')[:-1])
     return (basename, extension)
+#-------------------------------------------------------------------------------
 
 def read_geotiff(filepath):
     with rio.open(filepath) as src:
         img_array = src.read()
-
     return img_array
+#-------------------------------------------------------------------------------
 
+def write_geotiff(img_array, filepath):
+    driver = gdal.GetDriverByName('GTiff')
+    dataset = driver.Create(
+        filepath,
+        img_array.shape[1],
+        img_array.shape[0],
+        img_array.shape[2],
+        gdal.GDT_Byte
+    )
+    for b in range(img_array.shape[2]):
+        dataset.GetRasterBand(b+1).WriteArray(img_array[:, :, b])
 
-def write_geotiff(array, filepath):
-        dst_ds = gdal.GetDriverByName('GTiff').Create(filepath,
-                array.shape[1], array.shape[0], array.shape[2], gdal.GDT_Byte)
-
-        for b in range(array.shape[2]):
-            dst_ds.GetRasterBand(b+1).WriteArray(array[:, :, b])
-
-        dst_ds.FlushCache() # write to disk
-        dst_ds = None
-
+    dataset.FlushCache() # write to disk
+#-------------------------------------------------------------------------------
 
 def get_DNpanel(camera_type, initialdir="/media/seba/Samsung_2TB/Processed"):
     root = tk.Tk()

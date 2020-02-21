@@ -5,15 +5,19 @@ import textwrap
 import os
 import sys
 import glob
+import math
 import rosbag
 import warnings
 import rootpath as rp
 import pandas as pd
 import numpy as np
+import rasterio as rio
 import utils.functions as ufunc
 from cv_bridge import CvBridge
 import piexif as px
+import pyexiv2
 import yaml
+import xml.dom.minidom as mdom
 from datetime import datetime as dt
 from PIL import Image
 from IPython import embed
@@ -42,7 +46,8 @@ class Preprocessor:
     def __init__(self, bagfile, rtk_topic='/ssf/dji_sdk/rtk_position',
         cam_cfg_path='cfg/cameras', timezone=2,
             exp_time_topics = {
-                'ximea_nir': '/ximea_asl/exposure_time',
+                'ximea_nir':
+                    '/ximea_asl/exposure_time',
                 'photonfocus_nir':
                     '/ssf/photonfocus_camera_nir_node/exposure_time_ms',
                 'photonfocus_vis':
@@ -55,17 +60,26 @@ class Preprocessor:
         self.bridge = CvBridge()
         self.encoding = "passthrough"
         self.cam_cfg_path = ufunc.add_sep(cam_cfg_path)
+        self.xml_file = None
         self.cam_info = {
             'make': None,
             'model': None,
+            'type': None,
             'focal_length_mm': None,
-            'img_topic': None,
+            'img_topic': None
         }
         self.img_info = {
             'date_time_orig': None,
             'gps_lat': None,
             'gps_lon': None,
             'gps_alt': None
+        }
+        self.hs_info = {
+            'filter_w': None,
+            'filter_h': None,
+            'offset_x': None,
+            'offset_y': None,
+            'nb_bands': None
         }
         topics = self.bagfile.get_type_and_topic_info().topics.keys()
         topics = [t for t in topics]
@@ -103,17 +117,19 @@ class Preprocessor:
 #-------------------------------------------------------------------------------
 
     def _set_cams_and_imgs_topics(self):
-        cfg_paths = glob.glob(self._rootpath + self.cam_cfg_path + '*.cfg')
+        cfg_paths = glob.glob(self._rootpath + self.cam_cfg_path + '*' +
+            self._sep)
         if cfg_paths == []:
-            raise CfgFileNotFoundError("No camera cfg file found at the "
+            raise CfgFileNotFoundError("No camera cfg folder found at the "
                 "specified location '{}'. Verify 'cam_cfg_path'.".format(
                     self.cam_cfg_path))
         else:
             imgs_topics = {}
             cams = []
             for path in cfg_paths:
+                cam = path.split(self._sep)[-2]
+                path = os.path.join(path, (cam + '.cfg'))
                 cam_cfg = self._cfg_to_dict(path)
-                cam = ufunc.get_file_basename(path)[0]
                 img_topic = cam_cfg['img_topic']
                 if img_topic in self.topics:
                     cams.append(cam)
@@ -139,7 +155,7 @@ class Preprocessor:
         return (val_rat, precision)
 #-------------------------------------------------------------------------------
 
-    def _latlon_to_rational(self, lat_lon, a=1e8):
+    def _latlon_to_rational(self, lat_lon, a=1e7):
         lat_lon = abs(lat_lon)
         deg = int(lat_lon)
         min = int((lat_lon - deg) * 60)
@@ -170,6 +186,33 @@ class Preprocessor:
             self.rtk_data = rtk_data
 #-------------------------------------------------------------------------------
 
+    def _set_filter_dims(self):
+        xml = mdom.parse(self.xml_file)
+        height = int(str(xml.getElementsByTagName("height")[1].firstChild.data))
+        width = int(str(xml.getElementsByTagName("width")[1].firstChild.data))
+        self.hs_info['filter_h'] = height
+        self.hs_info['filter_w'] = width
+#-------------------------------------------------------------------------------
+
+    def _set_offsets(self):
+        xml = mdom.parse(self.xml_file)
+        offset_x = xml.getElementsByTagName("offset_x")
+        offset_y = xml.getElementsByTagName("offset_y")
+        offset_x = int(str(offset_x.item(0).firstChild.data))
+        offset_y = int(str(offset_y.item(0).firstChild.data))
+        self.hs_info['offset_x'] = offset_x
+        self.hs_info['offset_y'] = offset_y
+#-------------------------------------------------------------------------------
+
+    def _set_nb_bands(self):
+        xml = mdom.parse(self.xml_file)
+        bands_width = xml.getElementsByTagName("pattern_width")
+        bands_height = xml.getElementsByTagName("pattern_height")
+        bands_width = int(str(bands_width.item(0).firstChild.data))
+        bands_height = int(str(bands_height.item(0).firstChild.data))
+        self.hs_info['nb_bands'] = bands_height * bands_width
+#-------------------------------------------------------------------------------
+
     def interp_exp_t(self, tstamp):
         exp_t = np.interp(tstamp, self.exp_t_data['tstamp'],
             self.exp_t_data['exp_t_ms'])
@@ -193,15 +236,31 @@ class Preprocessor:
         else:
             warnings.warn("No topic '{}' found. Exposure time will be loaded "
                 "from yaml file.".format(self.exp_time_topics[camera]))
+            self.exp_t_data = None
 #-------------------------------------------------------------------------------
 
     def set_cam_info(self, camera):
-        cfg_file = (os.path.join(self._rootpath, self.cam_cfg_path, camera)
-            + '.cfg')
+        cfg_folder = os.path.join(self._rootpath, self.cam_cfg_path, camera)
+        cfg_file = os.path.join(cfg_folder, '{}.cfg'.format(camera))
         with open(cfg_file) as file:
             cam_info = yaml.safe_load(file)
         if cam_info.keys() == self.cam_info.keys():
             self.cam_info.update(cam_info)
+            if self.cam_info['type'] == 'hyperspectral':
+                xml_file = glob.glob(os.path.join(cfg_folder, '*.xml'))
+                if xml_file == []:
+                    warnings.warn(("No xml file found for camera '{}'. "
+                        "Hyperspectral preprocessing will be skipped.").format(
+                            camera))
+                    self.xml_file = None
+                else:
+                    self.xml_file = xml_file[0]
+                    self._set_filter_dims()
+                    self._set_offsets()
+                    self._set_nb_bands()
+            else:
+                self.xml_file = None
+                self.hs_info = self.hs_info.fromkeys(self.hs_info, None)
         else:
             cam_prop = ["'{}'".format(k) for k in self.cam_info.keys()]
             cam_prop = ", ".join(cam_prop)
@@ -223,6 +282,27 @@ class Preprocessor:
     def imgmsg_to_cv2(self, message):
         return self.bridge.imgmsg_to_cv2(message.message,
             desired_encoding=self.encoding)
+#-------------------------------------------------------------------------------
+
+    def reshape_hs(self, img):
+        if self.xml_file == None:
+            warnings.warn("No xml file found. Skipping image reshaping.")
+            return
+        else:
+            img = img[self.hs_info['offset_y']:self.hs_info['offset_y']
+                + self.hs_info['filter_h'],
+                self.hs_info['offset_x']:self.hs_info['offset_x']
+                + self.hs_info['filter_w']]
+            pattern_len = int(math.sqrt(self.hs_info['nb_bands']))
+            img_res = np.zeros((int(img.shape[0]/pattern_len),
+                int(img.shape[1]/pattern_len), self.hs_info['nb_bands']))
+
+            for b, i in enumerate(range(pattern_len)):
+                for j in range(pattern_len):
+                    img_tmp = img[np.arange(i, img.shape[0], pattern_len), :]
+                    img_res[:, :, b] = img_tmp[:, np.arange(j, img.shape[1],
+                        pattern_len)]
+            return img_res
 #-------------------------------------------------------------------------------
 
     def write_exif_dict(self, exp_t=None):
@@ -299,10 +379,10 @@ if __name__ == "__main__":
 
     img_path = r"/media/seba/Samsung_2TB/temp/frick/20190716/rgb/frame_000027.jpg"
     bagfile_auto = "/media/seba/Samsung_2TB/Matterhorn.Project/Datasets/frick/20190626/bag/2019-06-26-14-20-34.bag"
-    bagfile_ximea = "/media/seba/Samsung_2TB/Matterhorn.Project/Datasets/eschikon/2019-05-27-14-53-54.bag"
+    bagfile_ximea = "/media/seba/Samsung_2TB/Matterhorn.Project/Datasets/eschikon/20190527/bag/2019-05-27-14-53-54.bag"
 
     # Create the Preprocessor object
-    bagfile = bagfile_auto
+    bagfile = bagfile_ximea
     preprocessor = Preprocessor(bagfile)
 
     # Set image properties
@@ -322,40 +402,54 @@ if __name__ == "__main__":
             os.makedirs(camera_folder)
 
         preprocessor.set_cam_info(cam)
+        # embed()
         try:
             exp_time_topic = preprocessor.exp_time_topics[cam]
         except KeyError:
             pass
         else:
-            switch_exp_t = True
             preprocessor.set_exp_t_data(cam) #TODO: implement reading exposure time from yaml file
 
         msgs = preprocessor.read_img_msgs(preprocessor.imgs_topics[cam])
         for i, msg in enumerate(msgs):
             # get one image after another with its timestamp and process it
             img_tstamp = msg.timestamp.to_nsec()
-            cv2_img = preprocessor.imgmsg_to_cv2(msg)
+            img_array = preprocessor.imgmsg_to_cv2(msg)
 
             # gps-rtk data were read already. Set img_info attribute
             preprocessor.set_img_info(img_tstamp)
-            if switch_exp_t:
-                exp_t = preprocessor.interp_exp_t(img_tstamp)
-            else:
-                exp_t = None
+            exp_t = None
+            # if isn preprocessor.exp_t_data != None:
+            #     exp_t = preprocessor.interp_exp_t(img_tstamp)
+
             exif_dict = preprocessor.write_exif_dict(exp_t=exp_t)
             exif_bytes = px.dump(exif_dict) #TODO: add number of bands to exif? think about it
 
-            im = Image.fromarray(cv2_img)
+
+
 
             # Do different processing steps depending on the camera type
-            if cam == 'blackfly_rgb':
+            if preprocessor.cam_info['type'] == 'RGB':
                 extension = '.jpg'
-            else:
+                fname = prefix + '_{:05d}'.format(i)
+                fname = fname + extension
+                full_fname = os.path.join(camera_folder, fname)
+
+            elif preprocessor.cam_info['type'] == 'hyperspectral':
+                # set filename and path
                 extension = '.tif'
+                fname = prefix + '_{:05d}'.format(i)
+                fname = fname + extension
+                full_fname = os.path.join(camera_folder, fname)
 
-            fname = prefix + '_{:05d}'.format(i)
-            fname = fname + extension
-            full_fname = os.path.join(camera_folder, fname)
-            im.save(full_fname, exif=exif_bytes, quality=100)
+                # reshape the raw sensor data
+                img_array = preprocessor.reshape_hs(img_array)
+                ufunc.write_geotiff(img_array, full_fname)
+                px.insert(exif_bytes, full_fname)
 
-        switch_exp_t = False
+            else:
+                extension = '.jpg'
+
+
+            # im = Image.fromarray(img_array)
+            # # im.save(full_fname, exif=exif_bytes, quality=100)

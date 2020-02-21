@@ -12,7 +12,7 @@ The code is here
 * matplotlib==3.1.3
 * numpy==1.15.2
 * Pillow==7.0.0
-* piexif
+* PyExifTool==0.1.1
 * pygdal==2.2.3.6
 * rasterio==1.1.2
 * rosbag==1.14.3

@@ -6,6 +6,7 @@ The code is here
 ## Install
 
 ## Dependencies
+Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 3.0.2, then ``pygdal==3.0.2.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
 * argparse
 * cv-bridge==1.13.0
 * geopandas==0.7.0

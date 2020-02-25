@@ -1,7 +1,6 @@
 import numpy as np
 from osgeo import gdal
 # import rasterio as rio
-import cv2
 # import tkFileDialog
 # import Tkinter as tk
 # from roipoly import RoiPoly

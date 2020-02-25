@@ -14,12 +14,14 @@ Many of the geodata operations performed within the project rely on the use of G
 * numpy==1.15.2
 * Pillow==7.0.0
 * pygdal==2.2.3.6
-* py3exiv2==0.7.1
+* py3exiv2==0.7.1<sup>1</sup>
 * rasterio==1.1.2
 * rosbag==1.14.3
 * rootpath==0.1.1
 * seaborn==0.10.0
 * yaml
+
+1. ``py3exiv2`` depends on: ``build-essential``, ``python-all-dev``, ``libexiv2-dev``, ``libboost-python-dev`` . Install them using ``apt``.
 
 
 ## Datasets Structure

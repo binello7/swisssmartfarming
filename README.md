@@ -18,6 +18,7 @@ Many of the geodata operations performed within the project rely on the use of G
 * rasterio==1.1.2
 * rosbag==1.14.3
 * rootpath==0.1.1
+* scipy==1.1.0
 * seaborn==0.10.0
 * yaml
 

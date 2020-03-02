@@ -15,7 +15,6 @@ import numpy as np
 import rasterio as rio
 import utils.functions as ufunc
 from cv_bridge import CvBridge
-import piexif as px
 import pyexiv2
 import yaml
 import xml.dom.minidom as mdom
@@ -341,46 +340,6 @@ class Preprocessor:
 
         metadata.update(meta_dict)
         metadata.write()
-#-------------------------------------------------------------------------------
-
-    def write_exif_dict(self, exp_t=None):
-        val_cam_info = self.cam_info.values()
-        val_cam_info = [val for val in val_cam_info]
-        val_cam_info = np.array(val_cam_info)
-        if any(val_cam_info==None):
-            raise ValueError(("'None' values detected. Set attribute "
-                "'cam_info' before writing the exif-dictionary."))
-        else:
-            zeroth_ifd = {
-                px.ImageIFD.Make: self.cam_info['make'],
-                px.ImageIFD.Model: self.cam_info['model']
-            }
-            exif_ifd = {
-                px.ExifIFD.FocalLength: self._float_to_rational(
-                    self.cam_info['focal_length_mm'], precision=100),
-                px.ExifIFD.DateTimeOriginal: self.img_info['date_time_orig']
-            }
-            if exp_t != None:
-                exif_ifd.update({px.ExifIFD.ExposureTime:
-                    self._msec_to_rational(exp_t)})
-
-
-
-            gps_ifd = {
-                px.GPSIFD.GPSLatitude: self._latlon_to_rational(
-                    self.img_info['gps_lat']),
-                px.GPSIFD.GPSLatitudeRef: lat_ref,
-                px.GPSIFD.GPSLongitude: self._latlon_to_rational(
-                    self.img_info['gps_lon']),
-                px.GPSIFD.GPSLongitudeRef: lon_ref,
-                px.GPSIFD.GPSAltitude: self._float_to_rational(
-                    self.img_info['gps_alt']),
-                px.GPSIFD.GPSAltitudeRef: alt_ref
-            }
-            first_ifd = {}
-            exif_dict = {"0th":zeroth_ifd, "Exif":exif_ifd, "GPS":gps_ifd,
-                "1st":first_ifd}
-        return exif_dict
 #===============================================================================
 
 # if __name__ == "__main__":

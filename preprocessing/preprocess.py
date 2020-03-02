@@ -14,6 +14,7 @@ import pandas as pd
 import numpy as np
 import rasterio as rio
 import utils.functions as ufunc
+from scipy import ndimage
 from cv_bridge import CvBridge
 import pyexiv2
 import yaml
@@ -300,6 +301,18 @@ class Preprocessor:
                     img_res[:, :, b] = img_tmp[:, np.arange(j, img.shape[1],
                         pattern_len)]
             return img_res
+#-------------------------------------------------------------------------------
+
+    def median_filter_3x3(self, img):
+        if len(img.shape) != 3:
+            warnings.warn(('The image has shape {}, therefore it was not '
+                'resampled yet. Apply image resampling before 3x3 median '
+                'filtering. Skipping 3x3 median filtering.').format(img.shape))
+            return
+        else:
+            img_med = ndimage.median_filter(img, size=(3, 3, 1), mode='constant',
+                cval=0.0)
+            return img_med
 #-------------------------------------------------------------------------------
 
     def write_exif(self, filename):

@@ -4,6 +4,7 @@ import os
 from preprocess import Preprocessor
 from PIL import Image
 import utils.functions as ufunc
+from IPython import embed
 
 sep = os.path.sep
 # parser = argparse.ArgumentParser(
@@ -28,7 +29,7 @@ bagfile_auto = "/media/seba/Samsung_2TB/Matterhorn.Project/Datasets/frick/201906
 bagfile_ximea = "/media/seba/Samsung_2TB/Matterhorn.Project/Datasets/eschikon/20190527/bag/2019-05-27-14-53-54.bag"
 
 # Create the Preprocessor object
-bagfile = bagfile_ximea
+bagfile = bagfile_auto
 preprocessor = Preprocessor(bagfile)
 
 # Set image properties
@@ -92,7 +93,8 @@ for cam in preprocessor.imgs_topics.keys():
             fname = fname + extension
             full_fname = os.path.join(camera_folder, fname)
 
-            # reshape the raw sensor data
+            # reshape the raw sensor data and apply median filtering
             img_array = preprocessor.reshape_hs(img_array)
+            img_array = preprocessor.median_filter_3x3(img_array)
             ufunc.write_geotiff(img_array, full_fname)
             preprocessor.write_exif(full_fname)

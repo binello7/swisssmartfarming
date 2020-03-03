@@ -1,5 +1,6 @@
 from __future__ import division
 import spectral as sp
+from scipy import ndimage
 import numpy as np
 import xml.dom.minidom as mdom
 from IPython import embed
@@ -23,8 +24,10 @@ def read_raw(file_path):
     return img
 #-------------------------------------------------------------------------------
 
-def rad_to_refl(img, white, dark_ti, dark_tw, ti, tw):
-    return (img - dark_ti) / (white - dark_tw) * tw / ti
+def median_filter(img):
+    median_filter = ndimage.median_filter(img, size=3, mode='constant')
+    return median_filter
+#-------------------------------------------------------------------------------
 
 def read_corr_matrix(file_path):
     xml = mdom.parse(file_path)
@@ -78,17 +81,26 @@ def read_nb_bands(file_path):
 #-------------------------------------------------------------------------------
 
 class HypSpecImage:
-    def __init__(self, camera):
+    def __init__(self, camera, raw):
         self.camera = camera
-        self.xml_file = glob.glob(os.path.join(rootpath.detect(), 'cfg', camera,
-            '*.xml'))[0]
+        self.raw = raw
+        self.ref = None
+        self.res = None
+        self.med = None
+        self.xml_file = glob.glob(os.path.join(rootpath.detect(), 'cfg',
+            'cameras', camera, '*.xml'))[0]
         self.filter_dims = read_filter_dims(self.xml_file)
         self.offset_x = read_offsets(self.xml_file)[0]
         self.offset_y = read_offsets(self.xml_file)[1]
         self.nb_bands = read_nb_bands(self.xml_file)
 #-------------------------------------------------------------------------------
 
-    def reshape(self, img):
+    def rad_to_refl(self, white, dark_ti, dark_tw, ti, tw):
+        self.ref = (self.raw - dark_ti) / (white - dark_tw) * tw / ti
+#-------------------------------------------------------------------------------
+
+    def reshape(self):
+        img = self.ref
         img = img[self.offset_y:self.offset_y+self.filter_dims[0],
             self.offset_x:self.offset_x+self.filter_dims[1]]
         pattern_len = int(math.sqrt(self.nb_bands))
@@ -102,4 +114,14 @@ class HypSpecImage:
                 img_res[:, :, band] = img_tmp[:, np.arange(j, img.shape[1],
                     pattern_len)]
                 band += 1
-        return img_res
+        self.res = img_res
+#-------------------------------------------------------------------------------
+
+    def median_filter(self):
+        median_filter = []
+        for i in range(self.res.shape[2]):
+            img = self.res[:, :, i]
+            median_filter.append(ndimage.median_filter(img, size=3, mode='constant'))
+        median_filter = np.asarray(median_filter)
+        median_filter = np.moveaxis(median_filter, 0, 2)
+        self.med = median_filter

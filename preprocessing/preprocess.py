@@ -44,33 +44,26 @@ class NoMessagesError(Exception):
 
 class Preprocessor:
     def __init__(self, bagfile, rtk_topic='/ssf/dji_sdk/rtk_position',
-        cam_cfg_path='cfg/cameras', timezone=2,
-            exp_time_topics = {
-                'ximea_nir':
-                    '/ximea_asl/exposure_time',
-                'photonfocus_nir':
-                    '/ssf/photonfocus_camera_nir_node/exposure_time_ms',
-                'photonfocus_vis':
-                    '/ssf/photonfocus_camera_vis_node/exposure_time_ms'
-            }
-    ):
+        cams_cfg_path='cfg/cameras', timezone=2):
         self._sep = os.path.sep
         self._rootpath = ufunc.add_sep(rp.detect())
         self.bagfile = rosbag.Bag(bagfile, 'r')
         self.bridge = CvBridge()
         self.encoding = "passthrough"
-        self.cam_cfg_path = ufunc.add_sep(cam_cfg_path)
+        self.cams_cfg_path = ufunc.add_sep(cams_cfg_path)
         self.xml_file = None
         self.cam_info = {
             'make': None,
             'model': None,
             'type': None,
             'focal_length_mm': None,
-            'img_topic': None
+            'img_topic': None,
+            'exp_t_topic': None
         }
         self.img_info = {
             'date_time_orig': None,
             'subsec_time_orig': None,
+            'exp_t_ms': None,
             'gps_lat': None,
             'gps_lon': None,
             'gps_alt': None
@@ -86,9 +79,9 @@ class Preprocessor:
         topics = [t for t in topics]
         self.topics = topics
         self.imgs_topics = None
-        self.exp_time_topics = exp_time_topics
+        self.exp_t_topics = None
         self.cams = None
-        self._set_cams_and_imgs_topics()
+        self._set_cams_and_topics()
         self.rtk_topic = rtk_topic
         self.rtk_data = None
         self._set_rtk_data()
@@ -117,26 +110,31 @@ class Preprocessor:
         return cam_cfg
 #-------------------------------------------------------------------------------
 
-    def _set_cams_and_imgs_topics(self):
-        cfg_paths = glob.glob(self._rootpath + self.cam_cfg_path + '*' +
+    def _set_cams_and_topics(self):
+        cfg_paths = glob.glob(self._rootpath + self.cams_cfg_path + '*' +
             self._sep)
         if cfg_paths == []:
             raise CfgFileNotFoundError("No camera cfg folder found at the "
-                "specified location '{}'. Verify 'cam_cfg_path'.".format(
-                    self.cam_cfg_path))
+                "specified location '{}'. Verify 'cams_cfg_path'.".format(
+                    self.cams_cfg_path))
         else:
             imgs_topics = {}
+            exp_t_topics = {}
             cams = []
             for path in cfg_paths:
                 cam = path.split(self._sep)[-2]
                 path = os.path.join(path, (cam + '.cfg'))
                 cam_cfg = self._cfg_to_dict(path)
                 img_topic = cam_cfg['img_topic']
+                exp_t_topic = cam_cfg['exp_t_topic']
                 if img_topic in self.topics:
                     cams.append(cam)
-                    topic_dict = {cam: img_topic}
-                    imgs_topics.update(topic_dict)
+                    imgs_topics.update({cam: img_topic})
+                if exp_t_topic in self.topics:
+                    exp_t_topics.update({cam: exp_t_topic})
             self.imgs_topics = imgs_topics
+            self.exp_t_topics = exp_t_topics
+            cams.sort()
             self.cams = cams
 #-------------------------------------------------------------------------------
 
@@ -216,48 +214,55 @@ class Preprocessor:
         return exp_t
 #-------------------------------------------------------------------------------
 
-    def set_exp_t_data(self, camera):
-        if self.exp_time_topics[camera] in self.topics:
-            messages = self.bagfile.read_messages(topics=
-                self.exp_time_topics[camera])
-            exp_t_data = pd.DataFrame(columns=["tstamp", "exp_t_ms"])
-            for msg in messages:
-                tstamp = msg.timestamp.to_nsec()
-                if camera == "ximea_nir":
-                    exp_t = msg.message.data / 1000
-                else:
-                    exp_t = msg.message.exposure_time_ms
-                data = pd.Series(data={'tstamp': tstamp, 'exp_t_ms': exp_t})
-                exp_t_data = exp_t_data.append(data, ignore_index=True)
-            self.exp_t_data = exp_t_data
-        else:
-            warnings.warn("No topic '{}' found. Exposure time will be loaded "
-                "from yaml file.".format(self.exp_time_topics[camera]))
-            self.exp_t_data = None
+    def _set_exp_t_data(self):
+        exp_t_data = pd.DataFrame(columns=["tstamp", "exp_t_ms"])
+        messages = self.bagfile.read_messages(
+            topics=self.cam_info['exp_t_topic'])
+        for msg in messages:
+            tstamp = msg.timestamp.to_nsec()
+            camera =  list(self.exp_t_topics.keys())[list(
+                self.exp_t_topics.values()).index(self.cam_info['exp_t_topic'])]
+            if camera == "ximea_nir":
+                exp_t = msg.message.data / 1000
+            else:
+                exp_t = msg.message.exposure_time_ms
+            data = pd.Series(data={'tstamp': tstamp, 'exp_t_ms': exp_t})
+            exp_t_data = exp_t_data.append(data, ignore_index=True)
+        self.exp_t_data = exp_t_data
+    # else: #TODO
+    #     warnings.warn("No topic '{}' found. Exposure time will be loaded "
+    #         "from yaml file.".format(self.exp_time_topics[camera]))
+    #     self.exp_t_data = None
 #-------------------------------------------------------------------------------
 
     def set_cam_info(self, camera):
-        cfg_folder = os.path.join(self._rootpath, self.cam_cfg_path, camera)
+        cfg_folder = os.path.join(self._rootpath, self.cams_cfg_path, camera)
         cfg_file = os.path.join(cfg_folder, '{}.cfg'.format(camera))
         with open(cfg_file) as file:
             cam_info = yaml.safe_load(file)
         if cam_info.keys() == self.cam_info.keys():
             self.cam_info.update(cam_info)
+            # new camera is created. Reset all img_info and hs_info
+            self.img_info = self.img_info.fromkeys(self.img_info, None)
+            self.hs_info = self.hs_info.fromkeys(self.hs_info, None)
+            self.xml_file = None
+            self.exp_t_data = None
+            if cam_info['exp_t_topic'] != None:
+                self._set_exp_t_data()
+
             if self.cam_info['type'] == 'hyperspectral':
                 xml_file = glob.glob(os.path.join(cfg_folder, '*.xml'))
                 if xml_file == []:
                     warnings.warn(("No xml file found for camera '{}'. "
                         "Hyperspectral preprocessing will be skipped.").format(
-                            camera))
+                            camera)) #TODO: skip hyperspectral processing
                     self.xml_file = None
                 else:
                     self.xml_file = xml_file[0]
                     self._set_filter_dims()
                     self._set_offsets()
                     self._set_nb_bands()
-            else:
-                self.xml_file = None
-                self.hs_info = self.hs_info.fromkeys(self.hs_info, None)
+
         else:
             cam_prop = ["'{}'".format(k) for k in self.cam_info.keys()]
             cam_prop = ", ".join(cam_prop)
@@ -271,6 +276,10 @@ class Preprocessor:
         for gps_prop in self.rtk_data.keys()[1:]:
             self.img_info[gps_prop] = np.interp(tstamp,
                 self.rtk_data['tstamp'], self.rtk_data[gps_prop])
+
+        if self.cam_info['exp_t_topic'] != None:
+            self.img_info['exp_t_ms'] = np.interp(tstamp,
+                self.exp_t_data['tstamp'], self.exp_t_data['exp_t_ms'])
 #-------------------------------------------------------------------------------
 
     def read_img_msgs(self, imgs_topic):
@@ -285,7 +294,7 @@ class Preprocessor:
     def reshape_hs(self, img):
         if self.xml_file == None:
             warnings.warn("No xml file found. Skipping image reshaping.")
-            return
+            return img
         else:
             img = img[self.hs_info['offset_y']:self.hs_info['offset_y']
                 + self.hs_info['filter_h'],
@@ -308,7 +317,7 @@ class Preprocessor:
             warnings.warn(('The image has shape {}, therefore it was not '
                 'resampled yet. Apply image resampling before 3x3 median '
                 'filtering. Skipping 3x3 median filtering.').format(img.shape))
-            return
+            return img
         else:
             img_med = ndimage.median_filter(img, size=(3, 3, 1), mode='constant',
                 cval=0.0)
@@ -350,6 +359,10 @@ class Preprocessor:
                 int(self.img_info['gps_alt']*100), 100),
             'Exif.GPSInfo.GPSAltitudeRef': alt_ref
         }
+
+        if self.img_info['exp_t_ms'] != None:
+            meta_dict.update({'Exif.Photo.ExposureTime': Fraction(
+                int(self.img_info['exp_t_ms']*100), 100000)})
 
         metadata.update(meta_dict)
         metadata.write()

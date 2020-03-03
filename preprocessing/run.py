@@ -42,19 +42,14 @@ if not os.path.isdir(images_folder):
     os.makedirs(images_folder)
 
 # Loop over cameras and process them
-for cam in preprocessor.imgs_topics.keys():
+for cam in preprocessor.cams:
     # Create one folder per camera
+    print("Processing camera '{}'".format(cam))
     camera_folder = os.path.join(images_folder, cam)
     if not os.path.isdir(camera_folder):
         os.makedirs(camera_folder)
 
     preprocessor.set_cam_info(cam)
-    try:
-        exp_time_topic = preprocessor.exp_time_topics[cam]
-    except KeyError:
-        pass
-    else:
-        preprocessor.set_exp_t_data(cam) #TODO: implement reading exposure time from yaml file
 
     msgs = preprocessor.read_img_msgs(preprocessor.imgs_topics[cam])
     for i, msg in enumerate(msgs):
@@ -64,15 +59,7 @@ for cam in preprocessor.imgs_topics.keys():
 
         # gps-rtk data were read already. Set img_info attribute
         preprocessor.set_img_info(img_tstamp)
-        exp_t = None
-        # if isn preprocessor.exp_t_data != None:
-        #     exp_t = preprocessor.interp_exp_t(img_tstamp)
-
-        # exif_dict = preprocessor.write_exif_dict(exp_t=exp_t)
         # exif_bytes = px.dump(exif_dict) #TODO: add number of bands to exif? think about it
-
-
-
 
         # Do different processing steps depending on the camera type
         if preprocessor.cam_info['type'] == 'RGB':

@@ -4,7 +4,6 @@ import os
 from preprocess import Preprocessor
 from PIL import Image
 import utils.functions as ufunc
-from IPython import embed
 
 sep = os.path.sep
 # parser = argparse.ArgumentParser(
@@ -57,9 +56,8 @@ for cam in preprocessor.cams:
         img_tstamp = msg.timestamp.to_nsec()
         img_array = preprocessor.imgmsg_to_cv2(msg)
 
-        # gps-rtk data were read already. Set img_info attribute
+        # gps-rtk data are read automatically. Set img_info attribute
         preprocessor.set_img_info(img_tstamp)
-        # exif_bytes = px.dump(exif_dict) #TODO: add number of bands to exif? think about it
 
         # Do different processing steps depending on the camera type
         if preprocessor.cam_info['type'] == 'RGB':
@@ -84,4 +82,15 @@ for cam in preprocessor.cams:
             img_array = preprocessor.reshape_hs(img_array)
             img_array = preprocessor.median_filter_3x3(img_array)
             ufunc.write_geotiff(img_array, full_fname)
+            preprocessor.write_exif(full_fname)
+
+        elif preprocessor.cam_info['type'] == 'thermal':
+            # set filename and path
+            extension = '.tif'
+            fname = prefix + '_{:05d}'.format(i)
+            fname = fname + extension
+            full_fname = os.path.join(camera_folder, fname)
+
+            im = Image.fromarray(img_array)
+            im.save(full_fname)
             preprocessor.write_exif(full_fname)

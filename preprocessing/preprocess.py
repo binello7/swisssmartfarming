@@ -277,7 +277,7 @@ class Preprocessor:
             self.img_info[gps_prop] = np.interp(tstamp,
                 self.rtk_data['tstamp'], self.rtk_data[gps_prop])
 
-        if self.cam_info['exp_t_topic'] != None:
+        if self.cam_info['exp_t_topic'] in self.exp_t_topics:
             self.img_info['exp_t_ms'] = np.interp(tstamp,
                 self.exp_t_data['tstamp'], self.exp_t_data['exp_t_ms'])
 #-------------------------------------------------------------------------------

@@ -85,7 +85,7 @@ class Preprocessor:
         self.rtk_topic = rtk_topic
         self.rtk_data = None
         self._set_rtk_data()
-        self.exp_t_data = None
+        self.exp_t_data = pd.DataFrame(columns=["tstamp", "exp_t_ms"])
         self.date = self._read_date_time()[0]
         self.time = self._read_date_time()[1]
         self.timezone = timezone
@@ -208,31 +208,50 @@ class Preprocessor:
         self.hs_info['nb_bands'] = bands_height * bands_width
 #-------------------------------------------------------------------------------
 
-    def interp_exp_t(self, tstamp):
-        exp_t = np.interp(tstamp, self.exp_t_data['tstamp'],
-            self.exp_t_data['exp_t_ms'])
-        return exp_t
-#-------------------------------------------------------------------------------
-
     def _set_exp_t_data(self):
-        exp_t_data = pd.DataFrame(columns=["tstamp", "exp_t_ms"])
-        messages = self.bagfile.read_messages(
-            topics=self.cam_info['exp_t_topic'])
-        for msg in messages:
-            tstamp = msg.timestamp.to_nsec()
-            camera =  list(self.exp_t_topics.keys())[list(
-                self.exp_t_topics.values()).index(self.cam_info['exp_t_topic'])]
-            if camera == "ximea_nir":
-                exp_t = msg.message.data / 1000
-            else:
-                exp_t = msg.message.exposure_time_ms
-            data = pd.Series(data={'tstamp': tstamp, 'exp_t_ms': exp_t})
-            exp_t_data = exp_t_data.append(data, ignore_index=True)
-        self.exp_t_data = exp_t_data
-    # else: #TODO
-    #     warnings.warn("No topic '{}' found. Exposure time will be loaded "
-    #         "from yaml file.".format(self.exp_time_topics[camera]))
-    #     self.exp_t_data = None
+        if self.cam_info['exp_t_topic'] in self.exp_t_topics.values():
+            messages = self.bagfile.read_messages(
+                topics=self.cam_info['exp_t_topic'])
+            for msg in messages:
+                tstamp = msg.timestamp.to_nsec()
+                camera = list(self.exp_t_topics.keys())[list(
+                    self.exp_t_topics.values()).index(self.cam_info['exp_t_topic'])]
+                if camera == "ximea_nir":
+                    exp_t = msg.message.data / 1000
+                else:
+                    exp_t = msg.message.exposure_time_ms
+                data = {'tstamp': tstamp, 'exp_t_ms': exp_t}
+                self.exp_t_data = self.exp_t_data.append(data,
+                    ignore_index=True)
+
+        else:
+            warnings.warn("No topic '{}' found. Exposure time will be loaded "
+                "from yaml file.".format(self.cam_info['exp_t_topic']))
+            yaml_path = self._sep.join(
+                self.bagfile.filename.split(self._sep)[:-1])
+            yaml_basename, _ = ufunc.get_file_basename(
+                self.bagfile.filename)
+            yaml_file = os.path.join(yaml_path, yaml_basename) + '.yaml'
+
+            with open(yaml_file) as file:
+                try:
+                    yaml_dict = yaml.safe_load(file)
+                    topic_splits = self.cam_info[
+                        'exp_t_topic'].split('/')
+                    for s in topic_splits[1:]:
+                        yaml_dict = yaml_dict[s]
+                    exp_t = yaml_dict
+                    tstamp = dt.strptime((self.date + " " + self.time),
+                        '%Y:%m:%d %H:%M:%S').timestamp() * 1e9
+                    data = {'tstamp': tstamp, 'exp_t_ms': exp_t}
+                    self.exp_t_data = self.exp_t_data.append(data,
+                        ignore_index=True)
+
+                except FileNotFoundError as e:
+                    raise FileNotFoundError(("File '{}' was not found. "
+                        "Please make sure that the file is available "
+                        "and has the same basename as the bagfile.").format(
+                            yaml_file))
 #-------------------------------------------------------------------------------
 
     def set_cam_info(self, camera):
@@ -242,11 +261,11 @@ class Preprocessor:
             cam_info = yaml.safe_load(file)
         if cam_info.keys() == self.cam_info.keys():
             self.cam_info.update(cam_info)
-            # new camera is created. Reset all img_info and hs_info
+            # new camera is created. Reset all (img_info, hs_info, ...)
             self.img_info = self.img_info.fromkeys(self.img_info, None)
             self.hs_info = self.hs_info.fromkeys(self.hs_info, None)
             self.xml_file = None
-            self.exp_t_data = None
+            self.exp_t_data = pd.DataFrame(columns=["tstamp", "exp_t_ms"])
             if cam_info['exp_t_topic'] != None:
                 self._set_exp_t_data()
 
@@ -255,7 +274,7 @@ class Preprocessor:
                 if xml_file == []:
                     warnings.warn(("No xml file found for camera '{}'. "
                         "Hyperspectral preprocessing will be skipped.").format(
-                            camera)) #TODO: skip hyperspectral processing
+                            camera))
                     self.xml_file = None
                 else:
                     self.xml_file = xml_file[0]
@@ -277,7 +296,7 @@ class Preprocessor:
             self.img_info[gps_prop] = np.interp(tstamp,
                 self.rtk_data['tstamp'], self.rtk_data[gps_prop])
 
-        if self.cam_info['exp_t_topic'] in self.exp_t_topics:
+        if not self.exp_t_data.empty:
             self.img_info['exp_t_ms'] = np.interp(tstamp,
                 self.exp_t_data['tstamp'], self.exp_t_data['exp_t_ms'])
 #-------------------------------------------------------------------------------
@@ -313,11 +332,18 @@ class Preprocessor:
 #-------------------------------------------------------------------------------
 
     def median_filter_3x3(self, img):
-        if len(img.shape) != 3:
+        if self.xml_file == None:
+            warnings.warn(("No xml file found. Image reshaping was skipped "
+                "and median filtering cannot be applied either. Skipping "
+                "3x3 median filtering."))
+            return img
+
+        elif (self.xml_file != None and len(img.shape) != 3):
             warnings.warn(('The image has shape {}, therefore it was not '
-                'resampled yet. Apply image resampling before 3x3 median '
+                'resampled. Apply image resampling before 3x3 median '
                 'filtering. Skipping 3x3 median filtering.').format(img.shape))
             return img
+
         else:
             img_med = ndimage.median_filter(img, size=(3, 3, 1), mode='constant',
                 cval=0.0)

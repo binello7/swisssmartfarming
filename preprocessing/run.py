@@ -29,6 +29,8 @@ bagfile_ximea = "/media/seba/Samsung_2TB/Matterhorn.Project/Datasets/eschikon/20
 
 # Create the Preprocessor object
 bagfile = bagfile_auto
+
+
 preprocessor = Preprocessor(bagfile)
 
 # Set image properties
@@ -66,7 +68,7 @@ for cam in preprocessor.cams:
             fname = prefix + '_{:05d}'.format(i)
             fname = fname + extension
             full_fname = os.path.join(camera_folder, fname)
-
+            # save image and write exif metadata
             im = Image.fromarray(img_array)
             im.save(full_fname, quality=100)
             preprocessor.write_exif(full_fname)
@@ -77,10 +79,11 @@ for cam in preprocessor.cams:
             fname = prefix + '_{:05d}'.format(i)
             fname = fname + extension
             full_fname = os.path.join(camera_folder, fname)
-
-            # reshape the raw sensor data and apply median filtering
+            # reshape the raw sensor data
             img_array = preprocessor.reshape_hs(img_array)
+            # apply median filtering
             img_array = preprocessor.median_filter_3x3(img_array)
+            # save image and write exif metadata
             ufunc.write_geotiff(img_array, full_fname)
             preprocessor.write_exif(full_fname)
 
@@ -90,7 +93,7 @@ for cam in preprocessor.cams:
             fname = prefix + '_{:05d}'.format(i)
             fname = fname + extension
             full_fname = os.path.join(camera_folder, fname)
-
+            # save image and write exif metadata
             im = Image.fromarray(img_array)
             im.save(full_fname)
             preprocessor.write_exif(full_fname)

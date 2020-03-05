@@ -37,15 +37,29 @@ def read_geotiff(filepath):
 
 def write_geotiff(img_array, filepath):
     driver = gdal.GetDriverByName('GTiff')
-    dataset = driver.Create(
-        filepath,
-        img_array.shape[1],
-        img_array.shape[0],
-        img_array.shape[2],
-        gdal.GDT_Byte
-    )
-    for b in range(img_array.shape[2]):
-        dataset.GetRasterBand(b+1).WriteArray(img_array[:, :, b])
+    if len(img_array.shape) == 3:
+        dataset = driver.Create(
+            filepath,
+            img_array.shape[1],
+            img_array.shape[0],
+            img_array.shape[2],
+            gdal.GDT_Byte
+        )
+        for b in range(img_array.shape[2]):
+            dataset.GetRasterBand(b+1).WriteArray(img_array[:, :, b])
+
+    elif len(img_array.shape) == 2:
+        dataset = driver.Create(
+            filepath,
+            img_array.shape[1],
+            img_array.shape[0],
+            gdal.GDT_Byte
+        )
+        dataset.GetRasterBand(1).WriteArray(img_array)
+
+    else:
+        raise ValueError(("'img_array' can have either shape=(h, w) or shape="
+            "(h, w, b). Shape={} is not admitted.").format(img_array.shape))
 
     dataset.FlushCache() # write to disk
 #-------------------------------------------------------------------------------

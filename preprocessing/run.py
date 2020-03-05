@@ -4,40 +4,47 @@ import os
 from preprocess import Preprocessor
 from PIL import Image
 import utils.functions as ufunc
+import argparse
+
+
+class MultilineFormatter(argparse.HelpFormatter):
+    def _fill_text(self, text, width, indent):
+        text = self._whitespace_matcher.sub(' ', text).strip()
+        paragraphs = text.split('|n ')
+        multiline_text = ''
+        for paragraph in paragraphs:
+            formatted_paragraph = textwrap.fill(paragraph, width,
+                initial_indent=indent, subsequent_indent=indent) + '\n\n'
+            multiline_text = multiline_text + formatted_paragraph
+        return multiline_text
+#===============================================================================
 
 sep = os.path.sep
-# parser = argparse.ArgumentParser(
-#     description=
-#         """Preprocesses an SSF-rosbag dataset.
-#         |n
-#         Given a rosbag file contianing a dataset for the Swiss Smart Farming
-#         Project performs the preprocesses steps in order to produce
-#         georeferenced corrected images that can be fed in to the Pix4D
-#         software.""",
-#     formatter_class=MultilineFormatter
-# )
-# parser.add_argument('--bag_file', '-b',
-#     required=True,
-#     help='Path to the bag file and name, e.g. ./dataset/Big.bag')
-#
-# args = parser.parse_args()
 
+parser = argparse.ArgumentParser(
+    description=
+        """Preprocesses an SSF-rosbag dataset.
+        |n
+        Given a rosbag file contianing a dataset for the Swiss Smart Farming
+        Project performs the preprocesses steps in order to produce
+        georeferenced corrected images that can be fed in to the Pix4D
+        software.""",
+    formatter_class=MultilineFormatter
+)
+parser.add_argument('--bagfile', '-b',
+    required=True,
+    help='Path to the bag file and name, e.g. ./dataset/bagfile.bag')
 
-img_path = r"/media/seba/Samsung_2TB/temp/frick/20190716/rgb/frame_000027.jpg"
-bagfile_auto = "/media/seba/Samsung_2TB/Matterhorn.Project/Datasets/frick/20190626/bag/2019-06-26-14-20-34.bag"
-bagfile_ximea = "/media/seba/Samsung_2TB/Matterhorn.Project/Datasets/eschikon/20190527/bag/2019-05-27-14-53-54.bag"
+args = parser.parse_args()
 
 # Create the Preprocessor object
-bagfile = bagfile_auto
-
-
-preprocessor = Preprocessor(bagfile)
+preprocessor = Preprocessor(args.bagfile)
 
 # Set image properties
 prefix = 'frame'
 
 # Set the root folder where the images will be stored
-project_folder = sep.join(bagfile.split(sep)[:-2])
+project_folder = sep.join(args.bagfile.split(sep)[:-2])
 images_folder = os.path.join(project_folder, 'frames')
 if not os.path.isdir(images_folder):
     os.makedirs(images_folder)
@@ -83,6 +90,8 @@ for cam in preprocessor.cams:
             img_array = preprocessor.reshape_hs(img_array)
             # apply median filtering
             img_array = preprocessor.median_filter_3x3(img_array)
+            # convert radiance to reflectance
+            
             # save image and write exif metadata
             ufunc.write_geotiff(img_array, full_fname)
             preprocessor.write_exif(full_fname)

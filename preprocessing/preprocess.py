@@ -20,19 +20,7 @@ import pyexiv2
 import yaml
 import xml.dom.minidom as mdom
 from datetime import datetime as dt
-from IPython import embed
 
-class MultilineFormatter(argparse.HelpFormatter):
-    def _fill_text(self, text, width, indent):
-        text = self._whitespace_matcher.sub(' ', text).strip()
-        paragraphs = text.split('|n ')
-        multiline_text = ''
-        for paragraph in paragraphs:
-            formatted_paragraph = textwrap.fill(paragraph, width,
-                initial_indent=indent, subsequent_indent=indent) + '\n\n'
-            multiline_text = multiline_text + formatted_paragraph
-        return multiline_text
-#===============================================================================
 
 class CfgFileNotFoundError(FileNotFoundError):
     pass

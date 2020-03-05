@@ -90,8 +90,6 @@ for cam in preprocessor.cams:
             img_array = preprocessor.reshape_hs(img_array)
             # apply median filtering
             img_array = preprocessor.median_filter_3x3(img_array)
-            # convert radiance to reflectance
-            
             # save image and write exif metadata
             ufunc.write_geotiff(img_array, full_fname)
             preprocessor.write_exif(full_fname)

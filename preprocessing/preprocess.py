@@ -311,11 +311,13 @@ class Preprocessor:
             img_res = np.zeros((int(img.shape[0]/pattern_len),
                 int(img.shape[1]/pattern_len), self.hs_info['nb_bands']))
 
-            for b, i in enumerate(range(pattern_len)):
+            b = 0
+            for i in range(pattern_len):
                 for j in range(pattern_len):
                     img_tmp = img[np.arange(i, img.shape[0], pattern_len), :]
                     img_res[:, :, b] = img_tmp[:, np.arange(j, img.shape[1],
                         pattern_len)]
+                    b+=1
             return img_res
 #-------------------------------------------------------------------------------
 

@@ -1,12 +1,13 @@
 import numpy as np
 from osgeo import gdal
-# import rasterio as rio
 # import tkFileDialog
-# import Tkinter as tk
-# from roipoly import RoiPoly
-# from matplotlib import pyplot as plt
+from tkinter import filedialog
+import tkinter as tk
+from roipoly import RoiPoly
+from matplotlib import pyplot as plt
 import math
 import os
+from IPython import embed
 
 sep = os.path.sep
 
@@ -29,17 +30,18 @@ def get_file_basename(filepath):
     return (basename, extension)
 #-------------------------------------------------------------------------------
 
-def read_geotiff(filepath):
-    with rio.open(filepath) as src:
-        img_array = src.read()
+def read_geotiff(img_path):
+    raster = gdal.Open(img_path)
+    img_array = raster.ReadAsArray()
+    img_array = np.moveaxis(img_array, 0, 2)
     return img_array
 #-------------------------------------------------------------------------------
 
-def write_geotiff(img_array, filepath):
+def write_geotiff(img_array, img_path):
     driver = gdal.GetDriverByName('GTiff')
     if len(img_array.shape) == 3:
         dataset = driver.Create(
-            filepath,
+            img_path,
             img_array.shape[1],
             img_array.shape[0],
             img_array.shape[2],
@@ -50,7 +52,7 @@ def write_geotiff(img_array, filepath):
 
     elif len(img_array.shape) == 2:
         dataset = driver.Create(
-            filepath,
+            img_path,
             img_array.shape[1],
             img_array.shape[0],
             gdal.GDT_Byte
@@ -64,37 +66,27 @@ def write_geotiff(img_array, filepath):
     dataset.FlushCache() # write to disk
 #-------------------------------------------------------------------------------
 
-def get_DNpanel(camera_type, initialdir="/media/seba/Samsung_2TB/Processed"):
+def get_avg_val_roi(initialdir):
     root = tk.Tk()
     root.withdraw()
-    imgpath = tkFileDialog.askopenfilename(
-        initialdir=initialdir,
-        title="Choose reference panel image for {}-camera".format(camera_type))
+    img_path =  filedialog.askopenfilename(initialdir=initialdir,
+        title="Select reference panel image")
     root.destroy()
 
-    img = ssf.read_geotiff(imgpath)
+    img = read_geotiff(img_path)
     bands = img.shape[2]
+    band = int(bands / 2)
 
     fig = plt.figure()
-    band = 10
     plt.imshow(img[:,:,band], cmap=plt.get_cmap("Greys_r"))
-    plt.colorbar()
     plt.show(block=False)
 
     roi = RoiPoly(color='r', fig=fig)
 
     mask = roi.get_mask(img[:,:,band])
-
-    mean = np.zeros(bands)
-    min = np.zeros(bands)
-    max = np.zeros(bands)
-    for b in range(bands):
-        mean[b] = np.mean(img[:,:,b][mask])
-        min[b] = np.min(img[:,:,b][mask])
-        max[b] = np.max(img[:,:,b][mask])
-
+    mean = np.mean(img[mask], axis=0)
     return mean
-
+#-------------------------------------------------------------------------------
 
 def argmax_2D(array_2D):
     flat_idx = np.argmax(array_2D)

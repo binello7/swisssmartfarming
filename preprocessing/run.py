@@ -5,6 +5,8 @@ from preprocess import Preprocessor
 from PIL import Image
 import utils.functions as ufunc
 import argparse
+import textwrap
+from IPython import embed
 
 
 class MultilineFormatter(argparse.HelpFormatter):
@@ -27,7 +29,7 @@ parser = argparse.ArgumentParser(
         |n
         Given a rosbag file contianing a dataset for the Swiss Smart Farming
         Project performs the preprocesses steps in order to produce
-        georeferenced corrected images that can be fed in to the Pix4D
+        georeferenced corrected images that can be fed into the Pix4D
         software.""",
     formatter_class=MultilineFormatter
 )
@@ -58,6 +60,7 @@ for cam in preprocessor.cams:
         os.makedirs(camera_folder)
 
     preprocessor.set_cam_info(cam)
+    embed()
 
     msgs = preprocessor.read_img_msgs(preprocessor.imgs_topics[cam])
     for i, msg in enumerate(msgs):

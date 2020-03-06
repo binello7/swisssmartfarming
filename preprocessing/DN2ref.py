@@ -4,6 +4,9 @@ import numpy as np
 import os
 import argparse
 import utils.functions as ufunc
+import glob
+import warnings
+from osgeo import gdal
 
 
 # parser = argparse.ArgumentParser()
@@ -11,10 +14,40 @@ import utils.functions as ufunc
 #                     help='Path to the folder containing the different cameras subfolders')
 # args = parser.parse_args()
 
-folder_path = "/media/seba/Samsung_2TB/Matterhorn.Project/Datasets/frick/20190726/frames/photonfocus_nir"
+camera_path = "/media/seba/Samsung_2TB/Matterhorn.Project/Datasets/frick/20190726/frames/photonfocus_nir"
+refl_path = os.path.join(camera_path, 'refl')
+if not os.path.isdir(refl_path):
+    os.makedirs(refl_path)
 
-mean_white = ufunc.get_avg_val_roi(folder_path)
-print(mean_white)
+pathname = os.path.join(camera_path, '*.tif')
+
+imgs_list = glob.glob(pathname)
+
+mean_white, white_img = ufunc.get_avg_val_roi(camera_path)
+exp_t_white = ufunc.get_exp_t_ms(white_img)
+refl_white = 0.18
+
+for img in imgs_list:
+    exp_t_img = ufunc.get_exp_t_ms(img)
+    img_array = ufunc.read_geotiff(img)
+    img_refl = ufunc.rad_to_refl(img_array, exp_t_img, exp_t_white, mean_white,
+        refl_white)
+    min_refl = np.min(img_refl)
+    max_refl = np.max(img_refl)
+    if max_refl > 1:
+        warnings.warn('Attention: max reflectance > 1.0: max_refl={}'.format(
+            max_refl))
+
+    img_basename = ufunc.get_file_basename(img)
+    img_basename = '.'.join(img_basename)
+    img_fullname = os.path.join(refl_path, img_basename)
+    print("Writing '{}'".format(img_fullname))
+    ufunc.write_geotiff(img_refl, img_fullname, dtype=gdal.GDT_Float32)
+
+
+# implement read exp_t from exif
+# apply simplified rad_to_refl
+
 
 # s_nir = "nir"
 # s_vis = "vis"

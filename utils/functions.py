@@ -1,12 +1,12 @@
 import numpy as np
 from osgeo import gdal
-# import tkFileDialog
 from tkinter import filedialog
 import tkinter as tk
 from roipoly import RoiPoly
 from matplotlib import pyplot as plt
 import math
 import os
+import pyexiv2 as px2
 from IPython import embed
 
 sep = os.path.sep
@@ -37,7 +37,7 @@ def read_geotiff(img_path):
     return img_array
 #-------------------------------------------------------------------------------
 
-def write_geotiff(img_array, img_path):
+def write_geotiff(img_array, img_path, dtype=gdal.GDT_Byte):
     driver = gdal.GetDriverByName('GTiff')
     if len(img_array.shape) == 3:
         dataset = driver.Create(
@@ -45,7 +45,7 @@ def write_geotiff(img_array, img_path):
             img_array.shape[1],
             img_array.shape[0],
             img_array.shape[2],
-            gdal.GDT_Byte
+            dtype
         )
         for b in range(img_array.shape[2]):
             dataset.GetRasterBand(b+1).WriteArray(img_array[:, :, b])
@@ -55,7 +55,7 @@ def write_geotiff(img_array, img_path):
             img_path,
             img_array.shape[1],
             img_array.shape[0],
-            gdal.GDT_Byte
+            dtype
         )
         dataset.GetRasterBand(1).WriteArray(img_array)
 
@@ -85,8 +85,20 @@ def get_avg_val_roi(initialdir):
 
     mask = roi.get_mask(img[:,:,band])
     mean = np.mean(img[mask], axis=0)
-    return mean
+    return mean, img_path
 #-------------------------------------------------------------------------------
+
+def get_exp_t_ms(img_path):
+    metadata = px2.ImageMetadata(img_path)
+    metadata.read()
+    exp_t = metadata.get_exposure_data()['speed']
+    exp_t = float(exp_t) * 1e3
+    return exp_t
+#-------------------------------------------------------------------------------
+
+def rad_to_refl(img, exp_t_img, exp_t_white, mean_white, refl_white):
+    img_refl = (img / mean_white) * (exp_t_white / exp_t_img) * refl_white
+    return img_refl
 
 def argmax_2D(array_2D):
     flat_idx = np.argmax(array_2D)

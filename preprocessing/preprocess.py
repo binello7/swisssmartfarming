@@ -63,6 +63,8 @@ class Preprocessor:
             'offset_y': None,
             'nb_bands': None
         }
+        self.corr_matrix = None
+        self.virtual_wavelengths = None
         topics = self.bagfile.get_type_and_topic_info().topics.keys()
         topics = [t for t in topics]
         self.topics = topics
@@ -169,6 +171,30 @@ class Preprocessor:
             self.rtk_data = rtk_data
 #-------------------------------------------------------------------------------
 
+    def _set_corr_matrix_and_wavelengths(self):
+        xml = mdom.parse(self.xml_file)
+        virtual_bands = xml.getElementsByTagName("virtual_band")
+        wavelengths = []
+        coefficients = []
+
+        for virtual_band in virtual_bands:
+            wavelength = float(str(virtual_band.childNodes.item(1)
+                .firstChild).split("'")[1])
+            wavelengths.append(wavelength)
+            coeffs = str(virtual_band.childNodes.item(5)
+                .firstChild.data).split(', ')
+
+            data = []
+            for coeff in coeffs:
+                coeff = float(coeff)
+                data.append(coeff)
+
+            coefficients.append(data)
+
+        self.corr_matrix = np.array(coefficients)
+        self.virtual_wavelengths = np.array(wavelengths)
+#-------------------------------------------------------------------------------
+
     def _set_filter_dims(self):
         xml = mdom.parse(self.xml_file)
         height = int(str(xml.getElementsByTagName("height")[1].firstChild.data))
@@ -253,6 +279,8 @@ class Preprocessor:
             self.img_info = self.img_info.fromkeys(self.img_info, None)
             self.hs_info = self.hs_info.fromkeys(self.hs_info, None)
             self.xml_file = None
+            self.corr_matrix = None
+            self.virtual_wavelengths = None
             self.exp_t_data = pd.DataFrame(columns=["tstamp", "exp_t_ms"])
             if cam_info['exp_t_topic'] != None:
                 self._set_exp_t_data()
@@ -266,6 +294,7 @@ class Preprocessor:
                     self.xml_file = None
                 else:
                     self.xml_file = xml_file[0]
+                    self._set_corr_matrix_and_wavelengths()
                     self._set_filter_dims()
                     self._set_offsets()
                     self._set_nb_bands()

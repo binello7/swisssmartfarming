@@ -16,10 +16,15 @@ import rasterio as rio
 import utils.functions as ufunc
 from scipy import ndimage
 from cv_bridge import CvBridge
-import pyexiv2
+import pyexiv2 as px2
 import yaml
 import xml.dom.minidom as mdom
 from datetime import datetime as dt
+from tkinter import filedialog
+import tkinter as tk
+import matplotlib.pyplot as plt
+from roipoly import RoiPoly
+from IPython import embed
 
 
 class CfgFileNotFoundError(FileNotFoundError):
@@ -31,15 +36,11 @@ class NoMessagesError(Exception):
 #===============================================================================
 
 class Preprocessor:
-    def __init__(self, bagfile, rtk_topic='/ssf/dji_sdk/rtk_position',
-        cams_cfg_path='cfg/cameras', timezone=2):
+    def __init__ (self, cams_cfg_path='cfg/cameras'):
         self._sep = os.path.sep
         self._rootpath = ufunc.add_sep(rp.detect())
-        self.bagfile = rosbag.Bag(bagfile, 'r')
-        self.bridge = CvBridge()
-        self.encoding = "passthrough"
         self.cams_cfg_path = ufunc.add_sep(cams_cfg_path)
-        self.xml_file = None
+        self.cams = None
         self.cam_info = {
             'make': None,
             'model': None,
@@ -48,6 +49,16 @@ class Preprocessor:
             'img_topic': None,
             'exp_t_topic': None
         }
+        self.xml_file = None
+#===============================================================================
+
+class BasePreprocessor(Preprocessor):
+    def __init__(self, bagfile, rtk_topic='/ssf/dji_sdk/rtk_position',
+        timezone=2):
+        super().__init__()
+        self.bagfile = rosbag.Bag(bagfile, 'r')
+        self.bridge = CvBridge()
+        self.encoding = "passthrough"
         self.img_info = {
             'date_time_orig': None,
             'subsec_time_orig': None,
@@ -70,7 +81,6 @@ class Preprocessor:
         self.topics = topics
         self.imgs_topics = None
         self.exp_t_topics = None
-        self.cams = None
         self._set_cams_and_topics()
         self.rtk_topic = rtk_topic
         self.rtk_data = None
@@ -268,9 +278,9 @@ class Preprocessor:
                             yaml_file))
 #-------------------------------------------------------------------------------
 
-    def set_cam_info(self, camera):
-        cfg_folder = os.path.join(self._rootpath, self.cams_cfg_path, camera)
-        cfg_file = os.path.join(cfg_folder, '{}.cfg'.format(camera))
+    def set_cam_info(self, cam_name):
+        cfg_folder = os.path.join(self._rootpath, self.cams_cfg_path, cam_name)
+        cfg_file = os.path.join(cfg_folder, '{}.cfg'.format(cam_name))
         with open(cfg_file) as file:
             cam_info = yaml.safe_load(file)
         if cam_info.keys() == self.cam_info.keys():
@@ -290,7 +300,7 @@ class Preprocessor:
                 if xml_file == []:
                     warnings.warn(("No xml file found for camera '{}'. "
                         "Hyperspectral preprocessing will be skipped.").format(
-                            camera))
+                            cam_name))
                     self.xml_file = None
                 else:
                     self.xml_file = xml_file[0]
@@ -370,7 +380,7 @@ class Preprocessor:
 #-------------------------------------------------------------------------------
 
     def write_exif(self, filename):
-        metadata = pyexiv2.ImageMetadata(filename)
+        metadata = px2.ImageMetadata(filename)
         metadata.read()
 
         # NOTE: not very elegant...
@@ -413,4 +423,104 @@ class Preprocessor:
         metadata.write()
 #===============================================================================
 
-# if __name__ == "__main__":
+class SpectralProcessor(Preprocessor):
+    def __init__(self, frames_folder):
+        super().__init__()
+        self.frames_folder = frames_folder
+        self._set_cams()
+        self.is_hyperspectral = None
+        self.cam_name = None
+        self.cam_folder = None
+        self.white_reflectance = None
+        self.white_reference_path = None
+        self.white_mean_values = None
+        self.white_exp_t = None
+        self.exif = None
+#-------------------------------------------------------------------------------
+
+    def _set_cams(self):
+        cams = os.listdir(self.frames_folder)
+        self.cams = cams
+#-------------------------------------------------------------------------------
+
+    def read_exp_t_ms(self, img_path):
+        exif = px2.ImageMetadata(img_path)
+        exif.read()
+        exp_t = exif.get_exposure_data()['speed']
+        exp_t = float(exp_t) * 1e3
+        return exp_t
+#-------------------------------------------------------------------------------
+
+    def read_exif(self, img_path):
+        exif = px2.ImageMetadata(img_path)
+        exif.read()
+        return exif
+#-------------------------------------------------------------------------------
+
+    def write_exif(self, img_path, exif):
+        exif_new = px2.ImageMetadata(img_path)
+        exif_new.read()
+        for exif_key in exif_new.exif_keys:
+            exif_val = exif_new.get(exif_key).value
+            exif.update({exif_key: exif_val})
+        exif.write()
+#-------------------------------------------------------------------------------
+
+    def set_cam_info(self, cam_name):
+        self.cam_name = cam_name
+        self.cam_folder = os.path.join(self.frames_folder, cam_name)
+        cfg_folder = os.path.join(self._rootpath, self.cams_cfg_path, cam_name)
+        cfg_file = os.path.join(cfg_folder, '{}.cfg'.format(cam_name))
+        with open(cfg_file) as file:
+            cam_info = yaml.safe_load(file)
+        if cam_info.keys() == self.cam_info.keys():
+            self.cam_info.update(cam_info)
+            if cam_info['type'] == 'hyperspectral':
+                self.is_hyperspectral = True
+            else:
+                self.is_hyperspectral = False
+
+        else:
+            cam_prop = ["'{}'".format(k) for k in self.cam_info.keys()]
+            cam_prop = ", ".join(cam_prop)
+            raise ValueError(("Wrong camera properties. Camera properties must "
+                "be '{}'. Please correct cfg file.").format(cam_prop))
+#-------------------------------------------------------------------------------
+
+    def set_white_info(self, white_reflectance=0.18):
+        self.white_reflectance = white_reflectance
+        root = tk.Tk()
+        root.withdraw()
+        white_reference_path =  filedialog.askopenfilename(
+            initialdir=self.cam_folder,
+            title="Select white reference image for '{}' camera".format(
+                self.cam_name))
+        root.destroy()
+        self.white_reference_path = white_reference_path
+        white_exp_t = self.read_exp_t_ms(white_reference_path)
+        self.white_exp_t = white_exp_t
+
+        white_array = ufunc.read_geotiff(white_reference_path)
+        bands = white_array.shape[2]
+        band = int(bands / 2)
+
+        fig = plt.figure()
+        plt.imshow(white_array[:,:,band], cmap=plt.get_cmap("Greys_r"))
+        plt.show(block=False)
+
+        roi = RoiPoly(color='r', fig=fig)
+
+        mask = roi.get_mask(white_array[:,:,band])
+        white_mean_values = np.mean(white_array[mask], axis=0)
+        self.white_mean_values = white_mean_values
+#-------------------------------------------------------------------------------
+
+    def rad_to_refl(self, img_array, img_exp_t):
+        img_refl = ((img_array / self.white_mean_values) * (self.white_exp_t /
+            img_exp_t) * self.white_reflectance)
+        max_refl = np.max(img_refl)
+        if max_refl > 1:
+            warnings.warn(('Attention: max reflectance > 1.0: max_refl={:.2f}'
+                .format(max_refl)))
+        return img_refl
+#-------------------------------------------------------------------------------

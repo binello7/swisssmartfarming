@@ -1,11 +1,12 @@
 #!../venv3/bin/python3
 
 import os
-from preprocess import Preprocessor
+from preprocessing import BasePreprocessor, SpectralProcessor
 from PIL import Image
 import utils.functions as ufunc
 import argparse
 import textwrap
+from osgeo import gdal
 from IPython import embed
 
 
@@ -20,6 +21,12 @@ class MultilineFormatter(argparse.HelpFormatter):
             multiline_text = multiline_text + formatted_paragraph
         return multiline_text
 #===============================================================================
+
+def compose_filepath(folder_path, prefix, file_nb, extension):
+    file_name = prefix + '_{:05d}'.format(file_nb) + extension
+    file_path = os.path.join(folder_path, file_name)
+    return file_path
+#-------------------------------------------------------------------------------
 
 sep = os.path.sep
 
@@ -39,71 +46,81 @@ parser.add_argument('--bagfile', '-b',
 
 args = parser.parse_args()
 
-# Create the Preprocessor object
-preprocessor = Preprocessor(args.bagfile)
+# create the BasePreprocessor object
+basepreprocessor = BasePreprocessor(args.bagfile)
 
-# Set image properties
+# set image properties
 prefix = 'frame'
 
-# Set the root folder where the images will be stored
-project_folder = sep.join(args.bagfile.split(sep)[:-2])
-images_folder = os.path.join(project_folder, 'frames')
-if not os.path.isdir(images_folder):
-    os.makedirs(images_folder)
+# set the root folder where the images will be stored
+date_folder = sep.join(args.bagfile.split(sep)[:-2])
+frames_folder = os.path.join(date_folder, 'frames')
+if not os.path.isdir(frames_folder):
+    os.makedirs(frames_folder)
 
-# Loop over cameras and process them
-for cam in preprocessor.cams:
+# loop over cameras and process them
+for cam in basepreprocessor.cams:
     # Create one folder per camera
     print("Processing camera '{}'".format(cam))
-    camera_folder = os.path.join(images_folder, cam)
+    camera_folder = os.path.join(frames_folder, cam)
     if not os.path.isdir(camera_folder):
         os.makedirs(camera_folder)
 
-    preprocessor.set_cam_info(cam)
-    embed()
+    basepreprocessor.set_cam_info(cam)
 
-    msgs = preprocessor.read_img_msgs(preprocessor.imgs_topics[cam])
+    msgs = basepreprocessor.read_img_msgs(basepreprocessor.imgs_topics[cam])
     for i, msg in enumerate(msgs):
         # get one image after another with its timestamp and process it
         img_tstamp = msg.timestamp.to_nsec()
-        img_array = preprocessor.imgmsg_to_cv2(msg)
+        img_array = basepreprocessor.imgmsg_to_cv2(msg)
 
         # gps-rtk data are read automatically. Set img_info attribute
-        preprocessor.set_img_info(img_tstamp)
+        basepreprocessor.set_img_info(img_tstamp)
 
         # Do different processing steps depending on the camera type
-        if preprocessor.cam_info['type'] == 'RGB':
-            # set filename and path
+        if basepreprocessor.cam_info['type'] == 'RGB':
+            # set filepath
             extension = '.jpg'
-            fname = prefix + '_{:05d}'.format(i)
-            fname = fname + extension
-            full_fname = os.path.join(camera_folder, fname)
+            filepath = compose_filepath(camera_folder, prefix, i, extension)
             # save image and write exif metadata
             im = Image.fromarray(img_array)
-            im.save(full_fname, quality=100)
-            preprocessor.write_exif(full_fname)
+            im.save(filepath, quality=100)
+            basepreprocessor.write_exif(filepath)
 
-        elif preprocessor.cam_info['type'] == 'hyperspectral':
-            # set filename and path
+        elif basepreprocessor.cam_info['type'] == 'hyperspectral':
+            # set filepath
             extension = '.tif'
-            fname = prefix + '_{:05d}'.format(i)
-            fname = fname + extension
-            full_fname = os.path.join(camera_folder, fname)
+            filepath = compose_filepath(camera_folder, prefix, i, extension)
             # reshape the raw sensor data
-            img_array = preprocessor.reshape_hs(img_array)
+            img_array = basepreprocessor.reshape_hs(img_array)
             # apply median filtering
-            img_array = preprocessor.median_filter_3x3(img_array)
+            img_array = basepreprocessor.median_filter_3x3(img_array)
             # save image and write exif metadata
-            ufunc.write_geotiff(img_array, full_fname)
-            preprocessor.write_exif(full_fname)
+            ufunc.write_geotiff(img_array, filepath)
+            basepreprocessor.write_exif(filepath)
 
-        elif preprocessor.cam_info['type'] == 'thermal':
-            # set filename and path
+        elif basepreprocessor.cam_info['type'] == 'thermal':
+            # set filepath
             extension = '.tif'
-            fname = prefix + '_{:05d}'.format(i)
-            fname = fname + extension
-            full_fname = os.path.join(camera_folder, fname)
+            filepath = compose_filepath(camera_folder, prefix, i, extension)
             # save image and write exif metadata
             im = Image.fromarray(img_array)
-            im.save(full_fname)
-            preprocessor.write_exif(full_fname)
+            im.save(filepath)
+            basepreprocessor.write_exif(filepath)
+
+# create the SpectralProcessor object
+spectralprocessor = SpectralProcessor(frames_folder)
+
+for cam in spectralprocessor.cams:
+    spectralprocessor.set_cam_info(cam)
+    if  spectralprocessor.is_hyperspectral:
+        imgs_list = os.listdir(spectralprocessor.cam_folder)
+        spectralprocessor.set_white_info()
+        for img in imgs_list:
+            img_path = os.path.join(spectralprocessor.cam_folder, img)
+            exif = spectralprocessor.read_exif(img_path)
+            img_exp_t = spectralprocessor.read_exp_t_ms(img_path)
+            img_array = ufunc.read_geotiff(img_path)
+            img_refl = spectralprocessor.rad_to_refl(img_array, img_exp_t)
+            ufunc.write_geotiff(img_refl, img_path, dtype=gdal.GDT_Float32)
+            spectralprocessor.write_exif(img_path, exif)

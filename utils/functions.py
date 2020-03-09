@@ -1,7 +1,5 @@
 import numpy as np
 from osgeo import gdal
-from tkinter import filedialog
-import tkinter as tk
 from roipoly import RoiPoly
 from matplotlib import pyplot as plt
 import math
@@ -66,39 +64,8 @@ def write_geotiff(img_array, img_path, dtype=gdal.GDT_Byte):
     dataset.FlushCache() # write to disk
 #-------------------------------------------------------------------------------
 
-def get_avg_val_roi(initialdir):
-    root = tk.Tk()
-    root.withdraw()
-    img_path =  filedialog.askopenfilename(initialdir=initialdir,
-        title="Select reference panel image")
-    root.destroy()
 
-    img = read_geotiff(img_path)
-    bands = img.shape[2]
-    band = int(bands / 2)
-
-    fig = plt.figure()
-    plt.imshow(img[:,:,band], cmap=plt.get_cmap("Greys_r"))
-    plt.show(block=False)
-
-    roi = RoiPoly(color='r', fig=fig)
-
-    mask = roi.get_mask(img[:,:,band])
-    mean = np.mean(img[mask], axis=0)
-    return mean, img_path
 #-------------------------------------------------------------------------------
-
-def get_exp_t_ms(img_path):
-    metadata = px2.ImageMetadata(img_path)
-    metadata.read()
-    exp_t = metadata.get_exposure_data()['speed']
-    exp_t = float(exp_t) * 1e3
-    return exp_t
-#-------------------------------------------------------------------------------
-
-def rad_to_refl(img, exp_t_img, exp_t_white, mean_white, refl_white):
-    img_refl = (img / mean_white) * (exp_t_white / exp_t_img) * refl_white
-    return img_refl
 
 def argmax_2D(array_2D):
     flat_idx = np.argmax(array_2D)

@@ -1,6 +1,7 @@
 #!../venv3/bin/python3
 
 import os
+import glob
 from preprocessing import BasePreprocessor, SpectralProcessor
 from PIL import Image
 import utils.functions as ufunc
@@ -114,13 +115,17 @@ spectralprocessor = SpectralProcessor(frames_folder)
 for cam in spectralprocessor.cams:
     spectralprocessor.set_cam_info(cam)
     if  spectralprocessor.is_hyperspectral:
-        imgs_list = os.listdir(spectralprocessor.cam_folder)
+        imgs_list = glob.glob(os.path.join(spectralprocessor.cam_folder, '*'))
+        print(imgs_list)
         spectralprocessor.set_white_info()
-        for img in imgs_list:
-            img_path = os.path.join(spectralprocessor.cam_folder, img)
+        for img_path in imgs_list:
             exif = spectralprocessor.read_exif(img_path)
             img_exp_t = spectralprocessor.read_exp_t_ms(img_path)
             img_array = ufunc.read_geotiff(img_path)
+            # compute reflectance image
             img_refl = spectralprocessor.rad_to_refl(img_array, img_exp_t)
-            ufunc.write_geotiff(img_refl, img_path, dtype=gdal.GDT_Float32)
+            # apply spectral correction
+            img_corr = spectralprocessor.corr_spectra(img_refl)
+            print("Writing file {}.".format(img_path))
+            ufunc.write_geotiff(img_corr, img_path, dtype=gdal.GDT_Float32)
             spectralprocessor.write_exif(img_path, exif)

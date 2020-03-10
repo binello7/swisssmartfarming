@@ -74,8 +74,6 @@ class BasePreprocessor(Preprocessor):
             'offset_y': None,
             'nb_bands': None
         }
-        self.corr_matrix = None
-        self.virtual_wavelengths = None
         topics = self.bagfile.get_type_and_topic_info().topics.keys()
         topics = [t for t in topics]
         self.topics = topics
@@ -181,30 +179,6 @@ class BasePreprocessor(Preprocessor):
             self.rtk_data = rtk_data
 #-------------------------------------------------------------------------------
 
-    def _set_corr_matrix_and_wavelengths(self):
-        xml = mdom.parse(self.xml_file)
-        virtual_bands = xml.getElementsByTagName("virtual_band")
-        wavelengths = []
-        coefficients = []
-
-        for virtual_band in virtual_bands:
-            wavelength = float(str(virtual_band.childNodes.item(1)
-                .firstChild).split("'")[1])
-            wavelengths.append(wavelength)
-            coeffs = str(virtual_band.childNodes.item(5)
-                .firstChild.data).split(', ')
-
-            data = []
-            for coeff in coeffs:
-                coeff = float(coeff)
-                data.append(coeff)
-
-            coefficients.append(data)
-
-        self.corr_matrix = np.array(coefficients)
-        self.virtual_wavelengths = np.array(wavelengths)
-#-------------------------------------------------------------------------------
-
     def _set_filter_dims(self):
         xml = mdom.parse(self.xml_file)
         height = int(str(xml.getElementsByTagName("height")[1].firstChild.data))
@@ -289,8 +263,6 @@ class BasePreprocessor(Preprocessor):
             self.img_info = self.img_info.fromkeys(self.img_info, None)
             self.hs_info = self.hs_info.fromkeys(self.hs_info, None)
             self.xml_file = None
-            self.corr_matrix = None
-            self.virtual_wavelengths = None
             self.exp_t_data = pd.DataFrame(columns=["tstamp", "exp_t_ms"])
             if cam_info['exp_t_topic'] != None:
                 self._set_exp_t_data()
@@ -304,7 +276,6 @@ class BasePreprocessor(Preprocessor):
                     self.xml_file = None
                 else:
                     self.xml_file = xml_file[0]
-                    self._set_corr_matrix_and_wavelengths()
                     self._set_filter_dims()
                     self._set_offsets()
                     self._set_nb_bands()
@@ -374,8 +345,8 @@ class BasePreprocessor(Preprocessor):
             return img
 
         else:
-            img_med = ndimage.median_filter(img, size=(3, 3, 1), mode='constant',
-                cval=0.0)
+            img_med = ndimage.median_filter(img, size=(3, 3, 1),
+                mode='reflect')
             return img_med
 #-------------------------------------------------------------------------------
 
@@ -435,12 +406,57 @@ class SpectralProcessor(Preprocessor):
         self.white_reference_path = None
         self.white_mean_values = None
         self.white_exp_t = None
+        self.corr_matrix = None
+        self.virtual_wavelengths = None
         self.exif = None
 #-------------------------------------------------------------------------------
 
     def _set_cams(self):
         cams = os.listdir(self.frames_folder)
         self.cams = cams
+#-------------------------------------------------------------------------------
+
+    def _set_hs_properties(self):
+        cfg_folder = os.path.join(self._rootpath, self.cams_cfg_path,
+            self.cam_name)
+        cfg_file = os.path.join(cfg_folder, '{}.cfg'.format(self.cam_name))
+        xml_file = glob.glob(os.path.join(cfg_folder, '*.xml'))
+        if self.is_hyperspectral:
+            if xml_file == []:
+                raise FileNotFoundError(("No xml file found for camera '{}'. "
+                    "Hyperspectral preprocessing not possible.").format(
+                        self.cam_name))
+            else:
+                self.xml_file = xml_file[0]
+                self._set_corr_matrix_and_wavelengths()
+        else:
+            self.xml_file = None
+            self.virtual_wavelengths = None
+            self.corr_matrix = None
+#-------------------------------------------------------------------------------
+
+    def _set_corr_matrix_and_wavelengths(self):
+        xml = mdom.parse(self.xml_file)
+        virtual_bands = xml.getElementsByTagName("virtual_band")
+        wavelengths = []
+        coefficients = []
+
+        for virtual_band in virtual_bands:
+            wavelength = float(str(virtual_band.childNodes.item(1)
+                .firstChild).split("'")[1])
+            wavelengths.append(wavelength)
+            coeffs = str(virtual_band.childNodes.item(5)
+                .firstChild.data).split(', ')
+
+            data = []
+            for coeff in coeffs:
+                coeff = float(coeff)
+                data.append(coeff)
+
+            coefficients.append(data)
+
+        self.corr_matrix = np.array(coefficients)
+        self.virtual_wavelengths = np.array(wavelengths)
 #-------------------------------------------------------------------------------
 
     def read_exp_t_ms(self, img_path):
@@ -479,6 +495,7 @@ class SpectralProcessor(Preprocessor):
                 self.is_hyperspectral = True
             else:
                 self.is_hyperspectral = False
+            self._set_hs_properties()
 
         else:
             cam_prop = ["'{}'".format(k) for k in self.cam_info.keys()]
@@ -524,3 +541,23 @@ class SpectralProcessor(Preprocessor):
                 .format(max_refl)))
         return img_refl
 #-------------------------------------------------------------------------------
+
+    def corr_spectra(self, img_refl):
+        # error if correction matrix not loaded
+        rows = img_refl.shape[0]
+        cols = img_refl.shape[1]
+        img_corr = np.zeros((rows, cols, self.corr_matrix.shape[0]))
+        for i in range(rows):
+            for j in range(cols):
+                img_corr[i,j,:] = np.dot(self.corr_matrix, img_refl[i,j,:])
+
+        # reflectance should be within [0,1]. Perform checks
+        max_corr_refl = np.max(img_corr)
+        min_corr_refl = np.min(img_corr)
+        if min_corr_refl < 0:
+            warnings.warn(("Attention: corrected min reflectance < 0 detected: "
+                "min_corr_refl={:.2f}").format(min_corr_refl))
+        if max_corr_refl > 1:
+            warnings.warn(("Attention: corrected max reflectance > 1 detected: "
+                "max_corr_refl={:.2f}").format(max_corr_refl))
+        return img_corr

@@ -1,0 +1,53 @@
+
+<cameraModelDB>
+	<version>19</version>
+	<rigs/>
+	<cameras>
+		<camera name="photonfocus_nir">
+			<imageWidth>409</imageWidth>
+			<imageHeight>217</imageHeight>
+			<pixelSize>27.5</pixelSize>
+			<principalPointXmm>1.12475</principalPointXmm>
+			<principalPointYmm>0.59675</principalPointYmm>
+			<lensType>perspective</lensType>
+			<focalLengthmm>16</focalLengthmm>
+			<distortion>5</distortion>
+			<radialK1>0</radialK1>
+			<radialK2>0</radialK2>
+			<radialK3>0</radialK3>
+			<tangentialT1>0</tangentialT1>
+			<tangentialT2>0</tangentialT2>
+			<cameraModelSource>user</cameraModelSource>
+			<bandConfig>
+				<band name="688" centralWaveLength="688" width="8" weight="0"/>
+				<band name="701" centralWaveLength="701" width="8" weight="0"/>
+				<band name="713" centralWaveLength="713" width="8" weight="0"/>
+				<band name="728" centralWaveLength="728" width="7" weight="0"/>
+				<band name="739" centralWaveLength="739" width="8" weight="0"/>
+				<band name="752" centralWaveLength="752" width="8" weight="0"/>
+				<band name="766" centralWaveLength="766" width="8" weight="0"/>
+				<band name="780" centralWaveLength="780" width="9" weight="0"/>
+				<band name="791" centralWaveLength="791" width="11" weight="0"/>
+				<band name="805" centralWaveLength="805" width="11" weight="0"/>
+				<band name="816" centralWaveLength="816" width="12" weight="0"/>
+				<band name="829" centralWaveLength="829" width="13" weight="0"/>
+				<band name="844" centralWaveLength="844" width="14" weight="1"/>
+				<band name="854" centralWaveLength="854" width="15" weight="0"/>
+				<band name="866" centralWaveLength="866" width="14" weight="0"/>
+				<band name="881" centralWaveLength="881" width="19" weight="0"/>
+				<band name="892" centralWaveLength="892" width="19" weight="0"/>
+				<band name="901" centralWaveLength="901" width="19" weight="0"/>
+				<band name="915" centralWaveLength="915" width="17" weight="0"/>
+				<band name="916" centralWaveLength="916" width="24" weight="0"/>
+				<band name="924" centralWaveLength="924" width="19" weight="0"/>
+				<band name="925" centralWaveLength="925" width="24" weight="0"/>
+				<band name="932" centralWaveLength="932" width="19" weight="0"/>
+				<band name="940" centralWaveLength="940" width="24" weight="0"/>
+				<band name="952" centralWaveLength="952" width="19" weight="0"/>
+			</bandConfig>
+		</camera>
+	</cameras>
+	<mappings>
+		<mapping exif="MV0-D2048x1088-C01-HS02-160-G2_16.0_409x217" camera="photonfocus_nir"/>
+	</mappings>
+</cameraModelDB>

@@ -3,12 +3,81 @@
 	<version>19</version>
 	<rigs/>
 	<cameras>
+		<camera name="MV0-D2048x1088-C01-HS02-160-G2_16.0_409x217">
+			<imageWidth>409</imageWidth>
+			<imageHeight>217</imageHeight>
+			<pixelSize>46.943765</pixelSize>
+			<principalPointXmm>9.6</principalPointXmm>
+			<principalPointYmm>5.093399</principalPointYmm>
+			<lensType>perspective</lensType>
+			<focalLengthmm>16</focalLengthmm>
+			<distortion>5</distortion>
+			<radialK1>0</radialK1>
+			<radialK2>0</radialK2>
+			<radialK3>0</radialK3>
+			<tangentialT1>0</tangentialT1>
+			<tangentialT2>0</tangentialT2>
+			<cameraModelSource>exif</cameraModelSource>
+			<bandConfig>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="1"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+			</bandConfig>
+		</camera>
+		<camera name="MV0-D2048x1088-C01-HS03-160-G2_16.0_512x256">
+			<imageWidth>512</imageWidth>
+			<imageHeight>256</imageHeight>
+			<pixelSize>37.5</pixelSize>
+			<principalPointXmm>9.6</principalPointXmm>
+			<principalPointYmm>4.8</principalPointYmm>
+			<lensType>spherical</lensType>
+			<cameraModelSource>exif</cameraModelSource>
+			<bandConfig>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="1"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+			</bandConfig>
+		</camera>
 		<camera name="photonfocus_nir">
 			<imageWidth>409</imageWidth>
 			<imageHeight>217</imageHeight>
 			<pixelSize>27.5</pixelSize>
-			<principalPointXmm>1.12475</principalPointXmm>
-			<principalPointYmm>0.59675</principalPointYmm>
+			<principalPointXmm>5.62375</principalPointXmm>
+			<principalPointYmm>2.98375</principalPointYmm>
 			<lensType>perspective</lensType>
 			<focalLengthmm>16</focalLengthmm>
 			<distortion>5</distortion>
@@ -46,8 +115,42 @@
 				<band name="952" centralWaveLength="952" width="19" weight="0"/>
 			</bandConfig>
 		</camera>
+		<camera name="photonfocus_vis">
+			<imageWidth>512</imageWidth>
+			<imageHeight>256</imageHeight>
+			<pixelSize>22</pixelSize>
+			<principalPointXmm>5.632</principalPointXmm>
+			<principalPointYmm>2.816</principalPointYmm>
+			<lensType>perspective</lensType>
+			<focalLengthmm>16</focalLengthmm>
+			<distortion>5</distortion>
+			<radialK1>0</radialK1>
+			<radialK2>0</radialK2>
+			<radialK3>0</radialK3>
+			<tangentialT1>0</tangentialT1>
+			<tangentialT2>0</tangentialT2>
+			<cameraModelSource>user</cameraModelSource>
+			<bandConfig>
+				<band name="480" centralWaveLength="480" width="6" weight="0"/>
+				<band name="481" centralWaveLength="481" width="7" weight="0"/>
+				<band name="484" centralWaveLength="484" width="14" weight="0"/>
+				<band name="487" centralWaveLength="487" width="10" weight="0"/>
+				<band name="500" centralWaveLength="500" width="12" weight="0"/>
+				<band name="512" centralWaveLength="512" width="8" weight="0"/>
+				<band name="526" centralWaveLength="526" width="7" weight="0"/>
+				<band name="539" centralWaveLength="539" width="7" weight="1"/>
+				<band name="565" centralWaveLength="565" width="8" weight="0"/>
+				<band name="576" centralWaveLength="576" width="7" weight="0"/>
+				<band name="590" centralWaveLength="590" width="8" weight="0"/>
+				<band name="600" centralWaveLength="600" width="9" weight="0"/>
+				<band name="614" centralWaveLength="614" width="13" weight="0"/>
+				<band name="623" centralWaveLength="623" width="18" weight="0"/>
+				<band name="633" centralWaveLength="633" width="9" weight="0"/>
+			</bandConfig>
+		</camera>
 	</cameras>
 	<mappings>
 		<mapping exif="MV0-D2048x1088-C01-HS02-160-G2_16.0_409x217" camera="photonfocus_nir"/>
+		<mapping exif="MV0-D2048x1088-C01-HS03-160-G2_16.0_512x256" camera="photonfocus_vis"/>
 	</mappings>
 </cameraModelDB>

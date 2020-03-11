@@ -92,7 +92,7 @@ pix4d_options = {
     '-c': '',
     '--stdout': '',
     '-n': '',
-    '--image-dir=': frames_folder,
+    '--image-dir=': tmp_folder,
     '--template=': template_file
 }
 command = write_command(pix4d_options, project_file)

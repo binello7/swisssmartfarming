@@ -51,6 +51,10 @@ imgs_step = args.imgs_step
 imgs_list = glob(os.path.join(frames_folder, '*.jpg'))
 imgs_list.extend(glob(os.path.join(frames_folder, '*.tif')))
 imgs_list.sort()
+if idx_last_img == -1:
+    idx_last_img = None
+else:
+    idx_last_img += 1
 imgs_list = imgs_list[idx_first_img:idx_last_img:imgs_step]
 
 # copy the selected images to a tmp folder
@@ -94,6 +98,7 @@ pix4d_options = {
 command = write_command(pix4d_options, project_file)
 
 # run the command - project_file is created but processing fails
+print("executing command '{}'".format(command))
 os.system(command)
 
 # update the pix4d_options and generate the new command to process the project
@@ -102,6 +107,7 @@ pix4d_options.update({'-r': ''})
 command = write_command(pix4d_options, project_file)
 
 # run the command with the previously created project - processing should run
+print("executing command '{}'".format(command))
 os.system(command)
 
 # remove tmp folder

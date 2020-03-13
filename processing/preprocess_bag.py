@@ -95,7 +95,7 @@ for cam in basepreprocessor.cams:
             # reshape the raw sensor data
             img_array = basepreprocessor.reshape_hs(img_array)
             # apply median filtering
-            # img_array = basepreprocessor.median_filter_3x3(img_array)
+            img_array = basepreprocessor.median_filter_3x3(img_array)
             # save image and write exif metadata
             ufunc.write_geotiff(img_array, filepath)
             basepreprocessor.write_exif(filepath)

@@ -3,6 +3,27 @@
 	<version>19</version>
 	<rigs/>
 	<cameras>
+		<camera name="BFS-U3-50S5C-C_12.5_2448x2048">
+			<imageWidth>2448</imageWidth>
+			<imageHeight>2048</imageHeight>
+			<pixelSize>6.127451</pixelSize>
+			<principalPointXmm>7.5</principalPointXmm>
+			<principalPointYmm>6.27451</principalPointYmm>
+			<lensType>perspective</lensType>
+			<focalLengthmm>12.5</focalLengthmm>
+			<distortion>5</distortion>
+			<radialK1>0</radialK1>
+			<radialK2>0</radialK2>
+			<radialK3>0</radialK3>
+			<tangentialT1>0</tangentialT1>
+			<tangentialT2>0</tangentialT2>
+			<cameraModelSource>exif</cameraModelSource>
+			<bandConfig>
+				<band name="Red" centralWaveLength="660" width="0" weight="0.2126"/>
+				<band name="Green" centralWaveLength="550" width="0" weight="0.7152"/>
+				<band name="Blue" centralWaveLength="470" width="0" weight="0.0722"/>
+			</bandConfig>
+		</camera>
 		<camera name="MV0-D2048x1088-C01-HS02-160-G2_16.0_409x217">
 			<imageWidth>409</imageWidth>
 			<imageHeight>217</imageHeight>
@@ -70,6 +91,46 @@
 				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
 				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
 				<band name="Unknown" centralWaveLength="0" width="0" weight="0"/>
+			</bandConfig>
+		</camera>
+		<camera name="Tau2640_19.0_640x512">
+			<imageWidth>640</imageWidth>
+			<imageHeight>512</imageHeight>
+			<pixelSize>35.625</pixelSize>
+			<principalPointXmm>11.4</principalPointXmm>
+			<principalPointYmm>9.12</principalPointYmm>
+			<lensType>perspective</lensType>
+			<focalLengthmm>19</focalLengthmm>
+			<distortion>5</distortion>
+			<radialK1>0</radialK1>
+			<radialK2>0</radialK2>
+			<radialK3>0</radialK3>
+			<tangentialT1>0</tangentialT1>
+			<tangentialT2>0</tangentialT2>
+			<cameraModelSource>exif</cameraModelSource>
+			<bandConfig>
+				<band name="Grayscale" centralWaveLength="0" width="0" weight="1"/>
+			</bandConfig>
+		</camera>
+		<camera name="blackfly_rgb">
+			<imageWidth>2448</imageWidth>
+			<imageHeight>2048</imageHeight>
+			<pixelSize>3.45</pixelSize>
+			<principalPointXmm>4.16833</principalPointXmm>
+			<principalPointYmm>3.52974</principalPointYmm>
+			<lensType>perspective</lensType>
+			<focalLengthmm>12.8482</focalLengthmm>
+			<distortion>5</distortion>
+			<radialK1>-0.0692531</radialK1>
+			<radialK2>0.241491</radialK2>
+			<radialK3>0.00301486</radialK3>
+			<tangentialT1>-0.000415286</tangentialT1>
+			<tangentialT2>-0.000174415</tangentialT2>
+			<cameraModelSource>user</cameraModelSource>
+			<bandConfig>
+				<band name="Red" centralWaveLength="660" width="0" weight="0.2126"/>
+				<band name="Green" centralWaveLength="550" width="0" weight="0.7152"/>
+				<band name="Blue" centralWaveLength="470" width="0" weight="0.0722"/>
 			</bandConfig>
 		</camera>
 		<camera name="photonfocus_nir">
@@ -148,9 +209,31 @@
 				<band name="633" centralWaveLength="633" width="9" weight="0"/>
 			</bandConfig>
 		</camera>
+		<camera name="tau2_thermal">
+			<imageWidth>640</imageWidth>
+			<imageHeight>512</imageHeight>
+			<pixelSize>17</pixelSize>
+			<principalPointXmm>5.44</principalPointXmm>
+			<principalPointYmm>4.352</principalPointYmm>
+			<lensType>perspective</lensType>
+			<focalLengthmm>19</focalLengthmm>
+			<distortion>5</distortion>
+			<radialK1>0</radialK1>
+			<radialK2>0</radialK2>
+			<radialK3>0</radialK3>
+			<tangentialT1>0</tangentialT1>
+			<tangentialT2>0</tangentialT2>
+			<pixelValue pixelType="uint16" min="0" max="0"/>
+			<cameraModelSource>user</cameraModelSource>
+			<bandConfig>
+				<band name="Thermal IR" centralWaveLength="10000.5" width="3000" weight="1"/>
+			</bandConfig>
+		</camera>
 	</cameras>
 	<mappings>
+		<mapping exif="BFS-U3-50S5C-C_12.5_2448x2048" camera="blackfly_rgb"/>
 		<mapping exif="MV0-D2048x1088-C01-HS02-160-G2_16.0_409x217" camera="photonfocus_nir"/>
 		<mapping exif="MV0-D2048x1088-C01-HS03-160-G2_16.0_512x256" camera="photonfocus_vis"/>
+		<mapping exif="Tau2640_19.0_640x512" camera="tau2_thermal"/>
 	</mappings>
 </cameraModelDB>

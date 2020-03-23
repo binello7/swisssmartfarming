@@ -4,6 +4,7 @@ import os
 import argparse
 import shutil
 import rootpath
+import utils.functions as ufunc
 from glob import glob
 
 
@@ -43,6 +44,7 @@ args = parser.parse_args()
 # set needed variables
 sep = os.path.sep
 frames_folder = args.frames_folder
+frames_folder = ufunc.rm_sep(frames_folder)
 idx_first_img = args.idx_first_img
 idx_last_img = args.idx_last_img
 imgs_step = args.imgs_step

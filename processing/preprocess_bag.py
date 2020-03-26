@@ -60,54 +60,54 @@ if not os.path.isdir(frames_folder):
     os.makedirs(frames_folder)
 
 # loop over cameras and process them
-# for cam in basepreprocessor.cams:
-#     # Create one folder per camera
-#     print("Processing camera '{}'".format(cam))
-#     camera_folder = os.path.join(frames_folder, cam)
-#     if not os.path.isdir(camera_folder):
-#         os.makedirs(camera_folder)
-#
-#     basepreprocessor.set_cam_info(cam)
-#
-#     msgs = basepreprocessor.read_img_msgs(basepreprocessor.imgs_topics[cam])
-#     for i, msg in enumerate(msgs):
-#         # get one image after another with its timestamp and process it
-#         img_tstamp = msg.timestamp.to_nsec()
-#         img_array = basepreprocessor.imgmsg_to_cv2(msg)
-#
-#         # gps-rtk data are read automatically. Set img_info attribute
-#         basepreprocessor.set_img_info(img_tstamp)
-#
-#         # Do different processing steps depending on the camera type
-#         if basepreprocessor.cam_info['type'] == 'RGB':
-#             # set filepath
-#             extension = '.jpg'
-#             filepath = compose_filepath(camera_folder, prefix, i, extension)
-#             # save image and write exif metadata
-#             im = Image.fromarray(img_array)
-#             im.save(filepath, quality=100)
-#             basepreprocessor.write_exif(filepath)
-#
-#         elif basepreprocessor.cam_info['type'] == 'hyperspectral':
-#             # set filepath
-#             extension = '.tif'
-#             filepath = compose_filepath(camera_folder, prefix, i, extension)
-#             # reshape the raw sensor data
-#             img_array = basepreprocessor.reshape_hs(img_array)
-#             # apply median filtering
-#             img_array = basepreprocessor.median_filter_3x3(img_array)
-#             # save image and write exif metadata
-#             ufunc.write_geotiff(img_array, filepath)
-#             basepreprocessor.write_exif(filepath)
-#
-#         elif basepreprocessor.cam_info['type'] == 'thermal':
-#             # set filepath
-#             extension = '.tif'
-#             filepath = compose_filepath(camera_folder, prefix, i, extension)
-#             # save image and write exif metadata
-#             im = Image.fromarray(img_array)
-#             im.save(filepath)
-#             basepreprocessor.write_exif(filepath)
+for cam in basepreprocessor.cams:
+    # Create one folder per camera
+    print("Processing camera '{}'".format(cam))
+    camera_folder = os.path.join(frames_folder, cam)
+    if not os.path.isdir(camera_folder):
+        os.makedirs(camera_folder)
+
+    basepreprocessor.set_cam_info(cam)
+
+    msgs = basepreprocessor.read_img_msgs(basepreprocessor.imgs_topics[cam])
+    for i, msg in enumerate(msgs):
+        # get one image after another with its timestamp and process it
+        img_tstamp = msg.timestamp.to_nsec()
+        img_array = basepreprocessor.imgmsg_to_cv2(msg)
+
+        # gps-rtk data are read automatically. Set img_info attribute
+        basepreprocessor.set_img_info(img_tstamp)
+
+        # Do different processing steps depending on the camera type
+        if basepreprocessor.cam_info['type'] == 'RGB':
+            # set filepath
+            extension = '.jpg'
+            filepath = compose_filepath(camera_folder, prefix, i, extension)
+            # save image and write exif metadata
+            im = Image.fromarray(img_array)
+            im.save(filepath, quality=100)
+            basepreprocessor.write_exif(filepath)
+
+        elif basepreprocessor.cam_info['type'] == 'hyperspectral':
+            # set filepath
+            extension = '.tif'
+            filepath = compose_filepath(camera_folder, prefix, i, extension)
+            # reshape the raw sensor data
+            img_array = basepreprocessor.reshape_hs(img_array)
+            # apply median filtering
+            img_array = basepreprocessor.median_filter_3x3(img_array)
+            # save image and write exif metadata
+            ufunc.write_geotiff(img_array, filepath)
+            basepreprocessor.write_exif(filepath)
+
+        elif basepreprocessor.cam_info['type'] == 'thermal':
+            # set filepath
+            extension = '.tif'
+            filepath = compose_filepath(camera_folder, prefix, i, extension)
+            # save image and write exif metadata
+            im = Image.fromarray(img_array)
+            im.save(filepath)
+            basepreprocessor.write_exif(filepath)
 
 # create the SpectralProcessor object
 spectralprocessor = SpectralProcessor(frames_folder)

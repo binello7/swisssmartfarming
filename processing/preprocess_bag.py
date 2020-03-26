@@ -116,7 +116,6 @@ for cam in spectralprocessor.cams:
     spectralprocessor.set_cam_info(cam)
     if  spectralprocessor.is_hyperspectral:
         imgs_list = glob.glob(os.path.join(spectralprocessor.cam_folder, '*'))
-        print(imgs_list)
         spectralprocessor.set_white_info()
         for img_path in imgs_list:
             exif = spectralprocessor.read_exif(img_path)

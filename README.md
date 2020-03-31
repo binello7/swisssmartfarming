@@ -15,6 +15,7 @@ Many of the geodata operations performed within the project rely on the use of G
 * matplotlib==3.1.3
 * numpy==1.15.2
 * Pillow==7.0.0
+* pycryptodomex==3.9.7
 * pygdal==2.2.3.6
 * py3exiv2==0.7.1<sup>1</sup>
 * rasterio==1.1.2

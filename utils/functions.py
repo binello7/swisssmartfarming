@@ -1,11 +1,13 @@
-import numpy as np
+from IPython import embed
+from matplotlib import pyplot as plt
 from osgeo import gdal
 from roipoly import RoiPoly
-from matplotlib import pyplot as plt
 import math
+import numpy as np
 import os
 import pyexiv2 as px2
-from IPython import embed
+import xml.dom.minidom as mdom
+
 
 sep = os.path.sep
 
@@ -26,6 +28,19 @@ def get_file_basename(filepath):
     extension = basename.split('.')[-1]
     basename = '.'.join(basename.split('.')[:-1])
     return (basename, extension)
+#-------------------------------------------------------------------------------
+
+def read_virtualwavelengths(xml_file):
+    xml = mdom.parse(xml_file)
+    virtual_bands = xml.getElementsByTagName("virtual_band")
+    wavelengths = []
+
+    for virtual_band in virtual_bands:
+        wavelength = float(str(virtual_band.childNodes.item(1)
+            .firstChild).split("'")[1])
+        wavelengths.append(wavelength)
+
+    return np.array(wavelengths)
 #-------------------------------------------------------------------------------
 
 def read_geotiff(img_path):

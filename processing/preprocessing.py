@@ -504,7 +504,7 @@ class SpectralProcessor(Preprocessor):
                 "be '{}'. Please correct cfg file.").format(cam_prop))
 #-------------------------------------------------------------------------------
 
-    def set_white_info(self, white_reflectance=0.18):
+    def set_white_info(self, white_reflectance):
         self.white_reflectance = white_reflectance
         root = tk.Tk()
         root.withdraw()

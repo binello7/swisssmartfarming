@@ -1,4 +1,5 @@
-#!../venv3/bin/python3
+#!/usr/bin/env python2
+
 
 import os
 import glob
@@ -131,7 +132,7 @@ for cam in spectralprocessor.cams:
         for img_path in imgs_list:
             exif = spectralprocessor.read_exif(img_path)
             img_exp_t = spectralprocessor.read_exp_t_ms(img_path)
-            img_array = ufunc.read_geotiff(img_path)
+            img_array = ufunc.read_img2array(img_path)
             # compute reflectance image
             img_refl = spectralprocessor.rad_to_refl(img_array, img_exp_t)
             # apply spectral correction

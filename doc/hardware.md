@@ -8,7 +8,7 @@
 ### SphereOptics
 The reference panel used to calibrate hyperspectral images is the
 
-SphereOptics Zenith LITE Target
-95% Diffuse Reflectance
-200x200x12.5mm
-calibrated for 250 - 2450nm
+SphereOptics Zenith LITE Target  
+95% Diffuse Reflectance  
+200x200x12.5mm  
+calibrated for 250 - 2450nm  

@@ -44,8 +44,20 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--bagfile', '-b',
     required=True,
     help='Path to the bag file and name, e.g. ./dataset/bagfile.bag')
+parser.add_argument('--ref_panel', '-r',
+    choices=['1', '2'],
+    required=True,
+    help="Reference panel used to calibrate the hyperspectral images. "
+        "Use '1' for 'colorChecker' and '2' for 'SphereOptics'.")
 
 args = parser.parse_args()
+print(args)
+
+# set the value of the ref panel
+if args.ref_panel == '1':
+    reflectance = 0.18
+elif args.ref_panel == '2':
+    reflectance = 0.9645
 
 # create the BasePreprocessor object
 basepreprocessor = BasePreprocessor(args.bagfile)
@@ -116,7 +128,7 @@ for cam in spectralprocessor.cams:
     spectralprocessor.set_cam_info(cam)
     if  spectralprocessor.is_hyperspectral:
         imgs_list = glob.glob(os.path.join(spectralprocessor.cam_folder, '*'))
-        spectralprocessor.set_white_info()
+        spectralprocessor.set_white_info(white_reflectance=reflectance)
         for img_path in imgs_list:
             exif = spectralprocessor.read_exif(img_path)
             img_exp_t = spectralprocessor.read_exp_t_ms(img_path)

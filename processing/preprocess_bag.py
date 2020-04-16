@@ -37,7 +37,7 @@ parser = argparse.ArgumentParser(
         |n
         Given a rosbag file contianing a dataset for the Swiss Smart Farming
         Project performs the preprocesses steps in order to produce
-        georeferenced corrected images that can be fed into the Pix4D
+        georeferenced corrected images that can be fed to the Pix4D
         software.""",
     formatter_class=MultilineFormatter
 )
@@ -51,7 +51,6 @@ parser.add_argument('--ref_panel', '-r',
         "Use '1' for 'colorChecker' and '2' for 'SphereOptics'.")
 
 args = parser.parse_args()
-print(args)
 
 # set the value of the ref panel
 if args.ref_panel == '1':

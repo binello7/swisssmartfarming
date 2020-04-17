@@ -43,7 +43,7 @@ def read_virtualwavelengths(xml_file):
     return np.array(wavelengths)
 #-------------------------------------------------------------------------------
 
-def read_geotiff(img_path):
+def read_img2array(img_path):
     raster = gdal.Open(img_path)
     img_array = raster.ReadAsArray()
     img_array = np.moveaxis(img_array, 0, 2)

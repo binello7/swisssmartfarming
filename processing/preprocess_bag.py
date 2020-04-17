@@ -127,10 +127,10 @@ spectralprocessor = SpectralProcessor(frames_folder)
 for cam in spectralprocessor.cams:
     spectralprocessor.set_cam_info(cam)
     if  spectralprocessor.is_hyperspectral:
-        imgs_list = glob.glob(os.path.join(spectralprocessor.cam_folder, '*'))
+        imgs_list = sorted(glob.glob(os.path.join(spectralprocessor.cam_folder, '*')))
         spectralprocessor.set_white_info(white_reflectance=reflectance)
         for img_path in imgs_list:
-            exif = spectralprocessor.read_exif(img_path)
+            exif, img = spectralprocessor.read_exif(img_path)
             img_exp_t = spectralprocessor.read_exp_t_ms(img_path)
             img_array = ufunc.read_img2array(img_path)
             # compute reflectance image
@@ -139,4 +139,4 @@ for cam in spectralprocessor.cams:
             img_corr = spectralprocessor.corr_spectra(img_refl)
             print("Writing file {}.".format(img_path))
             ufunc.write_geotiff(img_corr, img_path, dtype=gdal.GDT_Float32)
-            spectralprocessor.write_exif(img_path, exif)
+            spectralprocessor.write_exif(img_path, img, exif)

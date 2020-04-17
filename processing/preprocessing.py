@@ -1,5 +1,3 @@
-#!../venv/bin/python3
-
 import argparse
 import textwrap
 import os
@@ -20,14 +18,14 @@ import pyexiv2 as px2
 import yaml
 import xml.dom.minidom as mdom
 from datetime import datetime as dt
-from tkinter import filedialog
-import tkinter as tk
+import tkFileDialog
+import Tkinter as tk
 import matplotlib.pyplot as plt
 from roipoly import RoiPoly
 from IPython import embed
 
 
-class CfgFileNotFoundError(FileNotFoundError):
+class CfgFileNotFoundError(EnvironmentError):
     pass
 #===============================================================================
 
@@ -35,7 +33,7 @@ class NoMessagesError(Exception):
     pass
 #===============================================================================
 
-class Preprocessor:
+class Preprocessor(object):
     def __init__ (self, cams_cfg_path='cfg/cameras'):
         self._sep = os.path.sep
         self._rootpath = ufunc.add_sep(rp.detect())
@@ -55,7 +53,8 @@ class Preprocessor:
 class BasePreprocessor(Preprocessor):
     def __init__(self, bagfile, rtk_topic='/ssf/dji_sdk/rtk_position',
         timezone=2):
-        super().__init__()
+        super(BasePreprocessor, self).__init__()
+        print('Reading bagfile...')
         self.bagfile = rosbag.Bag(bagfile, 'r')
         self.bridge = CvBridge()
         self.encoding = "passthrough"
@@ -157,6 +156,17 @@ class BasePreprocessor(Preprocessor):
         return [Fraction(deg, 1), Fraction(min, 1), sec]
 #-------------------------------------------------------------------------------
 
+    def _rational_to_str(self, rational):
+        return str(rational.numerator) + '/' + str(rational.denominator)
+#-------------------------------------------------------------------------------
+
+    def _rationallist_to_str(self, rational_list):
+        tmp = []
+        for el in rational_list:
+            tmp.append(str(el.numerator) + '/' + str(el.denominator))
+        return ' '.join(tmp)
+#-------------------------------------------------------------------------------
+
     def _set_rtk_data(self):
         messages = self.bagfile.read_messages(topics=self.rtk_topic)
         try:
@@ -245,8 +255,8 @@ class BasePreprocessor(Preprocessor):
                     self.exp_t_data = self.exp_t_data.append(data,
                         ignore_index=True)
 
-                except FileNotFoundError as e:
-                    raise FileNotFoundError(("File '{}' was not found. "
+                except EnvironmentError as e:
+                    raise EnvironmentError(("File '{}' was not found. "
                         "Please make sure that the file is available "
                         "and has the same basename as the bagfile.").format(
                             yaml_file))
@@ -257,7 +267,8 @@ class BasePreprocessor(Preprocessor):
         cfg_file = os.path.join(cfg_folder, '{}.cfg'.format(cam_name))
         with open(cfg_file) as file:
             cam_info = yaml.safe_load(file)
-        if cam_info.keys() == self.cam_info.keys():
+
+        if sorted(cam_info.keys()) == sorted(self.cam_info.keys()):
             self.cam_info.update(cam_info)
             # new camera is created. Reset all (img_info, hs_info, ...)
             self.img_info = self.img_info.fromkeys(self.img_info, None)
@@ -351,8 +362,8 @@ class BasePreprocessor(Preprocessor):
 #-------------------------------------------------------------------------------
 
     def write_exif(self, filename):
-        metadata = px2.ImageMetadata(filename)
-        metadata.read()
+        img = px2.Image(filename)
+        metadata = img.read_exif()
 
         # NOTE: not very elegant...
         if self.img_info['gps_lat'] > 0:
@@ -371,32 +382,32 @@ class BasePreprocessor(Preprocessor):
         meta_dict = {
             'Exif.Image.Make': self.cam_info['make'],
             'Exif.Image.Model': self.cam_info['model'],
-            'Exif.Photo.FocalLength': Fraction(self.cam_info[
-                'focal_length_mm']),
+            'Exif.Photo.FocalLength': self._rational_to_str(Fraction(self.cam_info[
+                'focal_length_mm'])),
             'Exif.Photo.DateTimeOriginal': self.img_info['date_time_orig'],
             'Exif.Photo.SubSecTimeOriginal': self.img_info['subsec_time_orig'],
-            'Exif.GPSInfo.GPSLatitude': self._latlon_to_rational(
-                self.img_info['gps_lat']),
+            'Exif.GPSInfo.GPSLatitude': self._rationallist_to_str(
+                self._latlon_to_rational(self.img_info['gps_lat'])),
             'Exif.GPSInfo.GPSLatitudeRef': lat_ref,
-            'Exif.GPSInfo.GPSLongitude': self._latlon_to_rational(
-                self.img_info['gps_lon']),
+            'Exif.GPSInfo.GPSLongitude': self._rationallist_to_str(
+                self._latlon_to_rational(self.img_info['gps_lon'])),
             'Exif.GPSInfo.GPSLongitudeRef': lon_ref,
-            'Exif.GPSInfo.GPSAltitude': Fraction(
-                int(self.img_info['gps_alt']*100), 100),
+            'Exif.GPSInfo.GPSAltitude': str(Fraction(
+                int(self.img_info['gps_alt']*100), 100)),
             'Exif.GPSInfo.GPSAltitudeRef': alt_ref
         }
 
         if self.img_info['exp_t_ms'] != None:
-            meta_dict.update({'Exif.Photo.ExposureTime': Fraction(
-                int(self.img_info['exp_t_ms']*100), 100000)})
+            meta_dict.update({'Exif.Photo.ExposureTime': str(Fraction(
+                int(self.img_info['exp_t_ms']*100), 100000))})
 
         metadata.update(meta_dict)
-        metadata.write()
+        img.modify_exif(metadata)
 #===============================================================================
 
 class SpectralProcessor(Preprocessor):
     def __init__(self, frames_folder):
-        super().__init__()
+        super(SpectralProcessor, self).__init__()
         self.frames_folder = frames_folder
         self._set_cams()
         self.is_hyperspectral = None
@@ -412,7 +423,7 @@ class SpectralProcessor(Preprocessor):
 #-------------------------------------------------------------------------------
 
     def _set_cams(self):
-        cams = os.listdir(self.frames_folder)
+        cams = sorted(os.listdir(self.frames_folder))
         self.cams = cams
 #-------------------------------------------------------------------------------
 
@@ -423,7 +434,7 @@ class SpectralProcessor(Preprocessor):
         xml_file = glob.glob(os.path.join(cfg_folder, '*.xml'))
         if self.is_hyperspectral:
             if xml_file == []:
-                raise FileNotFoundError(("No xml file found for camera '{}'. "
+                raise EnvironmentError(("No xml file found for camera '{}'. "
                     "Hyperspectral preprocessing not possible.").format(
                         self.cam_name))
             else:
@@ -459,27 +470,25 @@ class SpectralProcessor(Preprocessor):
         self.virtual_wavelengths = np.array(wavelengths)
 #-------------------------------------------------------------------------------
 
+    def read_exif(self, img_path):
+        img = px2.Image(img_path)
+        exif = img.read_exif()
+        return [exif, img]
+#-------------------------------------------------------------------------------
+
     def read_exp_t_ms(self, img_path):
-        exif = px2.ImageMetadata(img_path)
-        exif.read()
-        exp_t = exif.get_exposure_data()['speed']
+        exif = self.read_exif(img_path)[0]
+        exp_t = Fraction(str(exif['Exif.Photo.ExposureTime']))
         exp_t = float(exp_t) * 1e3
         return exp_t
 #-------------------------------------------------------------------------------
 
-    def read_exif(self, img_path):
-        exif = px2.ImageMetadata(img_path)
-        exif.read()
-        return exif
-#-------------------------------------------------------------------------------
-
-    def write_exif(self, img_path, exif):
-        exif_new = px2.ImageMetadata(img_path)
-        exif_new.read()
-        for exif_key in exif_new.exif_keys:
-            exif_val = exif_new.get(exif_key).value
+    def write_exif(self, img_path, img, exif):
+        exif_new, img_new = self.read_exif(img_path)
+        for exif_key in exif_new:
+            exif_val = str(exif_new[exif_key])
             exif.update({exif_key: exif_val})
-        exif.write()
+        img_new.modify_exif(exif)
 #-------------------------------------------------------------------------------
 
     def set_cam_info(self, cam_name):
@@ -489,7 +498,7 @@ class SpectralProcessor(Preprocessor):
         cfg_file = os.path.join(cfg_folder, '{}.cfg'.format(cam_name))
         with open(cfg_file) as file:
             cam_info = yaml.safe_load(file)
-        if cam_info.keys() == self.cam_info.keys():
+        if sorted(cam_info.keys()) == sorted(self.cam_info.keys()):
             self.cam_info.update(cam_info)
             if cam_info['type'] == 'hyperspectral':
                 self.is_hyperspectral = True
@@ -508,7 +517,7 @@ class SpectralProcessor(Preprocessor):
         self.white_reflectance = white_reflectance
         root = tk.Tk()
         root.withdraw()
-        white_reference_path =  filedialog.askopenfilename(
+        white_reference_path =  tkFileDialog.askopenfilename(
             initialdir=self.cam_folder,
             title="Select white reference image for '{}' camera".format(
                 self.cam_name))
@@ -517,7 +526,7 @@ class SpectralProcessor(Preprocessor):
         white_exp_t = self.read_exp_t_ms(white_reference_path)
         self.white_exp_t = white_exp_t
 
-        white_array = ufunc.read_geotiff(white_reference_path)
+        white_array = ufunc.read_img2array(white_reference_path)
         bands = white_array.shape[2]
         band = int(bands / 2)
 

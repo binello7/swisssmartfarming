@@ -139,4 +139,4 @@ for cam in spectralprocessor.cams:
             img_corr = spectralprocessor.corr_spectra(img_refl)
             print("Writing file {}.".format(img_path))
             ufunc.write_geotiff(img_corr, img_path, dtype=gdal.GDT_Float32)
-            spectralprocessor.write_exif(img_path, img, exif)
+            # spectralprocessor.write_exif(img_path, img, exif)

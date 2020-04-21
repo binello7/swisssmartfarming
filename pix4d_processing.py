@@ -68,7 +68,7 @@ imgs_list = imgs_list[idx_first_img:idx_last_img:imgs_step]
 tmp_folder = os.path.join(frames_folder, 'tmp')
 if not os.path.isdir(tmp_folder):
     os.makedirs(tmp_folder)
-print('Copying images to ./tmp folder...')
+print('Copying images to {}...'.format(tmp_folder))
 for img_src in imgs_list:
     img_dst = os.path.join(tmp_folder, img_src.split(sep)[-1])
     shutil.copy(img_src, img_dst)
@@ -118,5 +118,5 @@ print("Executing command '{}'".format(command))
 os.system(command)
 
 # remove tmp folder
-print('Removing ./tmp folder...')
+print('Removing {}...'.format(tmp_folder))
 shutil.rmtree(tmp_folder)

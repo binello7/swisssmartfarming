@@ -1,4 +1,3 @@
-from IPython import embed
 from matplotlib import pyplot as plt
 from osgeo import gdal
 from roipoly import RoiPoly

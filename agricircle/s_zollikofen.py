@@ -1,42 +1,36 @@
-#!../venv/bin/python2
+#!/usr/bin/env python3
+
+from datainterface import DataInterface
 import os
-from swisssmartfarming.tellnet.datainterface import DataInterface
+import rasterio as rio
+
 from IPython import embed
-import rasterio.plot as riop
-import matplotlib.pyplot as plt
 
-base_folder = "/media/seba/Samsung_2TB/AgriCircle/Zollikofen/20190618"
 
-files_names = [
-    "zollikofen_20190618_nir_transparent_reflectance_group1_georef.tif",
-    "zollikofen_20190618_vis_transparent_reflectance_group1_georef.tif"
-]
+nir_path = ('/media/seba/WD_500GB/zollikofen/20190705/photonfocus_nir/'
+    'zollikofen_20190705_photonfocus_nir_transparent_reflectance_group1.tif')
+vis_path = ('/media/seba/WD_500GB/zollikofen/20190705/photonfocus_vis/'
+    'zollikofen_20190705_photonfocus_vis_transparent_reflectance_group1.tif')
 
-shp_file = "/media/seba/Samsung_2TB/AgriCircle/Zollikofen/Shapes/zollikofen.shp"
+wrong_path = ('/media/seba/WD_500GB/zollikofen/20190705/photonfocus_vis/'
+    'zollikofen_20190605_photonfocus_vis_transparent_reflectance_group1.tif')
 
-files_paths = []
-for file_name in files_names:
-    files_paths.append(os.path.join(base_folder, file_name))
+shp_path = '/media/seba/WD_500GB/zollikofen/qgis/shapes/field.shp'
+
 
 zollikofen = DataInterface()
+zollikofen.add_dataset(nir_path)
+zollikofen.add_dataset(vis_path)
 
-for file_path in files_paths:
-    zollikofen.add_dataset(file_path)
+zollikofen.add_shapefile(shp_path)
+zollikofen.clip_with_shapefile()
 
-zollikofen.add_shapefile(shp_file)
+data, profile = zollikofen.merge_vis_nir('20190705-photonfocus_vis', '20190705-photonfocus_nir')
 
-for dataset_name in zollikofen.datasets_names:
-    zollikofen.crop_dataset(dataset_name)
+filepath = '/media/seba/WD_500GB/zollikofen/20190705/new.tif'
+with rio.open(filepath, 'w', **profile) as dst:
+    dst.write(data)
 
-zollikofen.align_datasets("20190618_vis")
-#
-# fig, axs = plt.subplots(1, 2)
-#
-# riop.show(zollikofen.datasets["20190618_nir"], with_bounds=True, ax=axs[0],
-#     cmap="Greys_r")
-# riop.show(zollikofen.datasets["20190618_vis"], with_bounds=True, ax=axs[1],
-#     cmap="Greys_r")
-# plt.show()
-#
 
-embed()
+
+# embed()

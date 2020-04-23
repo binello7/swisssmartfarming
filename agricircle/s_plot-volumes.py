@@ -29,7 +29,7 @@ for n_folder, folder in enumerate(dsms_folders):
         name_initial = ("niederhasli_20190527_rgb_dsm_{}{}.tif"
             .format(variants[n_folder], plot_n))
         path_initial = os.path.join(folder, name_initial)
-        dsm_initial = ssf.read_geotiff(path_initial)
+        dsm_initial = ssf.read_img2array(path_initial)
         raster = gdal.Open(path_initial)
         X_res = raster.GetGeoTransform()[1]
         Y_res = -raster.GetGeoTransform()[5]
@@ -38,7 +38,7 @@ for n_folder, folder in enumerate(dsms_folders):
 
         name_final = ("niederhasli_20191007_rgb_dsm_{}{}.tif"
             .format(variants[n_folder], plot_n))
-        dsm_final = ssf.read_geotiff(os.path.join(folder, name_final))
+        dsm_final = ssf.read_img2array(os.path.join(folder, name_final))
         dsm_final = dsm_final - np.min(dsm_final[mask_plot])
 
         dsm_corr = dsm_final - dsm_initial

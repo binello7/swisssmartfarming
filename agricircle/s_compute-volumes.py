@@ -47,7 +47,7 @@ for n_folder, dsms_folder in enumerate(dsms_folders):
         for n_date, date in enumerate(dates):
             dsms_file = "niederhasli_{}_rgb_dsm_{}.tif".format(date, plot)
             filepath = os.path.join(dsms_folder, dsms_file)
-            dsm = ssf.read_geotiff(filepath)
+            dsm = ssf.read_img2array(filepath)
             raster = gdal.Open(filepath)
             X_res = raster.GetGeoTransform()[1]
             Y_res = -raster.GetGeoTransform()[5]

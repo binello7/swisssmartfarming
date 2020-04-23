@@ -1,30 +1,26 @@
-#!../venv/bin/python3
+#!/usr/bin/env python3
 
-import argparse
-import textwrap
-import os
-import sys
-import glob
-import math
-from fractions import Fraction
-import rosbag
-import warnings
-import rootpath as rp
-import pandas as pd
-import numpy as np
-import rasterio as rio
-import utils.functions as ufunc
-from scipy import ndimage
 from cv_bridge import CvBridge
-import pyexiv2 as px2
-import yaml
-import xml.dom.minidom as mdom
 from datetime import datetime as dt
-from tkinter import filedialog
-import tkinter as tk
-import matplotlib.pyplot as plt
+from fractions import Fraction
+from glob import glob
 from roipoly import RoiPoly
-from IPython import embed
+from rootpath import detect
+from scipy import ndimage
+from tkinter import filedialog
+from warnings import warn
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import pandas as pd
+import pyexiv2 as px2
+import rasterio as rio
+import rosbag
+import tkinter as tk
+import utils.functions as ufunc
+import xml.dom.minidom as mdom
+import yaml
 
 
 class CfgFileNotFoundError(FileNotFoundError):
@@ -38,7 +34,7 @@ class NoMessagesError(Exception):
 class Preprocessor:
     def __init__ (self, cams_cfg_path='cfg/cameras'):
         self._sep = os.path.sep
-        self._rootpath = ufunc.add_sep(rp.detect())
+        self._rootpath = ufunc.add_sep(detect())
         self.cams_cfg_path = ufunc.add_sep(cams_cfg_path)
         self.cams = None
         self.cam_info = {
@@ -109,7 +105,7 @@ class BasePreprocessor(Preprocessor):
 #-------------------------------------------------------------------------------
 
     def _set_cams_and_topics(self):
-        cfg_paths = glob.glob(self._rootpath + self.cams_cfg_path + '*' +
+        cfg_paths = glob(self._rootpath + self.cams_cfg_path + '*' +
             self._sep)
         if cfg_paths == []:
             raise CfgFileNotFoundError("No camera cfg folder found at the "
@@ -223,7 +219,7 @@ class BasePreprocessor(Preprocessor):
                     ignore_index=True)
 
         else:
-            warnings.warn("No topic '{}' found. Exposure time will be loaded "
+            warn("No topic '{}' found. Exposure time will be loaded "
                 "from yaml file.".format(self.cam_info['exp_t_topic']))
             yaml_path = self._sep.join(
                 self.bagfile.filename.split(self._sep)[:-1])
@@ -268,9 +264,9 @@ class BasePreprocessor(Preprocessor):
                 self._set_exp_t_data()
 
             if self.cam_info['type'] == 'hyperspectral':
-                xml_file = glob.glob(os.path.join(cfg_folder, '*.xml'))
+                xml_file = glob(os.path.join(cfg_folder, '*.xml'))
                 if xml_file == []:
-                    warnings.warn(("No xml file found for camera '{}'. "
+                    warn(("No xml file found for camera '{}'. "
                         "Hyperspectral preprocessing will be skipped.").format(
                             cam_name))
                     self.xml_file = None
@@ -310,7 +306,7 @@ class BasePreprocessor(Preprocessor):
 
     def reshape_hs(self, img):
         if self.xml_file == None:
-            warnings.warn("No xml file found. Skipping image reshaping.")
+            warn("No xml file found. Skipping image reshaping.")
             return img
         else:
             img = img[self.hs_info['offset_y']:self.hs_info['offset_y']
@@ -333,13 +329,13 @@ class BasePreprocessor(Preprocessor):
 
     def median_filter_3x3(self, img):
         if self.xml_file == None:
-            warnings.warn(("No xml file found. Image reshaping was skipped "
+            warn(("No xml file found. Image reshaping was skipped "
                 "and median filtering cannot be applied either. Skipping "
                 "3x3 median filtering."))
             return img
 
         elif (self.xml_file != None and len(img.shape) != 3):
-            warnings.warn(('The image has shape {}, therefore it was not '
+            warn(('The image has shape {}, therefore it was not '
                 'resampled. Apply image resampling before 3x3 median '
                 'filtering. Skipping 3x3 median filtering.').format(img.shape))
             return img
@@ -420,7 +416,7 @@ class SpectralProcessor(Preprocessor):
         cfg_folder = os.path.join(self._rootpath, self.cams_cfg_path,
             self.cam_name)
         cfg_file = os.path.join(cfg_folder, '{}.cfg'.format(self.cam_name))
-        xml_file = glob.glob(os.path.join(cfg_folder, '*.xml'))
+        xml_file = glob(os.path.join(cfg_folder, '*.xml'))
         if self.is_hyperspectral:
             if xml_file == []:
                 raise FileNotFoundError(("No xml file found for camera '{}'. "
@@ -537,7 +533,7 @@ class SpectralProcessor(Preprocessor):
             img_exp_t) * self.white_reflectance)
         max_refl = np.max(img_refl)
         if max_refl > 1:
-            warnings.warn(('Attention: max reflectance > 1.0: max_refl={:.2f}'
+            warn(('Attention: max reflectance > 1.0: max_refl={:.2f}'
                 .format(max_refl)))
         return img_refl
 #-------------------------------------------------------------------------------
@@ -555,9 +551,9 @@ class SpectralProcessor(Preprocessor):
         max_corr_refl = np.max(img_corr)
         min_corr_refl = np.min(img_corr)
         if min_corr_refl < 0:
-            warnings.warn(("Attention: corrected min reflectance < 0 detected: "
+            warn(("Attention: corrected min reflectance < 0 detected: "
                 "min_corr_refl={:.2f}").format(min_corr_refl))
         if max_corr_refl > 1:
-            warnings.warn(("Attention: corrected max reflectance > 1 detected: "
+            warn(("Attention: corrected max reflectance > 1 detected: "
                 "max_corr_refl={:.2f}").format(max_corr_refl))
         return img_corr

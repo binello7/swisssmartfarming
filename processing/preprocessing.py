@@ -400,6 +400,8 @@ class SpectralProcessor(Preprocessor):
         self.cam_folder = None
         self.white_reflectance = None
         self.white_reference_path = None
+        self.white_array = None
+        self.is_full_white_img = None
         self.white_mean_values = None
         self.white_exp_t = None
         self.corr_matrix = None
@@ -510,36 +512,72 @@ class SpectralProcessor(Preprocessor):
                 self.cam_name))
         root.destroy()
         self.white_reference_path = white_reference_path
+
+        loop = True
+        while loop:
+            is_full_white_img = input("Does the white reference panel fills up the image? ('yes' / 'no')\n")
+            if is_full_white_img == 'yes':
+                loop = False
+                is_full_white_img = True
+            elif is_full_white_img == 'no':
+                loop = False
+                is_full_white_img = False
+            else:
+                print("Please type either 'yes' or 'no'.")
+        self.is_full_white_img = is_full_white_img
+
         white_exp_t = self.read_exp_t_ms(white_reference_path)
         self.white_exp_t = white_exp_t
 
         white_array = ufunc.read_img2array(white_reference_path)
-        bands = white_array.shape[2]
-        band = int(bands / 2)
+        self.white_array = white_array
 
-        fig = plt.figure()
-        plt.imshow(white_array[:,:,band], cmap=plt.get_cmap("Greys_r"))
-        plt.show(block=False)
+        if not is_full_white_img:
+            bands = white_array.shape[2]
+            band = int(bands / 2)
 
-        roi = RoiPoly(color='r', fig=fig)
+            fig = plt.figure()
+            plt.imshow(white_array[:,:,band], cmap=plt.get_cmap("Greys_r"))
+            plt.show(block=False)
 
-        mask = roi.get_mask(white_array[:,:,band])
-        white_mean_values = np.mean(white_array[mask], axis=0)
-        self.white_mean_values = white_mean_values
+            roi = RoiPoly(color='r', fig=fig)
+
+            mask = roi.get_mask(white_array[:,:,band])
+            white_mean_values = np.mean(white_array[mask], axis=0)
+            self.white_mean_values = white_mean_values
 #-------------------------------------------------------------------------------
 
     def rad_to_refl(self, img_array, img_exp_t):
-        img_refl = ((img_array / self.white_mean_values) * (self.white_exp_t /
-            img_exp_t) * self.white_reflectance)
-        max_refl = np.max(img_refl)
-        if max_refl > 1:
-            warn(('Attention: max reflectance > 1.0: max_refl={:.2f}'
-                .format(max_refl)))
+        if self.is_full_white_img:
+            img_refl = ((img_array / self.white_array) *
+                (self.white_exp_t / img_exp_t) * self.white_reflectance)
+
+            max_refl = np.max(img_refl)
+            min_refl = np.min(img_refl)
+            if max_refl > 1:
+                warn(('Attention: max reflectance > 1: max_refl={:.2f}'
+                    .format(max_refl)))
+            if min_refl < 0:
+                warn(('Attention: min reflectance < 0: min_refl={:.2f}'
+                    .format(min_refl)))
+
+        else:
+            img_refl = ((img_array / self.white_mean_values) *
+                (self.white_exp_t / img_exp_t) * self.white_reflectance)
+
+            max_refl = np.max(img_refl)
+            min_refl = np.min(img_refl)
+            if max_refl > 1:
+                warn(('Attention: max reflectance > 1: max_refl={:.2f}'
+                    .format(max_refl)))
+            if min_refl < 0:
+                warn(('Attention: min reflectance < 0: min_refl={:.2f}'
+                    .format(min_refl)))
+
         return img_refl
 #-------------------------------------------------------------------------------
 
     def corr_spectra(self, img_refl):
-        # error if correction matrix not loaded
         rows = img_refl.shape[0]
         cols = img_refl.shape[1]
         img_corr = np.zeros((rows, cols, self.corr_matrix.shape[0]))

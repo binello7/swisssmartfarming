@@ -11,6 +11,7 @@ Depends on:
 Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 3.0.2, then ``pygdal==3.0.2.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
 
 python3
+* catkin-pkg==0.4.16
 * cv-bridge==1.13.0
 * geopandas==0.7.0
 * matplotlib==3.1.3
@@ -21,6 +22,7 @@ python3
 * py3exiv2==0.7.1<sup>1</sup>
 * rasterio==1.1.2
 * rosbag==1.14.3
+* rospkg==1.2.4
 * rootpath==0.1.1
 * scipy==1.1.0
 * seaborn==0.10.0

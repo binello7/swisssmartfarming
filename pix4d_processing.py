@@ -1,10 +1,10 @@
 #!/usr/bin/env python2
 
-import os
-import argparse
-import shutil
-import rootpath
 from glob import glob
+import argparse
+import os
+import rootpath
+import shutil
 
 
 def write_command(pix4d_options, project_file, exe='pix4dmapper'):

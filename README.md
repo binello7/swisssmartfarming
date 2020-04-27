@@ -1,10 +1,18 @@
 # swisssmartfarming
 
-Repo containing all the code related to the *Swiss Smart Farming* Project (SSF).
-The code is here
+Repo containing code related to the *Swiss Smart Farming* Project (SSF).
 
-## Install
-Depends on:
+## Setup
+In order to use the package some setup steps are necessary.
+
+Most of the code is compatible with `python3`. However, some code that needs to run on `Ubuntu 14.04` was written in `python2`, to ensure full-compatibility.
+
+The script `setup.bash` should perform all of the needed setup. This has to be sourced (`source setup.bash`) with one of the following three options:
+1. `--all`
+2. `--py2`
+3. `--py3`
+
+### Depends on
 * python3-venv
 
 ## Dependencies
@@ -26,7 +34,7 @@ python3
 * rootpath==0.1.1
 * scipy==1.1.0
 * seaborn==0.10.0
-* yaml
+`* yaml
 
 1. ``py3exiv2`` depends on: ``build-essential``, ``python-all-dev``, ``libexiv2-dev``, ``libboost-python-dev`` . Install them using ``apt``.
 

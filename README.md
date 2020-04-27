@@ -23,6 +23,7 @@ Many of the geodata operations performed within the project rely on the use of G
 ### python3
 * catkin-pkg==0.4.16
 * cv-bridge==1.13.0
+* Fiona==1.8.13
 * geopandas==0.7.0
 * matplotlib==3.1.3
 * numpy==1.15.2

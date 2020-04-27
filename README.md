@@ -27,17 +27,22 @@ Many of the geodata operations performed within the project rely on the use of G
 * geopandas==0.7.0
 * matplotlib==3.1.3
 * numpy==1.15.2
+* opencv-python==4.2.0.32
+* pandas==0.23.4
 * Pillow==7.0.0
 * pycryptodomex==3.9.7
 * pygdal==2.2.3.6
 * py3exiv2==0.7.1<sup>1</sup>
+* PyYAML==3.13
 * rasterio==1.1.2
+* roipoly==0.5.2
 * rosbag==1.14.3
 * rospkg==1.2.4
 * rootpath==0.1.1
 * scipy==1.1.0
 * seaborn==0.10.0
-`* yaml
+* Shapely==1.7.0
+* spectral==0.20
 
 1. ``py3exiv2`` depends on: ``build-essential``, ``python-all-dev``, ``libexiv2-dev``, ``libboost-python-dev`` . Install them using ``apt``.
 

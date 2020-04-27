@@ -2,11 +2,12 @@
 
 project_dir=$(pwd)
 
-# add module to PYTHONPATH
-echo -e "\n# Added by $project_dir/install.bash" >> ~/.bashrc
-echo "export PYTHONPATH=$PYTHONPATH:$project_dir" >> ~/.bashrc
-
 # define functions
+add_to_path () {
+  echo -e "\n# Added by $project_dir/install.bash" >> ~/.bashrc
+  echo "export PYTHONPATH=$PYTHONPATH:$project_dir" >> ~/.bashrc
+}
+
 py2 () {
   echo "Set up python2 virtual environment..."
   virtualenv -p /usr/bin/python2 venv2
@@ -48,20 +49,22 @@ all () {
   py3
 }
 
-
 # check the optional arguments and call the appropriate functions
 if [[ $1 == "--all" ]]
 then
+  add_to_path
   all
   echo -e "\nAll done!"
 
 elif [[ $1 == "--py2" ]]
 then
+  add_to_path
   py2
   echo -e "\nAll done!"
 
 elif [[ $1 == "--py3" ]]
 then
+  add_to_path
   py3
   echo -e "\nAll done!"
 

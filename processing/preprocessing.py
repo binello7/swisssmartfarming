@@ -408,7 +408,7 @@ class SpectralProcessor(Preprocessor):
 #-------------------------------------------------------------------------------
 
     def _set_cams(self):
-        cams = os.listdir(self.frames_folder)
+        cams = sorted(os.listdir(self.frames_folder))
         self.cams = cams
 #-------------------------------------------------------------------------------
 

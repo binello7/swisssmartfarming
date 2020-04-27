@@ -129,11 +129,11 @@ for cam in spectralprocessor.cams:
         imgs_list = sorted(glob.glob(os.path.join(spectralprocessor.cam_folder, '*')))
         spectralprocessor.set_white_info(white_reflectance=reflectance)
         for img_path in imgs_list:
-            exif, img = spectralprocessor.read_exif(img_path)
-            img_exp_t = spectralprocessor.read_exp_t_ms(img_path)
+            exif = spectralprocessor.read_exif(img_path)
+            exp_t = spectralprocessor.read_exp_t_ms(img_path)
             img_array = ufunc.read_img2array(img_path)
             # compute reflectance image
-            img_refl = spectralprocessor.rad_to_refl(img_array, img_exp_t)
+            img_refl = spectralprocessor.rad_to_refl(img_array, exp_t)
             # apply spectral correction
             img_corr = spectralprocessor.corr_spectra(img_refl)
             print("Writing file {}.".format(img_path))

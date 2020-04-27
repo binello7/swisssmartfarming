@@ -513,7 +513,7 @@ class SpectralProcessor(Preprocessor):
         white_exp_t = self.read_exp_t_ms(white_reference_path)
         self.white_exp_t = white_exp_t
 
-        white_array = ufunc.read_geotiff(white_reference_path)
+        white_array = ufunc.read_img2array(white_reference_path)
         bands = white_array.shape[2]
         band = int(bands / 2)
 

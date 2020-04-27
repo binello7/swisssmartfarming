@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
-import os
-import glob
-from preprocessing import BasePreprocessor, SpectralProcessor
-from PIL import Image
-import utils.functions as ufunc
-import argparse
-import textwrap
 from osgeo import gdal
-from IPython import embed
+from PIL import Image
+from preprocessing import BasePreprocessor, SpectralProcessor
+import argparse
+import glob
+import os
+import textwrap
+import utils.functions as ufunc
 
 
 class MultilineFormatter(argparse.HelpFormatter):
@@ -126,7 +125,8 @@ spectralprocessor = SpectralProcessor(frames_folder)
 for cam in spectralprocessor.cams:
     spectralprocessor.set_cam_info(cam)
     if  spectralprocessor.is_hyperspectral:
-        imgs_list = sorted(glob.glob(os.path.join(spectralprocessor.cam_folder, '*')))
+        imgs_list = sorted(glob.glob(os.path.join(
+            spectralprocessor.cam_folder, '*')))
         spectralprocessor.set_white_info(white_reflectance=reflectance)
         for img_path in imgs_list:
             exif = spectralprocessor.read_exif(img_path)
@@ -138,4 +138,4 @@ for cam in spectralprocessor.cams:
             img_corr = spectralprocessor.corr_spectra(img_refl)
             print("Writing file {}.".format(img_path))
             ufunc.write_geotiff(img_corr, img_path, dtype=gdal.GDT_Float32)
-            # spectralprocessor.write_exif(img_path, img, exif)
+            spectralprocessor.write_exif(img_path, img, exif)

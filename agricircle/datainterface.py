@@ -1,5 +1,5 @@
 from glob import glob
-from rasterio import MemoryFile, Affine
+from rasterio import MemoryFile
 from rasterio.warp import Resampling
 from rootpath import detect
 from warnings import warn
@@ -8,7 +8,6 @@ import numpy as np
 import os
 import rasterio as rio
 import rasterio.mask as riom
-import rasterio.plot as riop
 import utils.functions as ufunc
 
 from IPython import embed

@@ -22,6 +22,13 @@ def rm_sep(path):
     return path
 #-------------------------------------------------------------------------------
 
+def add_ext(filename, ext):
+    if filename.split('.')[-1] != ext:
+        return filename + '.' + ext
+    else:
+        return filename
+#-------------------------------------------------------------------------------
+
 def get_file_basename(filepath):
     basename = filepath.split(sep)[-1]
     extension = basename.split('.')[-1]

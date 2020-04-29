@@ -4,6 +4,7 @@ from rasterio.warp import Resampling
 from rootpath import detect
 from warnings import warn
 import geopandas as gpd
+import itertools
 import numpy as np
 import os
 import rasterio as rio
@@ -90,21 +91,53 @@ class DataInterface:
                     self.datasets[name]['dataset'] = memfile.open()
 #-------------------------------------------------------------------------------
 
-    def merge_vis_nir(self, vis, nir):
-        height = self.datasets[vis]['dataset'].height
-        width = self.datasets[vis]['dataset'].width
-        out_shape = (height, width)
-        profile = self.datasets[vis]['dataset'].profile
+    def merge_vis_nir(self):
+        merged_datasets = {}
+        wavelengths = []
+        for k, g in itertools.groupby(self.datasets_name, key=lambda x: x[:8]):
+            by_date = list(g)
+            date = self.datasets[by_date[1]]['date']
+            merged_name = date + '_vis-nir'
+            dataset_vis = self.datasets[by_date[1]]['dataset']
+            wl_vis = self.datasets[by_date[1]]['wavelengths']
+            dataset_nir = self.datasets[by_date[0]]['dataset']
+            wl_nir = self.datasets[by_date[0]]['wavelengths']
+            wls = np.concatenate((wl_vis, wl_nir))
 
-        # ref_array = self.datasets[dataset_name].read(1)
-        # self.data_mask = (ref_array!=self.no_data_val) & (ref_array!=0)
+            w = dataset_vis.width
+            h = dataset_vis.height
 
-        vis_data = self.datasets[vis]['dataset'].read()
-        nir_data = self.datasets[nir]['dataset'].read(out_shape=out_shape,
-            resampling=Resampling.bilinear)
-        data = np.concatenate((vis_data, nir_data), axis=0)
-        count = data.shape[0]
-        profile.update(count=count)
+            profile = dataset_vis.profile
 
-        return data, profile
+            vis_data = dataset_vis.read()
+            nir_data = dataset_nir.read(out_shape=(h, w),
+                resampling=Resampling.nearest)
+
+            merged_data = np.concatenate((vis_data, nir_data), axis=0)
+            count = merged_data.shape[0]
+            profile.update(count=count)
+
+            with MemoryFile() as memfile:
+                with memfile.open(**profile) as dataset:
+                    dataset.write(merged_data)
+                    del merged_data
+
+                merged_datasets.update({merged_name: memfile.open()})
+                wavelengths.append(wls)
+
+        return merged_datasets, wavelengths
+#-------------------------------------------------------------------------------
+
+    @staticmethod
+    def write_dataset(dir, filename, dataset, wavelengths=None):
+        filename = ufunc.add_ext(filename, 'tif')
+        filepath = os.path.join(dir, filename)
+        profile = dataset.profile
+        with rio.open(filepath, 'w', **profile) as dst:
+            if type(wavelengths) == type(None):
+                pass
+            else:
+                for i, wl in enumerate(wavelengths):
+                    dst.update_tags(i+1, WAVELENGTH=str(wl))
+            dst.write(dataset.read())
 #-------------------------------------------------------------------------------

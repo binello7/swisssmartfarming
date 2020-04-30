@@ -1,13 +1,10 @@
-#!../venv/bin/python2
+#!/usr/bin/env python3
 
-import os
-import sys
-import numpy as np
-import matplotlib.pyplot as plt
 from datainterface import DataInterface
-from IPython import embed
-import rasterio.mask as riom
-import georaster as gr
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
 
 # Inputs
 shapefile = "/media/seba/Samsung_2TB/TELLnet/Shapes/ruetmatt/ruetmatt.shp"

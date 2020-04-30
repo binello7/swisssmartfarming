@@ -50,6 +50,22 @@ def read_virtualwavelengths(xml_file):
 #-------------------------------------------------------------------------------
 
 def read_img2array(img_path):
+    """Reads an image to a numpy array using GDAL.
+
+    In order to read a 'bsq-image' the path to the data file has to be
+    specified, not the one to the header file.
+
+    Parameters
+    ----------
+    img_path: str
+        full path of the image (directory location, file name, extension)
+
+    Reutrns
+    -------
+    img_array: numpy.ndarray
+        numpy ndarray containing the image data in the format (H, W, B)
+    """
+
     raster = gdal.Open(img_path)
     img_array = raster.ReadAsArray()
     img_array = np.moveaxis(img_array, 0, 2)

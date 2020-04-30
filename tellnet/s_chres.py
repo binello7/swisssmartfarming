@@ -1,12 +1,11 @@
-#!../venv/bin/python3
+#!/usr/bin/python3
 
-import rasterio as rio
 from datainterface import DataInterface
-from IPython import embed
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import os
+import seaborn as sns
+
 
 files_paths = [
     ("/media/seba/Samsung_2TB/Matterhorn.Project/TELLnet/Fields/meier-burkard/"

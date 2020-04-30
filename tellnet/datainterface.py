@@ -1,15 +1,10 @@
-import warnings
+from rasterio import MemoryFile, Affine
+from rasterio.warp import Resampling
+import geopandas as gpd
+import numpy as np
 import rasterio as rio
 import rasterio.mask as riom
-import rasterio.warp as riow
-from rasterio.warp import Resampling
-from rasterio import MemoryFile, Affine
-from contextlib import contextmanager
-import geopandas as gpd
-import fiona as fio
-import numpy as np
 import utils.functions as ufunc
-from IPython import embed
 
 class DataInterface:
     def __init__(self):

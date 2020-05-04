@@ -94,6 +94,7 @@ for cam in basepreprocessor.cams:
             extension = '.jpg'
             filepath = compose_filepath(camera_folder, prefix, i, extension)
             # save image and write exif metadata
+            img_array = img_array[:, :, [2, 1, 0]]
             im = Image.fromarray(img_array)
             im.save(filepath, quality=100)
             basepreprocessor.write_exif(filepath)

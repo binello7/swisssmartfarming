@@ -7,6 +7,12 @@ import rootpath
 import shutil
 
 
+# classes
+class DirectoryNotFoundError(FileNotFoundError):
+    pass
+#===============================================================================
+
+# functions
 def write_command(pix4d_options, project_file, exe='pix4dmapper'):
     exe += ' '
     for opt in pix4d_options.items():
@@ -50,6 +56,11 @@ args = parser.parse_args()
 sep = os.path.sep
 frames_folder = args.frames_folder
 frames_folder = rm_sep(frames_folder)
+# check if 'frames_folder' exists
+if not os.path.exists(frames_folder):
+    raise DirectoryNotFoundError("Directory '{}' doesn't exist. Please specify "
+        "an existing directory.")
+
 idx_first_img = args.idx_first_img
 idx_last_img = args.idx_last_img
 imgs_step = args.imgs_step

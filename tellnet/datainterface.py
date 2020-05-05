@@ -1,5 +1,6 @@
 from rasterio import MemoryFile, Affine
 from rasterio.warp import Resampling
+from warnings import warn
 import geopandas as gpd
 import numpy as np
 import rasterio as rio
@@ -13,15 +14,9 @@ class DataInterface:
         self.datasets = {}
         self.shapefile_name = None
         self.shapefile = None
-        self.transforms = {}
-        self.datasets_shape = {}
-        self.resolutions = {}
-        self.crs = {}
-        self.data_mask = None
-        self.no_data_val = -10000
 #-------------------------------------------------------------------------------
 
-    def add_dataset(self, dataset):
+    def add_dataset(self, dataset_path):
         """Adds a dataset.
 
         Adds a dataset, updates the dates attribute and defines its
@@ -33,25 +28,24 @@ class DataInterface:
             full-path to the datasets
         """
 
-        date = dataset.split("/")[-1].split("_")[1]
+        date = dataset_path.split("/")[-1].split("_")[2]
+        band = dataset_path.split("/")[-1].split("_")[-1].split(".")[0]
         if date not in self.dates:
             self.dates.append(date)
             self.dates.sort()
 
-        dataset_name = date
+        dataset_name = date + "_" + band
+        if dataset_name in self.datasets_names:
+            warn("Dataset '{}' already added. Ignoring 'add_dataset'"
+                .format(dataset_name))
+            return
 
-        if dataset_name not in self.datasets_names:
+        else:
             self.datasets_names.append(dataset_name)
             self.datasets_names.sort()
 
-        source = rio.open(dataset)
-        self.datasets[dataset_name] = source
-        self.transforms[dataset_name] = source.transform
-        self.resolutions[dataset_name] = (source.transform[0],
-            -source.transform[4])
-        self.crs[dataset_name] = source.crs
-        self.datasets_shape[dataset_name] = (source.count, source.height,
-            source.width)
+            with rio.open(dataset_path) as source:
+                self.datasets[dataset_name] = source
 #-------------------------------------------------------------------------------
 
     def add_shapefile(self, shapefile):

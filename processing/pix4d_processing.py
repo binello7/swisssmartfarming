@@ -8,7 +8,7 @@ import shutil
 
 
 # classes
-class DirectoryNotFoundError(FileNotFoundError):
+class DirectoryNotFoundError(IOError):
     pass
 #===============================================================================
 

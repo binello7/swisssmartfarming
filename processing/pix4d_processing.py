@@ -59,7 +59,7 @@ frames_folder = rm_sep(frames_folder)
 # check if 'frames_folder' exists
 if not os.path.exists(frames_folder):
     raise DirectoryNotFoundError("Directory '{}' doesn't exist. Please specify "
-        "an existing directory.")
+        "an existing directory.".format(frames_folder))
 
 idx_first_img = args.idx_first_img
 idx_last_img = args.idx_last_img

@@ -91,7 +91,7 @@ pysolr==3.8.1
 pytest==3.8.2
 python-dateutil==2.7.3
 pytz==2018.5
-PyYAML==3.13
+PyYAML==5.1
 rasterio==1.1.2
 readme-renderer==22.0
 redis==2.10.6

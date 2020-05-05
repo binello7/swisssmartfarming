@@ -120,7 +120,7 @@ tqdm==4.26.0
 traitlets==4.3.3
 twine==1.12.1
 ujson==1.35
-urllib3==1.23
+urllib3>=1.24.2
 uvloop==0.11.2
 virtualenv==20.0.4
 wcwidth==0.1.8

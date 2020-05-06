@@ -3,17 +3,24 @@ from rasterio.warp import Resampling
 from warnings import warn
 import geopandas as gpd
 import numpy as np
+import os
 import rasterio as rio
 import rasterio.mask as riom
 import utils.functions as ufunc
 
+from IPython import embed
+
+
 class DataInterface:
     def __init__(self):
+        self._sep = os.path.sep
         self.dates = []
         self.datasets_names = []
         self.datasets = {}
-        self.shapefile_name = None
         self.shapefile = None
+        self.ndvis = {}
+        self.nodata_val = -10000.0
+        self.nodata_mask = None
 #-------------------------------------------------------------------------------
 
     def add_dataset(self, dataset_path):
@@ -28,8 +35,8 @@ class DataInterface:
             full-path to the datasets
         """
 
-        date = dataset_path.split("/")[-1].split("_")[2]
-        band = dataset_path.split("/")[-1].split("_")[-1].split(".")[0]
+        date = dataset_path.split(self._sep)[-1].split("_")[2]
+        band = dataset_path.split(self._sep)[-1].split("_")[-1].split(".")[0]
         if date not in self.dates:
             self.dates.append(date)
             self.dates.sort()
@@ -44,11 +51,10 @@ class DataInterface:
             self.datasets_names.append(dataset_name)
             self.datasets_names.sort()
 
-            with rio.open(dataset_path) as source:
-                self.datasets[dataset_name] = source
+            self.datasets[dataset_name] = rio.open(dataset_path)
 #-------------------------------------------------------------------------------
 
-    def add_shapefile(self, shapefile):
+    def add_shapefile(self, shapefile_path):
         """Adds a shapefile.
 
         The shapefile delimits the field which will be analyzed. It can be then
@@ -56,48 +62,40 @@ class DataInterface:
 
         Parameters
         ----------
-        shapefile: str
+        shapefile_path: str
             full-path to the shapefile
         """
 
-        self.shapefile = gpd.read_file(shapefile)
-        self.shapefile_name = shapefile.split("/")[-1].split(".")[0]
+        self.shapefile = gpd.read_file(shapefile_path)
 #-------------------------------------------------------------------------------
 
-    def crop_dataset(self, dataset_name):
+    def crop_with_shapefile(self):
         """Crops the specified dataset using the previously loaded shapefile
-
-        Parameters
-        ----------
-        dataset_name: str
-            name of the dataset to crop
         """
 
         try:
-            dataset = self.datasets[dataset_name]
-        except KeyError as e:
-            raise type(e)(str(e) + ' not in datasets')
+            shapes = [feature["geometry"] for _, feature in
+                self.shapefile.iterrows()]
+        except AttributeError:
+            raise AttributeError("No shapefile found. Please add a shapefile.")
         else:
-            try:
-                shapes = [feature["geometry"]
-                    for _, feature in self.shapefile.iterrows()]
-            except AttributeError:
-                raise Exception("Shapefile has not been added yet.")
-            else:
+            for i, (name, dataset) in enumerate(self.datasets.items()):
+                profile = dataset.profile
                 data, transform = riom.mask(dataset, shapes, crop=True)
-                self.transforms[dataset_name] = transform
-                self.datasets_shape[dataset_name] = data.shape
 
-                profile = self.datasets[dataset_name].profile
-                profile.update(transform=transform, driver='GTiff',
-                    height=data.shape[1], width=data.shape[2])
+                # Compute nodata_mask (only once!)
+                if i == 0:
+                    self.nodata_mask = data == self.nodata_val
+
+                profile.update(transform=transform, height=data.shape[1],
+                    width=data.shape[2])
 
                 with MemoryFile() as memfile:
                     with memfile.open(**profile) as dataset:
                         dataset.write(data)
                         del data
 
-                    self.datasets[dataset_name] = memfile.open()
+                    self.datasets[name] = memfile.open()
 #-------------------------------------------------------------------------------
 
     def align_datasets(self, ref_dataset):
@@ -136,7 +134,7 @@ class DataInterface:
                     self.datasets[dataset_name] = memfile.open()
 #-------------------------------------------------------------------------------
 
-    def ndvi(self, dataset_name):
+    def set_ndvi(self, date):
         """Computes the NDVI-map for the specified date.
 
         Parameters
@@ -150,12 +148,46 @@ class DataInterface:
         numpy.ndarray
             raster containing the NDVI-map for the specified date
         """
-        r_band_nb = 3   # NOTE: wavelenght ordering instead of MicaSense ordering
-        nir_band_nb = 5 # NOTE: wavelenght ordering instead of MicaSense ordering
+
+        red_name = date + "_" + "red"
+        nir_name = date + "_" + "nir"
+
         try:
-            red = self.datasets[dataset_name].read(r_band_nb)
-            nir = self.datasets[dataset_name].read(nir_band_nb)
+            red = self.datasets[red_name].read()
+            nir = self.datasets[nir_name].read()
+            profile = self.datasets[red_name].profile
         except KeyError as e:
             raise type(e)("Specified dataset has not been added yet.")
         else:
-            return ufunc.ndvi(nir, red)
+            data = ufunc.ndvi(nir, red)
+            data[self.nodata_mask] = self.nodata_val
+
+            with MemoryFile() as memfile:
+                with memfile.open(**profile) as dataset:
+                    dataset.write(data)
+                    del data
+
+                self.ndvis.update({date: memfile.open()})
+#-------------------------------------------------------------------------------
+
+    def write_ndvi(self, folder_path, date):
+        # Perform some preliminary checks
+        if type(date) != str:
+            raise Exception("The value specified for parameter 'date' is "
+                "invalid. Please specify the date as 'str' (format: "
+                "'YYYYMMDD')")
+        if not os.path.isdir(folder_path):
+            raise Exception("The path where the file should be written does "
+                "not exist. Please specify an existing path.")
+
+        else:
+            try:
+                ndvi = self.ndvis[date]
+            except KeyError:
+                raise Exception("NDVI for date '{}' does not exist. Please "
+                    "specify the date of an existing NDVI.".format(date))
+            else:
+                profile = self.ndvis[date].profile
+                file_path = os.path.join(folder_path, ("ndvi_" + date + ".tif"))
+                with rio.open(file_path, mode='w', **profile) as dst:
+                    dst.write(ndvi.read())

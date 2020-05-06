@@ -74,6 +74,11 @@ def read_img2array(img_path):
 
 def write_geotiff(img_array, img_path, dtype=gdal.GDT_Byte):
     driver = gdal.GetDriverByName('GTiff')
+    # multiband image: (w, h, b); monoband image: (w, h)
+    # add channel component if monoband
+    if len(img_array.shape) == 2:
+        img_array = np.expand_dims(img_array, 2)
+
     if len(img_array.shape) == 3:
         dataset = driver.Create(
             img_path,
@@ -85,23 +90,13 @@ def write_geotiff(img_array, img_path, dtype=gdal.GDT_Byte):
         for b in range(img_array.shape[2]):
             dataset.GetRasterBand(b+1).WriteArray(img_array[:, :, b])
 
-    elif len(img_array.shape) == 2:
-        dataset = driver.Create(
-            img_path,
-            img_array.shape[1],
-            img_array.shape[0],
-            dtype
-        )
-        dataset.GetRasterBand(1).WriteArray(img_array)
-
     else:
         raise ValueError(("'img_array' can have either shape=(h, w) or shape="
             "(h, w, b). Shape={} is not admitted.").format(img_array.shape))
 
     dataset.FlushCache() # write to disk
-#-------------------------------------------------------------------------------
-
-
+    # writing gets "saturated" after a while. try 'dataset = None' to avoid it
+    dataset = None
 #-------------------------------------------------------------------------------
 
 def argmax_2D(array_2D):

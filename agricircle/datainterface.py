@@ -67,7 +67,7 @@ class DataInterface:
         self.shapefile = gpd.read_file(shapefile_path)
 #-------------------------------------------------------------------------------
 
-    def clip_with_shapefile(self):
+    def crop_with_shapefile(self):
         """Crops the specified dataset using the previously loaded shapefile
         """
 
@@ -134,6 +134,7 @@ class DataInterface:
         filepath = os.path.join(dir, filename)
         profile = dataset.profile
         with rio.open(filepath, 'w', **profile) as dst:
+            # Check if wavelengths were given. If not do nothing
             if type(wavelengths) == type(None):
                 pass
             else:

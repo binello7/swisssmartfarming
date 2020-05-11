@@ -17,14 +17,13 @@ The script `setup.bash` should perform all of the needed setup. This has to be s
 * `virtualenv` (`pip2 install --user virtualenv`)
 * `python3-venv`
 
-Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 3.0.2, then ``pygdal==3.0.2.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
+Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 2.2.3, then ``pygdal==2.2.3.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
 
 ### python2
 * rootpath==0.1.1
 
 ### python3
 * catkin-pkg==0.4.16
-* cv-bridge==1.13.0
 * Fiona==1.8.13
 * geopandas==0.7.0
 * matplotlib==3.1.3
@@ -35,10 +34,10 @@ Many of the geodata operations performed within the project rely on the use of G
 * pycryptodomex==3.9.7
 * pygdal==2.2.3.6
 * py3exiv2==0.7.1<sup>1</sup>
-* PyYAML==3.13
+* PyYAML==5.1
 * rasterio==1.1.2
 * roipoly==0.5.2
-* rosbag==1.14.3
+* rosbag==1.14.5
 * rospkg==1.2.4
 * rootpath==0.1.1
 * scipy==1.1.0

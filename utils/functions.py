@@ -68,7 +68,9 @@ def read_img2array(img_path):
 
     raster = gdal.Open(img_path)
     img_array = raster.ReadAsArray()
-    img_array = np.moveaxis(img_array, 0, 2)
+    if len(img_array.shape) == 3:
+        img_array = np.moveaxis(img_array, 0, 2)
+
     return img_array
 #-------------------------------------------------------------------------------
 

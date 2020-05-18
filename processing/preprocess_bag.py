@@ -137,6 +137,9 @@ for cam in spectralprocessor.cams:
             img_refl = spectralprocessor.rad_to_refl(img_array, exp_t)
             # apply spectral correction
             img_corr = spectralprocessor.corr_spectra(img_refl)
+            # img_corr written as int16 (-32,768 to 32,767) to reduce size
+            # keep 4 decimal digits. Reflectance 1 will correspond to 10'000
+            img_corr = img_corr * 1e4
             print("Writing file {}.".format(img_path))
-            ufunc.write_geotiff(img_corr, img_path, dtype=gdal.GDT_Float32)
+            ufunc.write_geotiff(img_corr, img_path, dtype=gdal.GDT_Int16)
             spectralprocessor.write_exif(img_path, exif)

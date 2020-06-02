@@ -158,10 +158,10 @@
 				<band name="766" centralWaveLength="766" width="8" weight="0"/>
 				<band name="780" centralWaveLength="780" width="9" weight="0"/>
 				<band name="791" centralWaveLength="791" width="11" weight="0"/>
-				<band name="805" centralWaveLength="805" width="11" weight="0"/>
+				<band name="805" centralWaveLength="805" width="11" weight="1"/>
 				<band name="816" centralWaveLength="816" width="12" weight="0"/>
 				<band name="829" centralWaveLength="829" width="13" weight="0"/>
-				<band name="844" centralWaveLength="844" width="14" weight="1"/>
+				<band name="844" centralWaveLength="844" width="14" weight="0"/>
 				<band name="854" centralWaveLength="854" width="15" weight="0"/>
 				<band name="866" centralWaveLength="866" width="14" weight="0"/>
 				<band name="881" centralWaveLength="881" width="19" weight="0"/>

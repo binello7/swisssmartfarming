@@ -199,9 +199,9 @@
 				<band name="500" centralWaveLength="500" width="12" weight="0"/>
 				<band name="512" centralWaveLength="512" width="8" weight="0"/>
 				<band name="526" centralWaveLength="526" width="7" weight="0"/>
-				<band name="539" centralWaveLength="539" width="7" weight="1"/>
+				<band name="539" centralWaveLength="539" width="7" weight="0"/>
 				<band name="565" centralWaveLength="565" width="8" weight="0"/>
-				<band name="576" centralWaveLength="576" width="7" weight="0"/>
+				<band name="576" centralWaveLength="576" width="7" weight="1"/>
 				<band name="590" centralWaveLength="590" width="8" weight="0"/>
 				<band name="600" centralWaveLength="600" width="9" weight="0"/>
 				<band name="614" centralWaveLength="614" width="13" weight="0"/>

@@ -8,10 +8,18 @@ The use of the package assumes that you have ROS installed on your system. The p
 
 Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 2.2.3, then ``pygdal==2.2.3.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
 
-
+In order to successfully run `setup.bash` the following dependences are required:
 * `python-pip`
 * `virtualenv` (`pip2 install --user virtualenv`)
 * `python3-venv`
+
+Most of the code is compatible with `python3`. However, some code that needs to run on `Ubuntu 14.04` was written in `python2`, to ensure full-compatibility.
+
+The script `setup.bash` should perform all of the needed setup. This has to be sourced (`source setup.bash`) with one of the following three options:
+1. `--all`
+2. `--py2`
+3. `--py3`
+
 
 ### python2
 * rootpath==0.1.1
@@ -42,15 +50,7 @@ Many of the geodata operations performed within the project rely on the use of G
 1. ``py3exiv2`` depends on: ``build-essential``, ``python-all-dev``, ``libexiv2-dev``, ``libboost-python-dev`` . Install them using ``apt``.
 
 
-## Setup
-In order to use the package some setup steps are necessary.
 
-Most of the code is compatible with `python3`. However, some code that needs to run on `Ubuntu 14.04` was written in `python2`, to ensure full-compatibility.
-
-The script `setup.bash` should perform all of the needed setup. This has to be sourced (`source setup.bash`) with one of the following three options:
-1. `--all`
-2. `--py2`
-3. `--py3`
 
 
 

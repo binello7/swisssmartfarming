@@ -21,7 +21,7 @@ The script has to be sourced with one of the following three options:
 2. `--py2`
 3. `--py3`
 
-Most of the code is compatible with `python3`. However, some code that needs to run on `Ubuntu 14.04` was written in `python2`, to ensure full-compatibility.
+Almost all of the code is compatible with `python3`. However, stitching of the captured images was performed with  an `Ubuntu 14.04` was written in `python2`, to ensure full-compatibility.
 
 
 

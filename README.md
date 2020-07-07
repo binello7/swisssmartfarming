@@ -12,6 +12,7 @@ The script `setup.bash` does all of the setup required in order to use the packa
 * `python-pip`
 * `virtualenv` (`pip2 install --user virtualenv`)
 * `python3-venv`
+
 Under *Ubuntu* those can be installed with `pip2 install --user virtualenv && sudo apt install python-pip python3-venv`.
 
 Most of the code is compatible with `python3`. However, some code that needs to run on `Ubuntu 14.04` was written in `python2`, to ensure full-compatibility.

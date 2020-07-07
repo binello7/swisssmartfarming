@@ -1,5 +1,5 @@
 # swisssmartfarming
-Repo containing code related to the [Swiss Smart Farming](http://www.smartfarming.ethz.ch/about.html) Project.
+Python package containing code related to the [Swiss Smart Farming](http://www.smartfarming.ethz.ch/about.html) Project.
 
 ## Dependencies
 Agricultural datasets captured for this project include RGB, hyperspectral, thermal as well as lidar data.

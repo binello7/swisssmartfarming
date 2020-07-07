@@ -2,7 +2,7 @@
 Repo containing code related to the [Swiss Smart Farming](http://www.smartfarming.ethz.ch/about.html) Project.
 
 ## Dependencies
-Agricultural datasets captured for this project include RGB, hyperspectral, thermal as well as lidar data. Data were stored as 
+Agricultural datasets captured for this project include RGB, hyperspectral, thermal as well as lidar data. Data were stored as [bagfiles](http://wiki.ros.org/Bags), a file format in [ROS](https://www.ros.org/) for storing ROS message data
 Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 2.2.3, then ``pygdal==2.2.3.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
 
 

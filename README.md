@@ -1,6 +1,6 @@
 # swisssmartfarming
 
-Repo containing code related to the *Swiss Smart Farming* Project (SSF).
+Repo containing code related to the [Swiss Smart Farming](http://www.smartfarming.ethz.ch/about.html) Project.
 
 ## Setup
 In order to use the package some setup steps are necessary.

@@ -21,7 +21,7 @@ The script `setup.bash` does all of the setup required in order to use the packa
 * `python3-venv`
 * `virtualenv` (`pip2 install --user virtualenv`)
 
-Under *Ubuntu* those can be installed with `pip2 install --user virtualenv && sudo apt install python-pip python3-venv`.
+Under *Ubuntu* those can be installed with `sudo apt install build-essential git libboost-python-dev libexiv2-dev python-all-dev python-pip python3-venv; pip2 install --user virtualenv`.
 
 After the installation of these main dependencies the `setup.bash` script can be sourced (`source setup.bash`). This performs the needed setup.
 The script has to be sourced with one of the following three options:

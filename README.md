@@ -8,6 +8,8 @@ The use of the package assumes that you have ROS installed on your system. The p
 
 Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 2.2.3, then ``pygdal==2.2.3.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
 
+exiftool
+
 The script `setup.bash` does all of the setup required in order to use the package. To successfully run it, the following dependences are required:
 * `python-pip`
 * `virtualenv` (`pip2 install --user virtualenv`)
@@ -15,13 +17,16 @@ The script `setup.bash` does all of the setup required in order to use the packa
 
 Under *Ubuntu* those can be installed with `pip2 install --user virtualenv && sudo apt install python-pip python3-venv`.
 
-After the installation of these main dependencies the `setup.bash` script can be sourced (`source setup.bash`). This should perform all of the needed setup.
+After the installation of these main dependencies the `setup.bash` script can be sourced (`source setup.bash`). This performs the needed setup.
 The script has to be sourced with one of the following three options:
 1. `--all`
 2. `--py2`
 3. `--py3`
 
-Almost all of the code is compatible with `python3`. However, stitching of the captured images was performed with  an `Ubuntu 14.04` was written in `python2`, to ensure full-compatibility.
+Option
+
+Only the script `processing/pix4d_processing.py` uses `python2`. This is because within the project stitching of the dataset was performed under `Ubuntu 14.04` and `python3-venv` was causing trouble there.
+
 
 
 

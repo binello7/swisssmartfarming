@@ -1,6 +1,7 @@
 # swisssmartfarming
 Python package containing code related to the [Swiss Smart Farming](http://www.smartfarming.ethz.ch/about.html) Project.
 
+
 ## Dependencies
 Agricultural datasets captured for this project include RGB, hyperspectral, thermal as well as lidar data.
 Datasets were stored as [bagfiles](http://wiki.ros.org/Bags), a file format in [ROS](https://www.ros.org/) for storing ROS message data.
@@ -11,27 +12,31 @@ Many of the geodata operations performed within the project rely on the use of G
 exiftool
 
 The script `setup.bash` does all of the setup required in order to use the package. To successfully run it, the following dependences are required:
+* `build-essential`
+* `git`
+* `libboost-python-dev`
+* `libexiv2-dev`
+* `python-all-dev`
 * `python-pip`
-* `virtualenv` (`pip2 install --user virtualenv`)
 * `python3-venv`
+* `virtualenv` (`pip2 install --user virtualenv`)
 
 Under *Ubuntu* those can be installed with `pip2 install --user virtualenv && sudo apt install python-pip python3-venv`.
 
 After the installation of these main dependencies the `setup.bash` script can be sourced (`source setup.bash`). This performs the needed setup.
 The script has to be sourced with one of the following three options:
-1. `--all`
-2. `--py2`
-3. `--py3`
+1. `--py2`
+2. `--py3`
+3. `--all`
 
-Option
-
-Only the script `processing/pix4d_processing.py` uses `python2`. This is because within the project stitching of the dataset was performed under `Ubuntu 14.04` and `python3-venv` was causing trouble there.
-
-
+Option 1. performs the setup necessary to run `python2` scripts. Only the script `processing/pix4d_processing.py` uses `python2`. This is because within the project stitching of the dataset was performed under `Ubuntu 14.04` and `python3-venv` was causing trouble there. This option just creates a virtualenv `venv2` and installs there all of the packages contained in `requirements_py2.txt`, needed to run `processing/pix4d_processing.py`. If you are not going to stitch datasets using [Pix4D](https://www.pix4d.com/) with this computer, then you don't need this.
+Option 2. does the same with `python3`, it creates the virtualenv `venv3` and installs there the packages listed in `requirements_py3.txt`, necessary to run all of the other scripts. Moreover, this option performs configurations necessary in order to use *ROS* with `python3`. In particular, the ROS-package `cv_bridge` throws errors when run with `python3`. Therefore, this option recompiles the `cv_bridge` package making it usable under `python3`.
+Finally, option 3. combines the two setups, it is equivalent to running `source setup.bash --py2; source setup.bash --py3`.
 
 
 ### python2
 * rootpath==0.1.1
+
 
 ### python3
 * catkin-pkg==0.4.16
@@ -56,11 +61,7 @@ Only the script `processing/pix4d_processing.py` uses `python2`. This is because
 * Shapely==1.7.0
 * spectral==0.20
 
-1. ``py3exiv2`` depends on: ``build-essential``, ``python-all-dev``, ``libexiv2-dev``, ``libboost-python-dev`` . Install them using ``apt``.
-
-
-
-
+1. `py3exiv2` depends on: `build-essential`, `python-all-dev`, `libexiv2-dev`, `libboost-python-dev`
 
 
 ## Datasets Structure

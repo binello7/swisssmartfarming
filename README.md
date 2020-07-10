@@ -1,23 +1,29 @@
 # swisssmartfarming
-
-Repo containing code related to the *Swiss Smart Farming* Project (SSF).
-
-## Setup
-In order to use the package some setup steps are necessary.
-
-Most of the code is compatible with `python3`. However, some code that needs to run on `Ubuntu 14.04` was written in `python2`, to ensure full-compatibility.
-
-The script `setup.bash` should perform all of the needed setup. This has to be sourced (`source setup.bash`) with one of the following three options:
-1. `--all`
-2. `--py2`
-3. `--py3`
+Python package containing code related to the [Swiss Smart Farming](http://www.smartfarming.ethz.ch/about.html) Project.
 
 ## Dependencies
+Agricultural datasets captured for this project include RGB, hyperspectral, thermal as well as lidar data.
+Datasets were stored as [bagfiles](http://wiki.ros.org/Bags), a file format in [ROS](https://www.ros.org/) for storing ROS message data.
+The use of the package assumes that you have ROS installed on your system. The package was developed and tested under *Ubuntu 18.04 LTS* with the *ROS Melodic Morenia* distribution.
+
+Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 2.2.3, then ``pygdal==2.2.3.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
+
+The script `setup.bash` does all of the setup required in order to use the package. To successfully run it, the following dependences are required:
 * `python-pip`
 * `virtualenv` (`pip2 install --user virtualenv`)
 * `python3-venv`
 
-Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 2.2.3, then ``pygdal==2.2.3.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
+Under *Ubuntu* those can be installed with `pip2 install --user virtualenv && sudo apt install python-pip python3-venv`.
+
+After the installation of these main dependencies the `setup.bash` script can be sourced (`source setup.bash`). This should perform all of the needed setup.
+The script has to be sourced with one of the following three options:
+1. `--all`
+2. `--py2`
+3. `--py3`
+
+Almost all of the code is compatible with `python3`. However, stitching of the captured images was performed with  an `Ubuntu 14.04` was written in `python2`, to ensure full-compatibility.
+
+
 
 ### python2
 * rootpath==0.1.1
@@ -46,6 +52,10 @@ Many of the geodata operations performed within the project rely on the use of G
 * spectral==0.20
 
 1. ``py3exiv2`` depends on: ``build-essential``, ``python-all-dev``, ``libexiv2-dev``, ``libboost-python-dev`` . Install them using ``apt``.
+
+
+
+
 
 
 ## Datasets Structure

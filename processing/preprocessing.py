@@ -16,6 +16,8 @@ import os
 import pandas as pd
 import pyexiv2 as px2
 import rasterio as rio
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 import rosbag
 import tkinter as tk
 import utils.functions as ufunc
@@ -410,7 +412,7 @@ class SpectralProcessor(Preprocessor):
 #-------------------------------------------------------------------------------
 
     def _set_cams(self):
-        cams = sorted([item for item in os.listdir(self.frames_folder) 
+        cams = sorted([item for item in os.listdir(self.frames_folder)
             if os.path.isdir(os.path.join(self.frames_folder, item))])
         self.cams = cams
 #-------------------------------------------------------------------------------

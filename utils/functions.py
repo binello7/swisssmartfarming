@@ -49,6 +49,21 @@ def read_virtualwavelengths(xml_file):
     return np.array(wavelengths)
 #-------------------------------------------------------------------------------
 
+def read_responses(xml_file):
+    xml = mdom.parse(xml_file)
+    responses = xml.getElementsByTagName("response")
+
+    data = []
+    for response in responses:
+        vals = response.firstChild.data.split(',')
+        vals = np.array(vals, dtype=np.float32)
+        data.append(vals)
+
+    resp_bands = np.array(data[:-2])
+    resp_opt_component = np.array(data[-2:])
+    return resp_bands, resp_opt_component
+#-------------------------------------------------------------------------------
+
 def read_img2array(img_path):
     """Reads an image to a numpy array using GDAL.
 

@@ -7,6 +7,7 @@ from glob import glob
 from roipoly import RoiPoly
 from rootpath import detect
 from scipy import ndimage
+from scipy.spatial.transform import Rotation
 from tkinter import filedialog
 from warnings import warn
 import math
@@ -52,7 +53,7 @@ class Preprocessor:
 
 class BasePreprocessor(Preprocessor):
     def __init__(self, bagfile, rtk_topic='/ssf/dji_sdk/rtk_position',
-        timezone=2):
+        imu_topic='/ssf/dji_sdk/imu', timezone=2):
         super().__init__()
         self.bagfile = rosbag.Bag(bagfile, 'r')
         self.bridge = CvBridge()
@@ -63,7 +64,15 @@ class BasePreprocessor(Preprocessor):
             'exp_t_ms': None,
             'gps_lat': None,
             'gps_lon': None,
-            'gps_alt': None
+            'gps_alt': None,
+            'gps_acc_xy': None,
+            'gps_acc_z': None,
+            'yaw': None,
+            'yaw_acc': None,
+            'pitch': None,
+            'pitch_acc': None,
+            'roll': None,
+            'roll_acc': None,
         }
         self.hs_info = {
             'filter_w': None,
@@ -79,8 +88,11 @@ class BasePreprocessor(Preprocessor):
         self.exp_t_topics = None
         self._set_cams_and_topics()
         self.rtk_topic = rtk_topic
+        self.imu_topic = imu_topic
         self.rtk_data = None
         self._set_rtk_data()
+        self.imu_data = None
+        self._set_imu_data()
         self.exp_t_data = pd.DataFrame(columns=["tstamp", "exp_t_ms"])
         self.date = self._read_date_time()[0]
         self.time = self._read_date_time()[1]
@@ -175,6 +187,37 @@ class BasePreprocessor(Preprocessor):
                     'gps_lon': lon, 'gps_alt': alt})
                 rtk_data = rtk_data.append(data, ignore_index=True)
             self.rtk_data = rtk_data
+#-------------------------------------------------------------------------------
+
+    def _set_imu_data(self):
+        messages = self.bagfile.read_messages(topics=self.imu_topic)
+        try:
+            next(messages)
+        except StopIteration as e:
+            warn("No IMU messages found. Yaw, Pitch and Roll XMP-tags will not "
+                "be written to the image.")
+            self.imu_data = None
+        else:
+            imu_data = pd.DataFrame(columns=["tstamp", "yaw", "pitch",
+                "roll"])
+            for msg in messages:
+                tstamp = msg.timestamp.to_nsec()
+                x = msg.message.orientation.x
+                y = msg.message.orientation.y
+                z = msg.message.orientation.z
+                w = msg.message.orientation.w
+                # Pix4D expects yaw, pitch and roll angles. Do conversion
+                rot = Rotation.from_quat([x, y, z, w])
+                # yaw: around Z-axis, pitch: around Y-axis, roll: around X-axis
+                # xyz: extrinsic rotations, XYZ: intinsic rotations
+                rot = rot.as_euler('zyx', degrees=True)
+                yaw = rot[0]
+                pitch = rot[1]
+                roll = rot[2]
+                data = pd.Series(data={'tstamp': tstamp, 'yaw': yaw,
+                    'pitch': pitch, 'roll': roll})
+                imu_data = imu_data.append(data, ignore_index=True)
+            self.imu_data = imu_data
 #-------------------------------------------------------------------------------
 
     def _set_filter_dims(self):
@@ -285,12 +328,24 @@ class BasePreprocessor(Preprocessor):
                 "be {}. Please correct cfg file.").format(cam_prop))
 #-------------------------------------------------------------------------------
 
-    def set_img_info(self, tstamp):
+    def set_img_info(self, tstamp, gps_XYacc=0.05, gps_Zacc=0.1, yaw_acc=5,
+        pitch_acc=2, roll_acc=2):
         (self.img_info['date_time_orig'], self.img_info['subsec_time_orig']) = (
             self._tstamp_to_datetime_subsec(tstamp))
+
         for gps_prop in self.rtk_data.keys()[1:]:
             self.img_info[gps_prop] = np.interp(tstamp,
                 self.rtk_data['tstamp'], self.rtk_data[gps_prop])
+
+        for angle in self.imu_data.keys()[1:]:
+            self.img_info[angle] = np.interp(tstamp,
+                self.imu_data['tstamp'], self.imu_data[angle])
+
+        self.img_info['gps_acc_xy'] = float(gps_XYacc)
+        self.img_info['gps_acc_z'] = float(gps_Zacc)
+        self.img_info['yaw_acc'] = float(yaw_acc)
+        self.img_info['pitch_acc'] = float(pitch_acc)
+        self.img_info['roll_acc'] = float(roll_acc)
 
         if not self.exp_t_data.empty:
             self.img_info['exp_t_ms'] = np.interp(tstamp,
@@ -390,6 +445,16 @@ class BasePreprocessor(Preprocessor):
 
         metadata.update(meta_dict)
         metadata.write()
+        os.system("exiftool -config {} -Yaw={} -Pitch={} -Roll={} "
+            "-GPSXYAccuracy={} -GPSZAccuracy={} "
+            "-IMUYawAccuracy={} -IMUPitchAccuracy={} -IMURollAccuracy={} "
+            "-overwrite_original -q {}".format(
+                os.path.join(self._rootpath, 'cfg', 'pix4d.config'),
+                self.img_info['yaw'], self.img_info['pitch'],
+                self.img_info['roll'],
+                self.img_info['gps_acc_xy'], self.img_info['gps_acc_z'],
+                self.img_info['yaw_acc'], self.img_info['pitch_acc'],
+                self.img_info['roll_acc'], filename))
 #===============================================================================
 
 class SpectralProcessor(Preprocessor):

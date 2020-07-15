@@ -1,26 +1,41 @@
 # swisssmartfarming
+Python package containing code related to the [Swiss Smart Farming](http://www.smartfarming.ethz.ch/about.html) Project.
 
-Repo containing code related to the *Swiss Smart Farming* Project (SSF).
-
-## Setup
-In order to use the package some setup steps are necessary.
-
-Most of the code is compatible with `python3`. However, some code that needs to run on `Ubuntu 14.04` was written in `python2`, to ensure full-compatibility.
-
-The script `setup.bash` should perform all of the needed setup. This has to be sourced (`source setup.bash`) with one of the following three options:
-1. `--all`
-2. `--py2`
-3. `--py3`
 
 ## Dependencies
-* `python-pip`
-* `virtualenv` (`pip2 install --user virtualenv`)
-* `python3-venv`
+Agricultural datasets captured for this project include RGB, hyperspectral, thermal as well as lidar data.
+Datasets were stored as [bagfiles](http://wiki.ros.org/Bags), a file format in [ROS](https://www.ros.org/) for storing ROS message data.
+The use of the package assumes that you have ROS installed on your system. The package was developed and tested under *Ubuntu 18.04 LTS* with the *ROS Melodic Morenia* distribution.
 
 Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 2.2.3, then ``pygdal==2.2.3.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
 
+The script `setup.bash` does all of the setup required in order to use the package. To successfully run it, the following dependences are required:
+* `build-essential`
+* `git`
+* `libboost-python-dev`
+* `libexiv2-dev`
+* `libimage-exiftool-perl`
+* `python-all-dev`
+* `python-pip`
+* `python3-venv`
+* `virtualenv` (`pip2 install --user virtualenv`)
+
+Under *Ubuntu* those can be installed with `sudo apt install build-essential git libboost-python-dev libexiv2-dev libimage-exiftool-perl python-all-dev python-pip python3-venv; pip2 install --user virtualenv`.
+
+After the installation of these main dependencies the `setup.bash` script can be sourced (`source setup.bash`). This performs the needed setup.
+The script has to be sourced with one of the following three options:
+1. `--py2`
+2. `--py3`
+3. `--all`
+
+Option 1. performs the setup necessary to run `python2` scripts. Only the script `processing/pix4d_processing.py` uses `python2`. This is because within the project stitching of the dataset was performed under *Ubuntu 14.04* and `python3-venv` was causing trouble there. This option just creates a virtualenv `venv2` and installs there all of the packages contained in `requirements_py2.txt`, needed to run `processing/pix4d_processing.py`. If you are not going to stitch datasets using [Pix4D](https://www.pix4d.com/) with this computer, then you don't need this.
+Option 2. does the same with `python3`, it creates the virtualenv `venv3` and installs there the packages listed in `requirements_py3.txt`, necessary to run all of the other scripts. Moreover, this option performs configurations necessary in order to use *ROS* with `python3`. In particular, the ROS-package `cv_bridge` throws errors when run with `python3`. Therefore, this option recompiles the `cv_bridge` package making it usable under `python3`.
+Finally, option 3. combines the two setups, it is equivalent to running `source setup.bash --py2; source setup.bash --py3`.
+
+
 ### python2
 * rootpath==0.1.1
+
 
 ### python3
 * catkin-pkg==0.4.16
@@ -45,7 +60,7 @@ Many of the geodata operations performed within the project rely on the use of G
 * Shapely==1.7.0
 * spectral==0.20
 
-1. ``py3exiv2`` depends on: ``build-essential``, ``python-all-dev``, ``libexiv2-dev``, ``libboost-python-dev`` . Install them using ``apt``.
+1. `py3exiv2` depends on: `build-essential`, `python-all-dev`, `libexiv2-dev`, `libboost-python-dev`
 
 
 ## Datasets Structure
@@ -138,3 +153,7 @@ field-name
         ├── field-name_date-n_vis
         └── field-name_date-n_vis.p4d
 ```
+
+
+## See also
+* [Hemp-Segmentation](https://github.com/dschori/Hemp-Segmentation)

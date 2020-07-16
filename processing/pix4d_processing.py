@@ -50,6 +50,12 @@ parser.add_argument('--imgs_step',
     type=int,
     required=False,
     default=1)
+parser.add_argument('--template', '-t',
+    help="PixD template to use for processing the dataset. The template has "
+        "to be one that can be found under 'cfg/pix4d/' without extension "
+        ".tmpl. If no template is given, the standard for the given camera "
+        "will be used",
+    required=False)
 args = parser.parse_args()
 
 # set needed variables
@@ -95,7 +101,13 @@ camera = frames_folder_levels[-1]
 
 # get the pix4d template
 templates_folder = os.path.join(root_folder, 'cfg', 'pix4d')
-template_file = os.path.join(templates_folder, (camera + '.tmpl'))
+if args.template == None:
+    template_file = os.path.join(templates_folder, (camera + '.tmpl'))
+else:
+    template_file = args.template + ".tmpl"
+    if template_file not in glob(templates_folder):
+        raise FileNotFoundError("Template '{}' not found. Please specify a "
+            "template located under 'cfg/pix4d/'.")
 
 # define the project file and create the project folder
 date_folder = sep.join(frames_folder.split(sep)[:-2])

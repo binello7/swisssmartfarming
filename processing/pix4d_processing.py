@@ -82,10 +82,11 @@ camera = frames_folder_levels[-1]
 
 # get the pix4d template
 templates_folder = os.path.join(root_folder, 'cfg', 'pix4d')
+print(args.template)
 if args.template == None:
     template_file = os.path.join(templates_folder, (camera + '.tmpl'))
 else:
-    template_file = args.template + ".tmpl"
+    template_file = os.path.join(templates_folder, (args.template + ".tmpl"))
     if template_file not in os.listdir(templates_folder):
         try:
             FileNotFoundError

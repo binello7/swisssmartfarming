@@ -71,12 +71,9 @@ idx_first_img = args.idx_first_img
 idx_last_img = args.idx_last_img
 imgs_step = args.imgs_step
 
-<<<<<<< HEAD
 # get the root_folder
 root_folder = rootpath.detect()
 
-=======
->>>>>>> 74009e8227a0171f775b15d524c5297e8a904748
 # get the pix4d template
 templates_folder = os.path.join(root_folder, 'cfg', 'pix4d')
 if args.template == None:

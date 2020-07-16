@@ -52,8 +52,8 @@ parser.add_argument('--imgs_step',
     default=1)
 parser.add_argument('--template', '-t',
     help="PixD template to use for processing the dataset. The template has "
-        "to be one that can be found under 'cfg/pix4d/' without extension "
-        ".tmpl. If no template is given, the standard for the given camera "
+        "to be one that can be found under 'cfg/pix4d/' without '.tmpl.' "
+        "extension. If no template is given, the standard for the given camera "
         "will be used",
     required=False)
 args = parser.parse_args()

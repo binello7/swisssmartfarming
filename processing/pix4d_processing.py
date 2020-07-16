@@ -86,8 +86,7 @@ if args.template == None:
     template_file = os.path.join(templates_folder, (camera + '.tmpl'))
 else:
     template_file = os.path.join(templates_folder, (args.template + ".tmpl"))
-    if args.template not in os.listdir(templates_folder):
-        print(os.listdir(templates_folder))
+    if (args.template + '.tmpl') not in os.listdir(templates_folder):
         raise IOError("Template '{}' not found. Please specify a "
             "template located under 'cfg/pix4d/'.".format(args.template))
 

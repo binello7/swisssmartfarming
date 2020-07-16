@@ -71,6 +71,19 @@ idx_first_img = args.idx_first_img
 idx_last_img = args.idx_last_img
 imgs_step = args.imgs_step
 
+# get the root_folder
+root_folder = rootpath.detect()
+
+# get the pix4d template
+templates_folder = os.path.join(root_folder, 'cfg', 'pix4d')
+if args.template == None:
+    template_file = os.path.join(templates_folder, (camera + '.tmpl'))
+else:
+    template_file = args.template + ".tmpl"
+    if template_file not in glob(templates_folder):
+        raise FileNotFoundError("Template '{}' not found. Please specify a "
+            "template located under 'cfg/pix4d/'.")
+
 # select the desired images
 imgs_list = glob(os.path.join(frames_folder, '*.jpg'))
 imgs_list.extend(glob(os.path.join(frames_folder, '*.tif')))
@@ -90,24 +103,11 @@ for img_src in imgs_list:
     img_dst = os.path.join(tmp_folder, img_src.split(sep)[-1])
     shutil.copy(img_src, img_dst)
 
-# get the root_folder
-root_folder = rootpath.detect()
-
 # get location, date, camera
 frames_folder_levels = frames_folder.split(sep)
 location = frames_folder_levels[-4]
 date = frames_folder_levels[-3]
 camera = frames_folder_levels[-1]
-
-# get the pix4d template
-templates_folder = os.path.join(root_folder, 'cfg', 'pix4d')
-if args.template == None:
-    template_file = os.path.join(templates_folder, (camera + '.tmpl'))
-else:
-    template_file = args.template + ".tmpl"
-    if template_file not in glob(templates_folder):
-        raise FileNotFoundError("Template '{}' not found. Please specify a "
-            "template located under 'cfg/pix4d/'.")
 
 # define the project file and create the project folder
 date_folder = sep.join(frames_folder.split(sep)[:-2])

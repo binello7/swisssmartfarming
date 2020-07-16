@@ -81,6 +81,10 @@ if args.template == None:
 else:
     template_file = args.template + ".tmpl"
     if template_file not in glob(templates_folder):
+        try:
+            FileNotFoundError
+        except NameError:
+            FileNotFoundError = IOError
         raise FileNotFoundError("Template '{}' not found. Please specify a "
             "template located under 'cfg/pix4d/'.".format(template_file))
 

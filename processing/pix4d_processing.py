@@ -82,7 +82,7 @@ else:
     template_file = args.template + ".tmpl"
     if template_file not in glob(templates_folder):
         raise FileNotFoundError("Template '{}' not found. Please specify a "
-            "template located under 'cfg/pix4d/'.")
+            "template located under 'cfg/pix4d/'.".format(template_file))
 
 # select the desired images
 imgs_list = glob(os.path.join(frames_folder, '*.jpg'))

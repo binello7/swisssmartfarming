@@ -86,6 +86,7 @@ if args.template == None:
     template_file = os.path.join(templates_folder, (camera + '.tmpl'))
 else:
     template_file = args.template + ".tmpl"
+    print(glob(templates_folder))
     if template_file not in glob(templates_folder):
         try:
             FileNotFoundError

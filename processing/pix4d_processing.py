@@ -87,12 +87,9 @@ if args.template == None:
 else:
     template_file = os.path.join(templates_folder, (args.template + ".tmpl"))
     if args.template not in os.listdir(templates_folder):
-        try:
-            FileNotFoundError
-        except NameError:
-            FileNotFoundError = IOError
-        raise FileNotFoundError("Template '{}' not found. Please specify a "
-            "template located under 'cfg/pix4d/'.".format(template_file))
+        print(os.listdir(templates_folder))
+        raise IOError("Template '{}' not found. Please specify a "
+            "template located under 'cfg/pix4d/'.".format(args.template))
 
 # select the desired images
 imgs_list = glob(os.path.join(frames_folder, '*.jpg'))

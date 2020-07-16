@@ -74,6 +74,12 @@ imgs_step = args.imgs_step
 # get the root_folder
 root_folder = rootpath.detect()
 
+# get location, date, camera
+frames_folder_levels = frames_folder.split(sep)
+location = frames_folder_levels[-4]
+date = frames_folder_levels[-3]
+camera = frames_folder_levels[-1]
+
 # get the pix4d template
 templates_folder = os.path.join(root_folder, 'cfg', 'pix4d')
 if args.template == None:
@@ -106,12 +112,6 @@ print('Copying images to {}...'.format(tmp_folder))
 for img_src in imgs_list:
     img_dst = os.path.join(tmp_folder, img_src.split(sep)[-1])
     shutil.copy(img_src, img_dst)
-
-# get location, date, camera
-frames_folder_levels = frames_folder.split(sep)
-location = frames_folder_levels[-4]
-date = frames_folder_levels[-3]
-camera = frames_folder_levels[-1]
 
 # define the project file and create the project folder
 date_folder = sep.join(frames_folder.split(sep)[:-2])

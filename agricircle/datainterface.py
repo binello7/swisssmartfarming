@@ -98,12 +98,8 @@ class DataInterface:
             wls = np.concatenate((wl_vis, wl_nir))
 
             dst_path = os.path.join(outputs_path, (merged_name + '.tif'))
-            kwargs = nir.meta.copy()
+            kwargs = vis.meta.copy()
             kwargs.update({
-                'crs': vis.crs,
-                'transform': vis.transform,
-                'width': vis.width,
-                'height': vis.height,
                 'count': vis.count + nir.count
             })
 

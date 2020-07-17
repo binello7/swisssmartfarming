@@ -1,6 +1,6 @@
 from glob import glob
 from rasterio import MemoryFile
-from rasterio.warp import Resampling
+from rasterio.warp import Resampling, reproject
 from rootpath import detect
 from warnings import warn
 import geopandas as gpd
@@ -19,7 +19,7 @@ class DataInterface:
         self._sep = os.path.sep
         self._rootpath = detect()
         self._cfgpath = os.path.join(self._rootpath, 'cfg/cameras')
-        self.location = None
+        self.nodata = -10000
         self.dates = []
         self.datasets_name = []
         self.datasets = {}
@@ -29,27 +29,18 @@ class DataInterface:
     def add_dataset(self, dataset_path):
         name_splits = dataset_path.split(self._sep)[-1].split('_')
 
-        location = name_splits[0]
-        if self.location == None:
-            self.location = location
-
-        elif (self.location != None and self.location != location):
-            raise Exception("Location of dataset added is different from "
-                "location of the previous datasets. 'DataInterface' is "
-                "intended for use with datasets of the same location.")
-
-        date = name_splits[1]
+        date = name_splits[0]
+        flight = name_splits[1]
         if date not in self.dates:
             self.dates.append(date)
 
         camera = '_'.join(name_splits[2:4])
-        dataset_name = date + '-' + camera
+        dataset_name = '_'.join((date, flight, camera))
         if dataset_name not in self.datasets_name:
             self.datasets_name.append(dataset_name)
             xml_file = glob(os.path.join(self._cfgpath, camera, '*.xml'))[0]
             self.datasets.update({dataset_name:
                 {'dataset': rio.open(dataset_path),
-                'location': location,
                 'date': date,
                 'camera': camera,
                 'wavelengths': ufunc.read_virtualwavelengths(xml_file)
@@ -91,41 +82,46 @@ class DataInterface:
                     self.datasets[name]['dataset'] = memfile.open()
 #-------------------------------------------------------------------------------
 
-    def merge_vis_nir(self):
-        merged_datasets = {}
-        wavelengths = []
+    def write_visnir(self, outputs_path):
+        # check if directory exists. Create it if not
+        if not os.path.isdir(outputs_path):
+            os.makedirs(outputs_path)
+
         for k, g in itertools.groupby(self.datasets_name, key=lambda x: x[:8]):
             by_date = list(g)
             date = self.datasets[by_date[1]]['date']
             merged_name = date + '_vis-nir'
-            dataset_vis = self.datasets[by_date[1]]['dataset']
+            vis = self.datasets[by_date[1]]['dataset']
             wl_vis = self.datasets[by_date[1]]['wavelengths']
-            dataset_nir = self.datasets[by_date[0]]['dataset']
+            nir = self.datasets[by_date[0]]['dataset']
             wl_nir = self.datasets[by_date[0]]['wavelengths']
             wls = np.concatenate((wl_vis, wl_nir))
 
-            w = dataset_vis.width
-            h = dataset_vis.height
+            dst_path = os.path.join(outputs_path, (merged_name + '.tif'))
+            kwargs = nir.meta.copy()
+            kwargs.update({
+                'crs': vis.crs,
+                'transform': vis.transform,
+                'width': vis.width,
+                'height': vis.height,
+                'count': vis.count + nir.count
+            })
 
-            profile = dataset_vis.profile
+            nir_res, transform = reproject(
+                source=nir.read(),
+                destination=np.empty((nir.count, vis.height, vis.width)),
+                src_transform=nir.transform,
+                src_crs=nir.crs,
+                src_nodata=self.nodata,
+                dst_transform=vis.transform,
+                dst_crs=vis.crs,
+                resampling=Resampling.bilinear
+            )
 
-            vis_data = dataset_vis.read()
-            nir_data = dataset_nir.read(out_shape=(h, w),
-                resampling=Resampling.nearest)
-
-            merged_data = np.concatenate((vis_data, nir_data), axis=0)
-            count = merged_data.shape[0]
-            profile.update(count=count)
-
-            with MemoryFile() as memfile:
-                with memfile.open(**profile) as dataset:
-                    dataset.write(merged_data)
-                    del merged_data
-
-                merged_datasets.update({merged_name: memfile.open()})
-                wavelengths.append(wls)
-
-        return merged_datasets, wavelengths
+            visnir = np.concatenate((vis.read(), nir_res))
+            visnir = visnir.astype(np.dtype('float32'))
+            with rio.open(dst_path, 'w', **kwargs) as dst:
+                dst.write(visnir)
 #-------------------------------------------------------------------------------
 
     @staticmethod

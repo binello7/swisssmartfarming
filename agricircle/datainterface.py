@@ -58,66 +58,69 @@ class DataInterface:
         self.shapefile = gpd.read_file(shapefile_path)
 #-------------------------------------------------------------------------------
 
-    def crop_with_shapefile(self):
-        """Crops the specified dataset using the previously loaded shapefile
-        """
-
+    def crop_merge_write_visnir(self, outputs_path):
         try:
             shapes = [feature["geometry"] for _, feature in
                 self.shapefile.iterrows()]
         except AttributeError:
             raise AttributeError("No shapefile found. Please add a shapefile.")
         else:
-            for name, el in self.datasets.items():
-                profile = el['dataset'].profile
-                data, transform = riom.mask(el['dataset'], shapes, crop=True)
-                profile.update(transform=transform, height=data.shape[1],
-                    width=data.shape[2])
+            # check if directory exists. Create it if not
+            if not os.path.isdir(outputs_path):
+                os.makedirs(outputs_path)
 
-                with MemoryFile() as memfile:
-                    with memfile.open(**profile) as dataset:
-                        dataset.write(data)
-                        del data
+            for date in self.dates:
+                same_date = [name for name in self.datasets_name
+                    if date in name]
+                print(same_date)
 
-                    self.datasets[name]['dataset'] = memfile.open()
-#-------------------------------------------------------------------------------
+                vis = self.datasets[same_date[1]]['dataset']
+                print(vis.res)
+                nir = self.datasets[same_date[0]]['dataset']
+                print(nir.res)
+                wl_vis = self.datasets[same_date[1]]['wavelengths']
+                wl_nir = self.datasets[same_date[0]]['wavelengths']
+                wls = np.concatenate((wl_vis, wl_nir))
+                vis_profile = vis.profile
+                nir_profile = nir.profile
 
-    def write_visnir(self, outputs_path):
-        # check if directory exists. Create it if not
-        if not os.path.isdir(outputs_path):
-            os.makedirs(outputs_path)
+                nir_data, nir_transform = riom.mask(nir, shapes, crop=True)
+                nir_profile = nir_profile.update(transform=nir_transform,
+                    height=nir_data.shape[1], width=nir_data.shape[2])
 
-        for k, g in itertools.groupby(self.datasets_name, key=lambda x: x[:8]):
-            by_date = list(g)
-            date = self.datasets[by_date[1]]['date']
-            merged_name = date + '_vis-nir'
-            vis = self.datasets[by_date[1]]['dataset']
-            wl_vis = self.datasets[by_date[1]]['wavelengths']
-            nir = self.datasets[by_date[0]]['dataset']
-            wl_nir = self.datasets[by_date[0]]['wavelengths']
-            wls = np.concatenate((wl_vis, wl_nir))
+                vis_data, vis_transform = riom.mask(vis, shapes, crop=True)
+                vis_profile = vis_profile.update(transform=vis_transform,
+                    height=vis_data.shape[1], width=vis_data.shape[2])
 
-            dst_path = os.path.join(outputs_path, (merged_name + '.tif'))
-            kwargs = vis.meta.copy()
-            kwargs.update({
-                'count': vis.count + nir.count
-            })
+                merged_name = date + '_vis-nir.tif'
+                dst_path = os.path.join(outputs_path, merged_name)
 
-            nir_res, transform = reproject(
-                source=nir.read(),
-                destination=np.empty((nir.count, vis.height, vis.width)),
-                src_transform=nir.transform,
-                src_crs=nir.crs,
-                src_nodata=self.nodata,
-                dst_transform=vis.transform,
-                dst_crs=vis.crs,
-                resampling=Resampling.bilinear
-            )
 
-            visnir = np.concatenate((vis.read(), nir_res))
-            visnir = visnir.astype(np.dtype('float32'))
-            with rio.open(dst_path, 'w', **kwargs) as dst:
-                dst.write(visnir)
+                kwargs = vis.meta.copy()
+                kwargs.update({
+                    'width': vis_data.shape[2],
+                    'height': vis_data.shape[1],
+                    'count': vis_data.shape[0] + nir_data.shape[0],
+                    'transform': vis_transform
+                    })
+
+                nir_data, nir_transform = reproject(
+                    source=nir_data,
+                    destination=np.empty((nir_data.shape[0], vis_data.shape[1],
+                        vis_data.shape[2])),
+                    src_transform=nir_transform,
+                    src_crs=nir.crs,
+                    src_nodata=self.nodata,
+                    dst_transform=vis_transform,
+                    dst_crs=vis.crs,
+                    resampling=Resampling.bilinear
+                )
+                assert nir_transform == vis_transform
+
+                visnir = np.concatenate((vis_data, nir_data))
+                visnir = visnir.astype(np.dtype('float32'))
+                with rio.open(dst_path, 'w', **kwargs) as dst:
+                    dst.write(visnir)
 #-------------------------------------------------------------------------------
 
     @staticmethod

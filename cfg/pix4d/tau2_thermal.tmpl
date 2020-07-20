@@ -28,7 +28,7 @@
 		<!--Optimizer-->
 		<optimizerType>Classic</optimizerType>
 		<!--Camera optimization-->
-		<internalParamOptimization>All</internalParamOptimization>
+		<internalParamOptimization>AllPrior</internalParamOptimization>
 		<externalParamOptimization>All</externalParamOptimization>
 		<!--Rematch-->
 		<rematchStrategy>Custom</rematchStrategy>
@@ -44,7 +44,7 @@
 		<runStep>true</runStep>
 		<!--    Point Cloud    -->
 		<!--Densification-->
-		<pclImageDownscaleFactor>0</pclImageDownscaleFactor>
+		<pclImageDownscaleFactor>1</pclImageDownscaleFactor>
 		<pclImageMultiscale>true</pclImageMultiscale>
 		<pclDensity>Optimal</pclDensity>
 		<pclMinNoMatches>3</pclMinNoMatches>
@@ -68,7 +68,7 @@
 		<meshTextureColorBalancing>false</meshTextureColorBalancing>
 		<!--Export-->
 		<meshExportPLY>false</meshExportPLY>
-		<meshExportFBX>true</meshExportFBX>
+		<meshExportFBX>false</meshExportFBX>
 		<meshExportDXF>false</meshExportDXF>
 		<meshExportOSGB>false</meshExportOSGB>
 		<meshExportOBJ>false</meshExportOBJ>
@@ -146,9 +146,7 @@
 		<!--Reflectance Map-->
 		<indexReflectance>true</indexReflectance>
 		<indexReflectanceMergeTiles>true</indexReflectanceMergeTiles>
-		<indices>
-			<index name="thermal_ir" formula="thermal_ir" enabled="true"/>
-		</indices>
+		<indices/>
 		<!--Export-->
 		<indexExportPointSHP>false</indexExportPointSHP>
 		<indexExportPointSHPGridSize>200</indexExportPointSHPGridSize>

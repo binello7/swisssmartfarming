@@ -9,26 +9,33 @@ import rasterio as rio
 from IPython import embed
 
 
-root_path = '/media/seba/Samsung_2TB/matterhorn-project/qgis/reckenholz'
+root_path = '/media/seba/Samsung_2TB/matterhorn-project/qgis/reckenholz/'
 
-nir1_name = 'nir/20200608_flight20m_photonfocus_nir_georef.tif'
-nir2_name = 'nir/20200625_flight20m_photonfocus_nir_georef.tif'
-vis1_name = 'vis/20200608_flight20m_photonfocus_vis_georef.tif'
-vis2_name = 'vis/20200625_flight20m_photonfocus_vis_georef.tif'
-names = [nir1_name, nir2_name, vis1_name, vis2_name]
+files = [
+    'nir/20200608_flight20m_photonfocus_nir_georef.tif',
+    'nir/20200623_flight20m_photonfocus_nir_georef.tif',
+    'nir/20200630_flight20m_photonfocus_nir_georef.tif'
+    'vis/20200608_flight20m_photonfocus_vis_georef.tif',
+    'vis/20200623_flight20m_photonfocus_vis_georef.tif',
+    'vis/20200630_flight20m_photonfocus_vis_georef.tif'
+]
 
-paths = []
-for name in names:
-    paths.append(os.path.join(root_path, name))
 
-shp_path = '/media/seba/Samsung_2TB/matterhorn-project/qgis/reckenholz/shapes/field_boundary.shp'
+filepaths = []
+for file in files:
+    filepaths.append(os.path.join(root_path, file))
+
+shp_path = ('/media/seba/Samsung_2TB/matterhorn-project/qgis/reckenholz/shapes/'
+    'field_boundary.shp')
 
 reckenholz = DataInterface()
 
-for path in paths:
-    reckenholz.add_dataset(path)
+for filepath in filepaths:
+    reckenholz.add_dataset(filepath)
 
 reckenholz.add_shapefile(shp_path)
 
-outputs_path = '/media/seba/Samsung_2TB/matterhorn-project/qgis/reckenholz/visnir'
+outputs_path = ('/media/seba/Samsung_2TB/matterhorn-project/qgis/reckenholz/'
+    'visnir')
+
 reckenholz.crop_merge_write_visnir(outputs_path)

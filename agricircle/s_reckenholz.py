@@ -9,7 +9,7 @@ import rasterio as rio
 from IPython import embed
 
 
-root_path = '/media/seba/Samsung_2TB/matterhorn-project/qgis/reckenholz'
+root_path = '/media/seba/Samsung_2TB/matterhorn-project/qgis/reckenholz/'
 
 files = [
     'nir/20200608_flight20m_photonfocus_nir_georef.tif',

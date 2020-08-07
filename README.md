@@ -1,5 +1,5 @@
 # swisssmartfarming
-Python package containing code related to the [Swiss Smart Farming](http://www.smartfarming.ethz.ch/about.html) Project.
+Python package containing code related to the [Swiss Smart Farming](http://www.smartfarming.ethz.ch/about.html) Project (SSF).
 
 
 ## Dependencies
@@ -62,6 +62,10 @@ Finally, option 3. combines the two setups, it is equivalent to running `source 
 
 1. `py3exiv2` depends on: `build-essential`, `python-all-dev`, `libexiv2-dev`, `libboost-python-dev`
 
+## Usage
+There are two main command line tools that can be used in order to process an SSF-dataset. The first one is `preprocess_bag.py` and the second one is `process_pix4d.py`.
+
+`preprocess_bag.py` depends on many packages that were installed with `setup.bash`. In order for them to be available the virtual environment has to be activated with `source venv3/bin/activate`. After activating the virtual environment run `./preprocess_bag.py -h` in order to get a detailed description on how to use it.
 
 ## Datasets Structure
 All the SSF datasets have the structure shown in the following diagram. The root

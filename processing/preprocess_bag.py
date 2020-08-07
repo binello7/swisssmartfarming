@@ -34,9 +34,16 @@ parser = argparse.ArgumentParser(
     description=
         """Preprocesses an SSF-rosbag dataset.
         |n
-        Given a rosbag file contianing a dataset for the Swiss Smart Farming
-        Project performs the preprocesses steps in order to produce
-        georeferenced corrected images that can be fed to the Pix4D
+        Given a rosbag file of a dataset for the Swiss Smart Farming
+        Project performs the preprocessing steps on the raw images.
+        The preprocessed images will be stored under the folder 'frames',
+        located one level higher than the bagfile.
+        Preprocessing steps include:
+        |n
+        1. save the RGB images in 'jpg' format and embed the image
+        metadata (camera name, focal length, GPS location, ...)
+        |n
+        2. Blablabla
         software.""",
     formatter_class=MultilineFormatter
 )
@@ -44,10 +51,12 @@ parser.add_argument('--bagfile', '-b',
     required=True,
     help='Path to the bag file and name, e.g. ./dataset/bagfile.bag')
 parser.add_argument('--ref_panel', '-r',
-    choices=['1', '2'],
+    choices=['1', '2', '3'],
     required=True,
     help="Reference panel used to calibrate the hyperspectral images. "
-        "Use '1' for 'colorChecker' and '2' for 'SphereOptics'.")
+        "Use '1' for 'colorChecker' (r=0.18), '2' for 'SphereOptics' "
+        "(r=0.9645), '3' for a custom panel (reflectance value asked during "
+        "execution)")
 
 args = parser.parse_args()
 
@@ -56,6 +65,12 @@ if args.ref_panel == '1':
     reflectance = 0.18
 elif args.ref_panel == '2':
     reflectance = 0.9645
+elif args.ref_panel == '3':
+    reflectance = float(input("Enter the average reflectance value of the "
+            "used calibration panel (must be > 0, <= 1): "))
+    while reflectance <=0 or reflectance > 1:
+        reflectance = float(input("Wrong value. Reflectance value must be > 0, "
+            "<= 1. Please enter it again: "))
 
 # create the BasePreprocessor object
 basepreprocessor = BasePreprocessor(args.bagfile)
@@ -64,8 +79,8 @@ basepreprocessor = BasePreprocessor(args.bagfile)
 prefix = 'frame'
 
 # set the root folder where the images will be stored
-date_folder = sep.join(args.bagfile.split(sep)[:-2])
-frames_folder = os.path.join(date_folder, 'frames')
+upper_path = sep.join(args.bagfile.split(sep)[:-2])
+frames_folder = os.path.join(upper_path, 'frames')
 if not os.path.isdir(frames_folder):
     os.makedirs(frames_folder)
 

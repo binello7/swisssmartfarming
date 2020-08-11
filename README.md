@@ -46,30 +46,17 @@ Option 1\. performs the setup necessary to run `python2` scripts. Only the scrip
 - Pillow==7.0.0
 - pycryptodomex==3.9.7
 - pygdal==2.2.3.6
-- py3exiv2==0.7.1
-
-  <sup>1</sup>
-
+- py3exiv2==0.7.1<sup>1</sup>
 - PyYAML==5.1
-
 - rasterio==1.1.2
-
 - roipoly==0.5.2
-
 - rosbag==1.14.5
-
 - rospkg==1.2.4
-
 - rootpath==0.1.1
-
 - scipy==1.1.0
-
 - seaborn==0.10.0
-
 - Shapely==1.7.0
-
 - spectral==0.20
-
 - `py3exiv2` depends on: `build-essential`, `python-all-dev`, `libexiv2-dev`, `libboost-python-dev`
 
 ## Usage

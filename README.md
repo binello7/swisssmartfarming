@@ -2,16 +2,6 @@
 
 Python package containing code related to the [Swiss Smart Farming](http://www.smartfarming.ethz.ch/about.html) Project (SSF).
 
-<!-- TOC depthFrom:2 depthTo:2 withLinks:1 updateOnSave:1 orderedList:0 -->
-
- - [Dependencies](#dependencies)
-
-  - [Usage](#usage)
-  - [Datasets Structure](#datasets-structure)
-  - [See also](#see-also)
-
-<!-- /TOC --> #
-
 ## Dependencies
 
 Agricultural datasets captured for this project include RGB, hyperspectral, thermal as well as lidar data. Datasets were stored as [bagfiles](http://wiki.ros.org/Bags), a file format in [ROS](https://www.ros.org/) for storing ROS message data. The use of the package assumes that you have ROS installed on your system. The package was developed and tested under _Ubuntu 18.04 LTS_ with the _ROS Melodic Morenia_ distribution.

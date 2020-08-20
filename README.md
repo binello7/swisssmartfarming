@@ -68,6 +68,8 @@ There are two main command line tools that can be used in order to process an SS
 `preprocess_bag.py` depends on many packages that were installed with `setup.bash`. In order for them to be available the virtual environment has to be activated with `source venv3/bin/activate`. After activating the virtual environment run `./preprocess_bag.py -h` in order to get a description on how to use it.
 
 ### preprocess_bag.py
+`preprocess_bag.py --bagfile /path/to/bagfile.bag --ref_panel {1,2,3}`
+
 Preprocesses an SSF-rosbag dataset.
 
 Given a rosbag file of a dataset for the Swiss Smart Farming

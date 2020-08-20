@@ -83,9 +83,9 @@ Preprocessing steps include:
 metadata (camera name, focal length, GPS location, ...)
 
 2. for hyperspectral images:
-    a. bla
-    a. blablabla
-    a. boaboaboaboa
+    1. bla
+    2. blablabla
+    3. boaboaboaboa
 
 All images captured are
 stored under a 'topic'. Check 'cfg/cameras' to see all the cameras used

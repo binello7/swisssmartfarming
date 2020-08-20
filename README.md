@@ -83,9 +83,9 @@ Preprocessing steps include:
 metadata (camera name, focal length, GPS location, ...)
 
 2. for hyperspectral images:
-    1. bla
-    2. blablabla
-    3. boaboaboaboa
+    1. reshape the raw image to an image cube according to the specifications from the xml calibration file
+    2. apply a 3x3 median filter in order to smoothen the image
+    3. converts the images from 8-bit (0-255) to reflectance (0-100%). For this an image of a
 
 All images captured are
 stored under a 'topic'. Check 'cfg/cameras' to see all the cameras used
@@ -202,6 +202,8 @@ field-name
         ├── field-name_date-n_vis
         └── field-name_date-n_vis.p4d
 ```
+
+## Downloads
 
 
 ## See also

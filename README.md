@@ -65,17 +65,29 @@ Finally, option 3. combines the two setups, it is equivalent to running `source 
 ## Usage
 There are two main command line tools that can be used in order to process an SSF-dataset. The first one is `preprocess_bag.py` and the second one is `process_pix4d.py`, both are located under the `processing` module.
 
-`preprocess_bag.py` depends on many packages that were installed with `setup.bash`. In order for them to be available the virtual environment has to be activated with `source venv3/bin/activate`. After activating the virtual environment run `./preprocess_bag.py -h` in order to get a description on how to use it.
+`preprocess_bag.py` depends on many packages that were installed with `setup.bash`. In order for them to be available the virtual environment has to be activated with `source venv3/bin/activate`. After activating the virtual environment run `processing/preprocess_bag.py -h` in order to get a description on how to use it.
 
 ### preprocess_bag.py
-`preprocess_bag.py --bagfile /path/to/bagfile.bag --ref_panel {1,2,3}`
+`processing/preprocess_bag.py --bagfile /path/to/bagfile.bag --ref_panel {1,2,3}`
 
 Preprocesses an SSF-rosbag dataset.
 
-Given a rosbag file of a dataset for the Swiss Smart Farming
+Given a rosbag file containing a dataset for the Swiss Smart Farming
 Project performs the preprocessing steps on the raw images.
 The preprocessed images will be stored under the folder 'frames',
-located one level higher than the bagfile. All images captured are
+located one level higher than the bagfile.
+
+Preprocessing steps include:
+
+1. for RGB images: save them in 'jpg' format and embed the image
+metadata (camera name, focal length, GPS location, ...)
+
+2. for hyperspectral images:
+    a. bla
+    a. blablabla
+    a. boaboaboaboa
+
+All images captured are
 stored under a 'topic'. Check 'cfg/cameras' to see all the cameras used
 for the project and the corresponding topic.
 
@@ -96,12 +108,7 @@ handed in at the purchase of every hyperspectral camera and a copy need
 to be stored together with the camera configuration file in order to
 make the hyperspectral processing possible.
 
-Preprocessing steps include:
 
-1. save the RGB images in 'jpg' format and embed the image
-metadata (camera name, focal length, GPS location, ...)
-
-2. Reshape hyperspectral
 
 ### process_pix4d.py
 

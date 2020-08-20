@@ -204,7 +204,7 @@ field-name
 ```
 
 ## Downloads
-
+* [Presentation: Microsoft Smart Farming Workshop](doc/presentations/SSF_Microsoft.pdf)
 
 ## See also
 * [Hemp-Segmentation](https://github.com/dschori/Hemp-Segmentation)

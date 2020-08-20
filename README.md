@@ -68,6 +68,38 @@ There are two main command line tools that can be used in order to process an SS
 `preprocess_bag.py` depends on many packages that were installed with `setup.bash`. In order for them to be available the virtual environment has to be activated with `source venv3/bin/activate`. After activating the virtual environment run `./preprocess_bag.py -h` in order to get a description on how to use it.
 
 ### preprocess_bag.py
+Preprocesses an SSF-rosbag dataset.
+
+Given a rosbag file of a dataset for the Swiss Smart Farming
+Project performs the preprocessing steps on the raw images.
+The preprocessed images will be stored under the folder 'frames',
+located one level higher than the bagfile. All images captured are
+stored under a 'topic'. Check 'cfg/cameras' to see all the cameras used
+for the project and the corresponding topic.
+
+If a new camera had to be integrated into the system, a new camera
+configuration file need to be added, in order to extract and preprocess
+the new camera. Under 'cfg/cameras' add a folder named 'camera-name_camera-type' and
+under it a text file with the same name and extension '.cfg'. This file
+gives some specifications about the camera. Compare (and copy) e.g.
+'cfg/cameras/blackfly_rgb/blackfly_rgb.cfg' in order to create a new
+camera configuration file. The 'exp_t_topic' field in the file can be
+empty, if the exposure time of the camera is not being recorded.
+
+If the value of the field 'type' is 'hyperspectral', then a second text
+file (.xml) is expected under the camera folder. The name of the file
+does not matter. This file contains information about the hyperspectral
+sensor and is unique for every single sensor produced. It has to be
+handed in at the purchase of every hyperspectral camera and a copy need
+to be stored together with the camera configuration file in order to
+make the hyperspectral processing possible.
+
+Preprocessing steps include:
+
+1. save the RGB images in 'jpg' format and embed the image
+metadata (camera name, focal length, GPS location, ...)
+
+2. Reshape hyperspectral
 
 ### process_pix4d.py
 

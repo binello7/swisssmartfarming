@@ -213,16 +213,16 @@
 			<imageWidth>640</imageWidth>
 			<imageHeight>512</imageHeight>
 			<pixelSize>17</pixelSize>
-			<principalPointXmm>5.44</principalPointXmm>
-			<principalPointYmm>4.352</principalPointYmm>
+			<principalPointXmm>6.23778</principalPointXmm>
+			<principalPointYmm>3.99361</principalPointYmm>
 			<lensType>perspective</lensType>
-			<focalLengthmm>19</focalLengthmm>
+			<focalLengthmm>21.7437</focalLengthmm>
 			<distortion>5</distortion>
-			<radialK1>0</radialK1>
-			<radialK2>0</radialK2>
-			<radialK3>0</radialK3>
-			<tangentialT1>0</tangentialT1>
-			<tangentialT2>0</tangentialT2>
+			<radialK1>0.626687</radialK1>
+			<radialK2>0.413624</radialK2>
+			<radialK3>-0.847458</radialK3>
+			<tangentialT1>-0.0172706</tangentialT1>
+			<tangentialT2>0.0469561</tangentialT2>
 			<pixelValue pixelType="uint16" min="0" max="0"/>
 			<cameraModelSource>user</cameraModelSource>
 			<bandConfig>

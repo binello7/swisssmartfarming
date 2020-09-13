@@ -16,7 +16,13 @@
 		<generateOrthoInReport>true</generateOrthoInReport>
 		<!--    Matching    -->
 		<!--Matching Image Pairs-->
-		<matchStrategy>AutoAerial</matchStrategy>
+		<matchStrategy>Custom</matchStrategy>
+		<matchTimeNbNeighbours>4</matchTimeNbNeighbours>
+		<matchUseTriangulation>true</matchUseTriangulation>
+		<matchRelativeDistanceImages>-5</matchRelativeDistanceImages>
+		<matchMtpMaxImagePair>50</matchMtpMaxImagePair>
+		<matchImageSimilarityMaxPairs>4</matchImageSimilarityMaxPairs>
+		<matchTimeMultiCamera>0</matchTimeMultiCamera>
 		<!--Matching Strategy-->
 		<geometricallyVerifiedMatching>true</geometricallyVerifiedMatching>
 		<!--    Calibration    -->

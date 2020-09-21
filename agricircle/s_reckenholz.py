@@ -10,12 +10,18 @@ import rasterio as rio
 root_path = '/media/seba/Samsung_2TB/matterhorn-project/qgis/reckenholz/'
 
 files = [
+    'nir/20200512_flight20m_photonfocus_nir_georef.tif',
+    'nir/20200527_flight20m_photonfocus_nir_georef.tif',
     'nir/20200608_flight20m_photonfocus_nir_georef.tif',
     'nir/20200623_flight20m_photonfocus_nir_georef.tif',
+    'nir/20200625_flight20m_photonfocus_nir_georef.tif',
     'nir/20200630_flight20m_photonfocus_nir_georef.tif',
+    'vis/20200512_flight20m_photonfocus_vis_georef.tif',
+    'vis/20200527_flight20m_photonfocus_vis_georef.tif',
     'vis/20200608_flight20m_photonfocus_vis_georef.tif',
     'vis/20200623_flight20m_photonfocus_vis_georef.tif',
-    'vis/20200630_flight20m_photonfocus_vis_georef.tif'
+    'vis/20200625_flight20m_photonfocus_vis_georef.tif',
+    'vis/20200630_flight20m_photonfocus_vis_georef.tif',
 ]
 filepaths = []
 for file in files:
@@ -33,5 +39,7 @@ reckenholz.add_shapefile(shp_path)
 
 outputs_path = ('/media/seba/Samsung_2TB/matterhorn-project/qgis/reckenholz/'
     'visnir')
+if not os.path.exists(outputs_path):
+    os.makedirs(outputs_path)
 
 reckenholz.crop_merge_write_visnir(outputs_path)

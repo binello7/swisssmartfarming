@@ -121,7 +121,7 @@ def argmax_2D(array_2D):
     idx_1 = math.trunc(flat_idx / array_2D.shape[1])
     idx_2 = np.argmax(array_2D[idx_1,:])
     return [idx_1, idx_2]
-
+#-------------------------------------------------------------------------------
 
 def gdal_crop(input_file, cutline_file, Xres, Yres,
               output_file, nodata_val=0.0):

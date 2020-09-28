@@ -52,7 +52,7 @@ class Dataset():
                  mask_shapefile = None,
                  grid=None,
                  grid_overlapp=0,
-                 slice_shape=(512, 512)):
+                 tile_shape=(512, 512)):
         self.name = name
         self.date = date
         self.rgb_path = rgb_path
@@ -63,7 +63,7 @@ class Dataset():
         self.ms_bands_to_read = ms_bands_to_read
         self.grid = grid
         self.grid_overlapp = grid_overlapp
-        self.slice_shape = slice_shape
+        self.tile_shape = tile_shape
         self.masked_raster = None
         self.masked_transform = None
         self.initialize()
@@ -121,7 +121,7 @@ class Dataset():
         """
         with rio.open(self.rgb_path) as src:
             xmin, ymin, xmax, ymax = self.outer_shapefile.total_bounds
-            length_y_pixel, length_x_pixel = self.slice_shape
+            length_y_pixel, length_x_pixel = self.tile_shape
             pixelSizeX = src.transform[0]
             pixelSizeY = -src.transform[4]
 
@@ -161,16 +161,42 @@ class Dataset():
 
         
 class Data_Interface():
-    """ Creates a Datainterface based on Datasets to load Data
-        Args:
-        datasets: list of datasets
-        encoding: species encoding as dict: . e.g: {1001 : 1, 1005 : 2}
+    """ Creates a Datainterface based on Datasets to load Data.
+
+    Parameters
+    ----------
+    datasets: list of datasets
+        List containing the datasets that should be manipulated.
+    encoding: dict
+        Class encoding for the segmentation, e.g: {Tree: 1, Street: 2, Car: 3}
     """
+    
     def __init__(self, datasets, encoding):
         self.datasets = datasets
-        self.species_encoding = encoding
+        self.encoding = encoding
         self.df = None
         self.combine_df()
+#-------------------------------------------------------------------------------
+        
+    def __get_img(self, grid, dataset, bands='rgb'):
+
+        shapes = [row.outer_bounds for _, row in grid.iterrows()]
+
+        if bands == 'rgb':
+            with rio.open(dataset.rgb_path) as src:
+                out_image, _ = rio.mask.mask(src, shapes, crop=True)
+                bands = np.stack([out_image[band] for band in dataset.rgb_bands_to_read], -1)
+        elif bands == 'ms':
+            with rio.open(dataset.ms_path) as src:
+                out_image, _ = rio.mask.mask(src, shapes, crop=True)
+                bands = np.stack([out_image[band] for band in dataset.ms_bands_to_read], -1)
+        else:
+            raise ValueError("Wrong bands keyword, got {}".format(bands))
+                
+        bands = resize(bands, dataset.tile_shape)
+
+        return bands
+#-------------------------------------------------------------------------------
 
     def info(self):
         print("Datasets in Interface:")
@@ -192,40 +218,55 @@ class Data_Interface():
         background = 1 - msks.sum(axis=-1, keepdims=True)
         return np.concatenate((msks, background), axis=-1)
 
-    def save(self, save_path, skip_black_greater=0.):
+    def save(self, save_path, skip_black_greater=0.9):
         """ Extract slices according to grid and save in folder as images
         Parameters
         ----------
         save_path: string
             Path where the map image tiles and their masks will be stored.
-        skip_black_greater: float
-            Skip images containing more black than this value.
+            If the path does not exist, it will be created.
+        skip_black_greater: float (opt)
+            Skip images containing more black than the given value (default is 
+            0.9).
         """
-
+        
+        img_path = os.path.join(save_path, 'images')
+        msk_path = os.path.join(save_path, 'masks')
         if not os.path.exists(save_path):
             os.makedirs(save_path)
-            os.makedirs(save_path +'images')
-            os.makedirs(save_path +'masks')
-
+            os.makedirs(img_path)
+            os.makedirs(msk_path)
+        
+        compose_fn = lambda save_path, grid_id : os.path.join(save_path,
+            (str(grid_id) + ".png"))
         for i, row in self.df.iterrows():
             img, msk = self.get_pair(grid_id=row.grid_id, date=row.date)
             black_pixels = np.sum(img == 0.0)/(img.shape[0]*img.shape[1]*img.shape[2])
             if black_pixels > skip_black_greater:
                 continue
             msk = self.stack_mask(msk)
-            imsave(save_path + 'images/' + str(row.date) + "_" + str(row.grid_id) + ".png", skimage.img_as_ubyte(img))
-            imsave(save_path + 'masks/' + str(row.date) + "_" + str(row.grid_id) + ".png", skimage.img_as_ubyte(msk))
+            imsave(compose_fn(img_path, row.grid_id), skimage.img_as_ubyte(img))
+            imsave(compose_fn(msk_path, row.grid_id), skimage.img_as_ubyte(msk))
 
     def get_pair(self, grid_id='random', date='random', print_info=False):
-        """ Returns an image / mask pair of the specified channels
-        Args:
-        grid_id: Name of Grid ID, according to dataframe as string
-        date: Name of Date according to dataframe as string
-        Returns:
-        images and masks as tuple of numpy arrays: ([height, width, channels], [height, width, classes])
+        """ Returns an image / mask pair of the specified channels.
+        
+        Parameters
+        ----------
+        grid_id: str (opt)
+            Name of Grid ID, according to dataframe (default is 'random').
+        date: str (opt)
+            Date of dataframe (default is 'random').
+
+        Returns
+        -------
+        tuple
+            image and corresponding mask ([height, width, channels], [height, width, classes])
         """
+
         if date == 'random':
             date = random.sample(self.df.date.unique().tolist(), 1)[0]
+
         elif date not in self.df.date.unique().tolist():
             raise ValueError(
                 "Date {} not found in Datainterface".format(date))
@@ -236,6 +277,7 @@ class Data_Interface():
             raise ValueError(
                 "Grid ID {} not found in Datainterface".format(grid_id))
         
+        # row: one full row of df
         row = self.df.loc[(self.df["grid_id"] == grid_id) & (self.df["date"] == date)]
         
         assert len(row) == 1, "Multiple rows found"
@@ -252,7 +294,7 @@ class Data_Interface():
         if dataset.mask_shapefile is not None:
             msk = self.__get_rastered_mask(row, dataset, dataset.mask_shapefile)
         else:
-            msk = np.zeros(dataset.slice_shape)
+            msk = np.zeros(dataset.tile_shape)
 
         if dataset.rgb_bands_to_read is not None and dataset.ms_bands_to_read is not None:
             img_rgb = self.__get_img(row, dataset, 'rgb')
@@ -270,7 +312,7 @@ class Data_Interface():
         if print_info:
             print(date, grid_id)
             
-        return img, msk
+        return (img, msk)
     
     def get_pair_on_same_date(self, grid_id='random', print_info=False):
         """ Returns an image / mask pair of the specified channels on all dates in the interface
@@ -298,37 +340,20 @@ class Data_Interface():
         return np.stack(imgs, axis=0), np.stack(msks, axis=0)
     
     def __get_rastered_mask(self, grid, dataset, shapefile):
-        transform = rio.transform.from_bounds(*grid.outer_bounds.values[0].bounds, *dataset.slice_shape)
+        transform = rio.transform.from_bounds(*grid.outer_bounds.values[0].bounds, *dataset.tile_shape)
         objects =  gpd.overlay(shapefile, grid, how='intersection')
-        shapes = ((row.geometry, self.species_encoding[row.Species]) for _, row in objects.iterrows())
+        shapes = ((row.geometry, self.encoding[row.Species]) for _, row in objects.iterrows())
 
         try:
             rastered_shape = rio.features.rasterize(shapes=shapes,
-                                                    out_shape=dataset.slice_shape,
+                                                    out_shape=dataset.tile_shape,
                                                     transform=transform)
         except:
-            rastered_shape = np.zeros(dataset.slice_shape)
+            rastered_shape = np.zeros(dataset.tile_shape)
 
         return rastered_shape
 
-    def __get_img(self, grid, dataset, bands='rgb'):
 
-        shapes = [row.outer_bounds for _, row in grid.iterrows()]
-
-        if bands == 'rgb':
-            with rio.open(dataset.rgb_path) as src:
-                out_image, _ = rio.mask.mask(src, shapes, crop=True)
-                bands = np.stack([out_image[band] for band in dataset.rgb_bands_to_read], -1)
-        elif bands == 'ms':
-            with rio.open(dataset.ms_path) as src:
-                out_image, _ = rio.mask.mask(src, shapes, crop=True)
-                bands = np.stack([out_image[band] for band in dataset.ms_bands_to_read], -1)
-        else:
-            raise ValueError("Wrong bands keyword, got {}".format(bands))
-                
-        bands = resize(bands, dataset.slice_shape)
-
-        return bands
 
     def create_prediction(self, model, date):
         for dataset in self.datasets:

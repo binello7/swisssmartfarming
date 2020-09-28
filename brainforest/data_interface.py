@@ -13,22 +13,23 @@
 # limitations under the License.
 # ==============================================================================
 
-import numpy as np
-import random
-import rasterio as rio
-import geopandas as gpd
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 from rasterio.mask import mask
 from rasterio.plot import show
-from shapely.geometry import Polygon
-from skimage.transform import rescale, resize
-from skimage.color import rgb2gray
 from shapely import affinity
+from shapely.geometry import Polygon
+from skimage.color import rgb2gray
 from skimage.io import imsave
-import skimage
+from skimage.transform import rescale, resize
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import numpy as np
 import os
+import pandas as pd
+import random
+import rasterio as rio
+import seaborn as sns
+import skimage
+
 
 class Dataset():
     """ Creates a Dataset to combine rgb and multispectral images

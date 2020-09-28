@@ -340,22 +340,23 @@ class Data_Interface():
             msks.append(msk)
 
         return np.stack(imgs, axis=0), np.stack(msks, axis=0)
+#-------------------------------------------------------------------------------
     
     def __get_rastered_mask(self, grid, dataset, shapefile):
-        transform = rio.transform.from_bounds(*grid.outer_bounds.values[0].bounds, *dataset.tile_shape)
+        transform = rio.transform.from_bounds(
+            *grid.outer_bounds.values[0].bounds, *dataset.tile_shape)
         objects =  gpd.overlay(shapefile, grid, how='intersection')
-        shapes = ((row.geometry, self.encoding[row.Species]) for _, row in objects.iterrows())
+        shapes = ((row.geometry, self.encoding[row.Class])
+            for _, row in objects.iterrows())
 
         try:
             rastered_shape = rio.features.rasterize(shapes=shapes,
-                                                    out_shape=dataset.tile_shape,
-                                                    transform=transform)
+                out_shape=dataset.tile_shape, transform=transform)
         except:
             rastered_shape = np.zeros(dataset.tile_shape)
 
         return rastered_shape
-
-
+#-------------------------------------------------------------------------------
 
     def create_prediction(self, model, date):
         for dataset in self.datasets:

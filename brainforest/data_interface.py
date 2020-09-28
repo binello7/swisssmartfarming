@@ -172,9 +172,10 @@ class Data_Interface():
         Class encoding for the segmentation, e.g: {Tree: 1, Street: 2, Car: 3}
     """
     
-    def __init__(self, datasets, encoding):
+    def __init__(self, datasets, encoding, class_column_name='Class'):
         self.datasets = datasets
         self.encoding = encoding
+        self.class_column_name = class_column_name
         self.df = None
         self.combine_df()
 #-------------------------------------------------------------------------------

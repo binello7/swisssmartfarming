@@ -346,8 +346,11 @@ class Data_Interface():
         transform = rio.transform.from_bounds(
             *grid.outer_bounds.values[0].bounds, *dataset.tile_shape)
         objects =  gpd.overlay(shapefile, grid, how='intersection')
-        shapes = ((row.geometry, self.encoding[row.Class])
-            for _, row in objects.iterrows())
+        # generator expression, 'shapes' is a generator
+        # every yielded item is a tuple (POLYGON, int), where int is the
+        # encoding
+        shapes = ((row.geometry, self.encoding[getattr(
+            row, self.class_column_name)]) for _, row in objects.iterrows())
 
         try:
             rastered_shape = rio.features.rasterize(shapes=shapes,

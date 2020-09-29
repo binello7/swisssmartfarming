@@ -206,21 +206,43 @@ class Data_Interface():
         print("Datasets in Interface:")
         for dataset in self.datasets:
             print("- {}".format(dataset.name))
+#-------------------------------------------------------------------------------
 
     def combine_df(self):
-        """  Combine Dataframes of all added Datasets
+        """Combine Dataframes of all added Datasets
         """
         dfs = []
         for dataset in self.datasets:
             grid_df = dataset.grid.copy()
             dfs.append(grid_df)
         self.df = pd.concat(dfs)
+#-------------------------------------------------------------------------------
 
     def stack_mask(self, msk):
+        """Stacks a 2D segmentation mask to obtain 3D mask.
+
+        A 2D segmentation mask is a numpy array where every pixel is associated
+        to its corresponding class. Classes are encoded to integers, i.e. [0, 1,
+        2, 3, ...]. The semantic of this encoding is given by the instance
+        attribute 'encoding'.
+
+        Parameters
+        ----------
+        msk: numpy ndarray
+            2D array representing the image mask. Classes are encoded to ints,
+            0, 1, 2, 3 and so on
+        
+        Returns
+        -------
+        numpy ndarray
+            3D array of the input mask
+        """
+
         msks = [(msk==channel).astype(float) for channel in range(1, 3)]
         msks = np.stack(msks, axis=-1)
         background = 1 - msks.sum(axis=-1, keepdims=True)
         return np.concatenate((msks, background), axis=-1)
+#-------------------------------------------------------------------------------
 
     def save(self, save_path, skip_black_greater=0.9):
         """ Extract slices according to grid and save in folder as images
@@ -243,6 +265,7 @@ class Data_Interface():
         
         compose_fn = lambda save_path, grid_id : os.path.join(save_path,
             (str(grid_id) + ".png"))
+
         for i, row in self.df.iterrows():
             img, msk = self.get_pair(grid_id=row.grid_id, date=row.date)
             black_pixels = np.sum(img == 0.0)/(img.shape[0]*img.shape[1]*img.shape[2])

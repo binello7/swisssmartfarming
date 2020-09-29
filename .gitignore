@@ -97,7 +97,8 @@ ENV/
 env.bak/
 venv.bak/
 
-# PyCharm settings
+# VS Code settings
+.vscode/
 
 
 # Rope project settings

@@ -30,6 +30,8 @@ import rasterio as rio
 import seaborn as sns
 import skimage
 
+from IPython import embed
+
 
 class Dataset():
     """ Creates a Dataset to combine rgb and multispectral images
@@ -249,6 +251,7 @@ class Data_Interface():
             msk = self.stack_mask(msk)
             imsave(compose_fn(img_path, row.grid_id), skimage.img_as_ubyte(img))
             imsave(compose_fn(msk_path, row.grid_id), skimage.img_as_ubyte(msk))
+#-------------------------------------------------------------------------------
 
     def get_pair(self, grid_id='random', date='random', print_info=False):
         """ Returns an image / mask pair of the specified channels.
@@ -315,6 +318,7 @@ class Data_Interface():
             print(date, grid_id)
             
         return (img, msk)
+#-------------------------------------------------------------------------------
     
     def get_pair_on_same_date(self, grid_id='random', print_info=False):
         """ Returns an image / mask pair of the specified channels on all dates in the interface
@@ -342,15 +346,15 @@ class Data_Interface():
         return np.stack(imgs, axis=0), np.stack(msks, axis=0)
 #-------------------------------------------------------------------------------
     
-    def __get_rastered_mask(self, grid, dataset, shapefile):
+    def __get_rastered_mask(self, grid_cell, dataset, shapefile):
         transform = rio.transform.from_bounds(
-            *grid.outer_bounds.values[0].bounds, *dataset.tile_shape)
-        objects =  gpd.overlay(shapefile, grid, how='intersection')
+            *grid_cell.outer_bounds.values[0].bounds, *dataset.tile_shape)
+        objects =  gpd.overlay(shapefile, grid_cell, how='intersection')
         # generator expression, 'shapes' is a generator
         # every yielded item is a tuple (POLYGON, int), where int is the
         # encoding
         shapes = ((row.geometry, self.encoding[getattr(
-            row, self.class_column_name)]) for _, row in objects.iterrows())
+            row, self.class_column_name)]) for _, row in objects.iterrows())  
 
         try:
             rastered_shape = rio.features.rasterize(shapes=shapes,
@@ -369,3 +373,4 @@ class Data_Interface():
             if row.date != date:
                 continue
             img, msk = self.get_pair(grid_id=row.grid_id, date=row.date)
+#-------------------------------------------------------------------------------

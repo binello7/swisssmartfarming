@@ -4,7 +4,6 @@ from roipoly import RoiPoly
 import math
 import numpy as np
 import os
-import pyexiv2 as px2
 import xml.dom.minidom as mdom
 
 

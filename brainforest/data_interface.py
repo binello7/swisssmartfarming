@@ -20,6 +20,7 @@ from shapely.geometry import Polygon
 from skimage.color import rgb2gray
 from skimage.io import imsave
 from skimage.transform import rescale, resize
+import cv2
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -271,9 +272,10 @@ class Data_Interface():
             black_pixels = np.sum(img == 0.0)/(img.shape[0]*img.shape[1]*img.shape[2])
             if black_pixels > skip_black_greater:
                 continue
-            msk = self.stack_mask(msk)
+            # msk = self.stack_mask(msk)
             imsave(compose_fn(img_path, row.grid_id), skimage.img_as_ubyte(img))
-            imsave(compose_fn(msk_path, row.grid_id), skimage.img_as_ubyte(msk))
+            # imsave(compose_fn(msk_path, row.grid_id), skimage.img_as_ubyte(msk))
+            cv2.imwrite(compose_fn(msk_path, row.grid_id), msk)
 #-------------------------------------------------------------------------------
 
     def get_pair(self, grid_id='random', date='random', print_info=False):

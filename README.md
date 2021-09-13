@@ -1,5 +1,5 @@
 # swisssmartfarming
-Python package containing code related to the [Swiss Smart Farming](http://www.smartfarming.ethz.ch/about.html) Project (SSF).
+Repository containing code related to the *Swiss Smart Farming* Project (*SSF*).
 
 
 ## Dependencies

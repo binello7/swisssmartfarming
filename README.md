@@ -1,6 +1,11 @@
 # swisssmartfarming
 Repository containing code related to the *Swiss Smart Farming* Project (*SSF*).
 
+## The Project
+Within the context of the project *Swiss Smart Farming* various agricultural datasets were collected. For the collection of the datasets the custom sensor pod shown here below was used.
+
+![Sensors Setup](doc/img/sensors.jpg)
+
 
 ## Dependencies
 Agricultural datasets captured for this project include RGB, hyperspectral, thermal as well as lidar data.

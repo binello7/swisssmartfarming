@@ -2,9 +2,9 @@
 Repository containing code related to the *Swiss Smart Farming* Project (*SSF*).
 
 ## The Project
-Within the context of the project *Swiss Smart Farming* various agricultural datasets were collected. For the collection of the datasets the custom sensor pod shown here below was used.
+Within the context of the project *Swiss Smart Farming* various agricultural datasets were collected. For the collection of the datasets the custom sensor pod shown here was used:
 
-![Sensors Setup](doc/img/sensors.jpg)
+![Sensors Pod](doc/imgs/sensors-pod.png)
 
 
 ## Dependencies

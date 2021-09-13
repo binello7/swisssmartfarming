@@ -114,7 +114,7 @@ pyzmq==19.0.2
 rasterio==1.1.2
 readme-renderer==22.0
 redis==2.10.6
-requests==2.19.1
+requests==2.20.0
 requests-toolbelt==0.8.0
 roipoly==0.5.2
 rootpath==0.1.1

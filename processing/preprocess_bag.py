@@ -69,7 +69,7 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument('--bagfile', '-b',
     required=True,
-    help='Path to the bag file and name, e.g. ./dataset/bagfile.bag')
+    help="Path to the bag file, e.g. './dataset/bagfile.bag'")
 parser.add_argument('--ref_panel', '-r',
     choices=['1', '2', '3'],
     required=True,

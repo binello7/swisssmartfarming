@@ -21,6 +21,7 @@ The use of the package assumes that you have ROS installed on your system. The p
 Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 2.2.3, then ``pygdal==2.2.3.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
 
 The script `setup.bash` does all of the setup required in order to use the package. To successfully run it, the following dependences are required:
+[x] `gdal-bin`
 * `build-essential`
 * `git`
 * `libboost-python-dev`

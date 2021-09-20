@@ -1,4 +1,4 @@
-# swisssmartfarming
+-# swisssmartfarming
 Repository containing code related to the *Swiss Smart Farming* Project (*SSF*).
 
 ## The Project
@@ -22,16 +22,16 @@ Many of the geodata operations performed within the project rely on the use of G
 
 The script `setup.bash` does all of the setup required in order to use the package. To successfully run it, the following dependences are required:
 
-[x] `gdal-bin`
-[] `build-essential`
-[] `git`
-[] `libboost-python-dev`
-[] `libexiv2-dev`
-[] `libimage-exiftool-perl`
-[] `python-all-dev`
-[] `python-pip`
-[] `python3-venv`
-[] `virtualenv` (`pip2 install --user virtualenv`)
+- [x] `gdal-bin`
+- [ ] `build-essential`
+- [ ] `git`
+- [ ] `libboost-python-dev`
+- [ ] `libexiv2-dev`
+- [ ] `libimage-exiftool-perl`
+- [ ] `python-all-dev`
+- [ ] `python-pip`
+- [ ] `python3-venv`
+- [ ] `virtualenv` (`pip2 install --user virtualenv`)
 
 Under *Ubuntu* those can be installed with `sudo apt install build-essential git libboost-python-dev libexiv2-dev libimage-exiftool-perl python-all-dev python-pip python3-venv; pip2 install --user virtualenv`.
 

@@ -23,6 +23,8 @@ Many of the geodata operations performed within the project rely on the use of G
 The script `setup.bash` does all of the setup required in order to use the package. To successfully run it, the following dependences are required:
 
 - [x] `libgdal-dev`
+- [x] `python-all-dev`
+- [x] `libexiv2-dev`
 - [ ] `build-essential`
 - [ ] `git`
 - [ ] `libboost-python-dev`

@@ -29,8 +29,8 @@ platformdirs==2.3.0
 pluggy==1.0.0
 psutil==5.8.0
 py==1.10.0
+py3exiv2==0.9.3
 pycryptodomex==3.10.4
-pyexiv2==2.7.0
 Pygments==2.10.0
 pyparsing==2.4.7
 python-dateutil==2.8.2

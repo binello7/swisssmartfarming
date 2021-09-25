@@ -33,6 +33,8 @@ The script `setup.bash` does all of the setup required in order to use the packa
 - [ ] `python3-venv`
 - [ ] `virtualenv` (`pip2 install --user virtualenv`)
 
+- install swisssmartfarming in edit mode
+
 Under *Ubuntu* those can be installed with `sudo apt install build-essential git libboost-python-dev libexiv2-dev libimage-exiftool-perl python-all-dev python-pip python3-venv; pip2 install --user virtualenv`.
 
 After the installation of these main dependencies the `setup.bash` script can be sourced (`source setup.bash`). This performs the needed setup.

@@ -1,4 +1,4 @@
--# swisssmartfarming
+# swisssmartfarming
 Repository containing code related to the *Swiss Smart Farming* Project (*SSF*).
 
 ## The Project
@@ -16,13 +16,13 @@ The SSF sensor-pod integrates the following sensors and cameras:
 ## Dependencies
 Agricultural datasets captured for this project include RGB, hyperspectral, thermal as well as lidar data.
 Datasets were stored as [bagfiles](http://wiki.ros.org/Bags), a file format in [ROS](https://www.ros.org/) for storing *ROS message data*.
-The use of the package assumes that you have ROS installed on your system. The package was developed and tested under *Ubuntu 18.04 LTS* with the *ROS Melodic Morenia* distribution.
+The use of the package assumes that you have ROS installed on your system. The package was developed and tested under *Ubuntu 20.04 LTS* with the *ROS Noetic Ninjemys* distribution.
 
 Many of the geodata operations performed within the project rely on the use of GDAL. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 2.2.3, then ``pygdal==2.2.3.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
 
 The script `setup.bash` does all of the setup required in order to use the package. To successfully run it, the following dependences are required:
 
-- [x] `gdal-bin`
+- [x] `libgdal-dev`
 - [ ] `build-essential`
 - [ ] `git`
 - [ ] `libboost-python-dev`
@@ -32,6 +32,8 @@ The script `setup.bash` does all of the setup required in order to use the packa
 - [ ] `python-pip`
 - [ ] `python3-venv`
 - [ ] `virtualenv` (`pip2 install --user virtualenv`)
+
+- install swisssmartfarming in edit mode
 
 Under *Ubuntu* those can be installed with `sudo apt install build-essential git libboost-python-dev libexiv2-dev libimage-exiftool-perl python-all-dev python-pip python3-venv; pip2 install --user virtualenv`.
 

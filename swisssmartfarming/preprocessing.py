@@ -7,6 +7,7 @@ from glob import glob
 from roipoly import RoiPoly
 from rootpath import detect
 from scipy import ndimage
+from swisssmartfarming import utils as ut
 from tkinter import filedialog
 from warnings import warn
 import math
@@ -15,12 +16,10 @@ import numpy as np
 import os
 import pandas as pd
 import pyexiv2 as px2
-import rasterio as rio
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 import rosbag
 import tkinter as tk
-import utils.functions as ufunc
 import xml.dom.minidom as mdom
 import yaml
 
@@ -36,8 +35,8 @@ class NoMessagesError(Exception):
 class Preprocessor:
     def __init__ (self, cams_cfg_path='cfg/cameras'):
         self._sep = os.path.sep
-        self._rootpath = ufunc.add_sep(detect())
-        self.cams_cfg_path = ufunc.add_sep(cams_cfg_path)
+        self._rootpath = ut.add_sep(detect())
+        self.cams_cfg_path = ut.add_sep(cams_cfg_path)
         self.cams = None
         self.cam_info = {
             'make': None,
@@ -225,7 +224,7 @@ class BasePreprocessor(Preprocessor):
                 "from yaml file.".format(self.cam_info['exp_t_topic']))
             yaml_path = self._sep.join(
                 self.bagfile.filename.split(self._sep)[:-1])
-            yaml_basename, _ = ufunc.get_file_basename(
+            yaml_basename, _ = ut.get_file_basename(
                 self.bagfile.filename)
             yaml_file = os.path.join(yaml_path, yaml_basename) + '.yaml'
 
@@ -532,7 +531,7 @@ class SpectralProcessor(Preprocessor):
         white_exp_t = self.read_exp_t_ms(white_reference_path)
         self.white_exp_t = white_exp_t
 
-        white_array = ufunc.read_img2array(white_reference_path)
+        white_array = ut.read_img2array(white_reference_path)
         self.white_array = white_array
 
         if not is_full_white_img:

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-from osgeo import gdal
-from PIL import Image
-from preprocessing import BasePreprocessor, SpectralProcessor
 import argparse
 import glob
 import os
 import textwrap
-import utils.functions as ufunc
+from osgeo import gdal
+from PIL import Image
+from swisssmartfarming import utils as ut
+from swisssmartfarming.preprocessing import BasePreprocessor, SpectralProcessor
 
 
 class MultilineFormatter(argparse.HelpFormatter):
@@ -143,7 +143,7 @@ for cam in basepreprocessor.cams:
             # apply median filtering
             img_array = basepreprocessor.median_filter_3x3(img_array)
             # save image and write exif metadata
-            ufunc.write_geotiff(img_array, filepath)
+            ut.write_geotiff(img_array, filepath)
             basepreprocessor.write_exif(filepath)
 
         elif basepreprocessor.cam_info['type'] == 'thermal':
@@ -167,7 +167,7 @@ for cam in spectralprocessor.cams:
         for img_path in imgs_list:
             exif = spectralprocessor.read_exif(img_path)
             exp_t = spectralprocessor.read_exp_t_ms(img_path)
-            img_array = ufunc.read_img2array(img_path)
+            img_array = ut.read_img2array(img_path)
             # compute reflectance image
             img_refl = spectralprocessor.rad_to_refl(img_array, exp_t)
             # apply spectral correction
@@ -176,5 +176,5 @@ for cam in spectralprocessor.cams:
             # keep 4 decimal digits. Reflectance 1 will correspond to 10'000
             img_corr = img_corr * 1e4
             print("Writing file {}.".format(img_path))
-            ufunc.write_geotiff(img_corr, img_path, dtype=gdal.GDT_Int16)
+            ut.write_geotiff(img_corr, img_path, dtype=gdal.GDT_Int16)
             spectralprocessor.write_exif(img_path, exif)

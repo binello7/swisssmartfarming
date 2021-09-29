@@ -4,7 +4,7 @@ Repository containing code related to the *Swiss Smart Farming* Project (*SSF*).
 ## The Project
 Within the context of the project *Swiss Smart Farming* various agricultural datasets were collected. For the collection of the datasets the custom sensor-pod shown here was used:
 
-<img src="doc/imgs/sensors-pod.png" alt="Sensors Pod" width="300"/>
+<img src="docs/imgs/sensors-pod.png" alt="Sensors Pod" width="300"/>
 
 The SSF sensor-pod integrates the following sensors and cameras:
 * RGB camera:

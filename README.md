@@ -22,18 +22,11 @@ Many of the geodata operations performed within the project rely on the use of G
 
 The script `setup.bash` does all of the setup required in order to use the package. To successfully run it, the following dependences are required:
 
+- [x] `build-essential`
+- [x] `libboost-python-dev`
+- [x] `libexiv2-dev`
 - [x] `libgdal-dev`
 - [x] `python-all-dev`
-- [x] `libexiv2-dev`
-- [ ] `build-essential`
-- [ ] `git`
-- [ ] `libboost-python-dev`
-- [ ] `libexiv2-dev`
-- [ ] `libimage-exiftool-perl`
-- [ ] `python-all-dev`
-- [ ] `python-pip`
-- [ ] `python3-venv`
-- [ ] `virtualenv` (`pip2 install --user virtualenv`)
 
 - install swisssmartfarming in edit mode
 

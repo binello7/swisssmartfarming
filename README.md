@@ -32,7 +32,7 @@ sudo apt install -y build-essential libboost-python-dev libexiv2-dev libgdal-dev
 ```
 
 The package was tested with `Python 3.8.10`, but should work under different versions of `python3` as well. For this reason `python3` (recommended `Python 3.8.10`) must be installed in order to proceed.
-It is recommended to install all Python dependencies under a virtual environment. The script `setup.bash` creates a virtual environment `venv` under the root folder of the project and installs all the required dependencies from `requirements.txt`. Enter the following in your terminal in order to install the dependencies:
+It is recommended to install all Python dependencies under a virtual environment. The script `setup.bash` creates a virtual environment `venv` under the root folder of the project and installs all the required dependencies from the `requirements.txt` file. Enter the following in your terminal in order to install the dependencies:
 
 ```bash
 source setup.bash

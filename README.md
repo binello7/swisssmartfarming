@@ -26,6 +26,11 @@ The package relies on GDAL for operations with geodata, as well as on other libr
 - `libgdal-dev`
 - `python-all-dev`
 
+To install those dependencies enter the following in your termina:
+```bash
+sudo apt install
+```
+
 - install swisssmartfarming in edit mode
 
 Under *Ubuntu* those can be installed with `sudo apt install build-essential git libboost-python-dev libexiv2-dev libimage-exiftool-perl python-all-dev python-pip python3-venv; pip2 install --user virtualenv`.

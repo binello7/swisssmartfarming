@@ -20,11 +20,11 @@ The use of the package assumes that you have ROS installed on your system. The p
 
 The package relies on GDAL for operations with geodata, as well as on other libraries. For the installation of the package to be successful, the following libraries have to be installed on the machine, in addition to the already mentioned *ROS Noetic Ninjemys*.
 
-- [x] `build-essential`
-- [x] `libboost-python-dev`
-- [x] `libexiv2-dev`
-- [x] `libgdal-dev`
-- [x] `python-all-dev`
+- `build-essential`
+- `libboost-python-dev`
+- `libexiv2-dev`
+- `libgdal-dev`
+- `python-all-dev`
 
 - install swisssmartfarming in edit mode
 

@@ -31,7 +31,7 @@ To install those dependencies, enter the following in your terminal:
 sudo apt install -y build-essential libboost-python-dev libexiv2-dev libgdal-dev python-all-dev
 ```
 
-The package was tested with `Python 3.8.10`, but should work under different versions of `python` as well.
+The package was tested with `Python 3.8.10`, but should work under different versions of `python3` as well.
 
 - install swisssmartfarming in edit mode
 

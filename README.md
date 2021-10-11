@@ -18,9 +18,7 @@ Agricultural datasets captured for this project include RGB, hyperspectral, ther
 Datasets were stored as [bagfiles](http://wiki.ros.org/Bags), a file format in [ROS](https://www.ros.org/) for storing *ROS message data*.
 The use of the package assumes that you have ROS installed on your system. The package was tested (01/10/2021) under *Ubuntu 20.04 LTS* with the *ROS Noetic Ninjemys* distribution.
 
-The package relies on the use of GDAL for operations with geodata. GDAL, as well as the Python binding ``pygdal`` have to be installed on the computer. In order for the installation of ``pygdal`` to be successful, its version has to match the GDAL version. Check the installed GDAL version with ``gdal-config --version``. If the GDAL version is e.g. 2.2.3, then ``pygdal==2.2.3.X`` has to be installed, where ``X`` matches one of the available ``pygdal`` versions.
-
-The script `setup.bash` does all of the setup required in order to use the package. To successfully run it, the following dependences are required:
+The package relies on GDAL for operations with geodata, as well as on other libraries. For the installation of the package to be successful, the following libraries have to be installed on the machine, in addition to the already mentioned *ROS Noetic Ninjemys*.
 
 - [x] `build-essential`
 - [x] `libboost-python-dev`

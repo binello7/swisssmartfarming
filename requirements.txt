@@ -1,7 +1,7 @@
 backports.entry-points-selectable==1.1.0
 blessings==1.7
 catkin-pkg==0.4.23
-certifi==2021.5.30
+certifi==2022.12.7
 charset-normalizer==2.0.6
 codecov==2.1.12
 coloredlogs==15.0.1
